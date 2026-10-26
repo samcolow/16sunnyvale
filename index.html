@@ -972,7 +972,7 @@ addLabel('Great South Rd','geo',new THREE.Vector3(-55,1,66),{local:true});
 addLabel('Greenlane Rd West','geo',new THREE.Vector3(-120,1,110),{local:true});
 addLabel('Greenlane exit · SH1','geo',new THREE.Vector3(-120,1,30),{local:true});
 addLabel('Dead end','geo',new THREE.Vector3(-25.9,1.2,-27),{local:true});
-addLabel('Shared driveway','geo',new THREE.Vector3(-8,0.5,-6.1),{local:true});
+// shared driveway ground label removed (tour caption and info panel still name it)
 addLabel('N','geo',new THREE.Vector3(40+2.6*NORTH_L[0],1.4,-20+2.6*NORTH_L[2]),{local:true});
 LM.forEach(([t,x,z])=>addLabel(t,'',new THREE.Vector3(x,t.includes('station')?0:7,z),{local:true}));
 for(const n in units) units[n].lv.forEach((L,i)=>L.rooms.forEach(r=>addLabel(r.lab,'room',r.pos,{room:true,lot:+n,level:i,local:true})));
