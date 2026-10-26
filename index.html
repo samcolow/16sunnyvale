@@ -102,6 +102,18 @@ dd{font:500 13px/1.45 var(--f-mono);font-variant-numeric:tabular-nums;min-width:
 .ribbon{margin:10px 0 0;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px;padding:10px 14px;border-radius:10px;background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--sale)}
 .ribbon b{font:600 13px/1.3 var(--f-body)}
 .ribbon span{font-size:12.5px;color:var(--muted)}
+.spec{padding-block:18px 0}
+.spec details{background:var(--surface);border:1px solid var(--line);border-radius:12px}
+.spec summary{cursor:pointer;padding:14px 16px;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px;list-style:none}
+.spec summary::-webkit-details-marker{display:none}
+.spec summary::after{content:'+';margin-left:auto;font:500 18px/1 var(--f-mono);color:var(--muted)}
+.spec details[open] summary::after{content:'–'}
+.spec summary b{font:600 15px/1.3 var(--f-body)}
+.spec summary span{font-size:12.5px;color:var(--muted)}
+.spec-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px 24px;padding:4px 16px 16px;border-top:1px solid var(--line)}
+@media (max-width:900px){.spec-grid{grid-template-columns:1fr}}
+.spec h4{font:500 11px/1.2 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:14px 0 6px}
+.spec ul{margin:0;padding-left:16px;font-size:13px;line-height:1.55}
 .features li b{display:block;font:600 13px/1.25 var(--f-body)}
 .features li span{display:block;font-size:12px;color:var(--muted);margin-top:2px}
 .hdr-actions{display:flex;gap:8px;align-items:center}
@@ -136,7 +148,8 @@ dd{font:500 13px/1.45 var(--f-mono);font-variant-numeric:tabular-nums;min-width:
   header.wrap{order:1;padding-block:14px 10px;gap:6px}
   .scene-band{order:2}
   .features{order:3;padding-block:16px 4px}
-  main.wrap{order:4}
+  .spec{order:4}
+  main.wrap{order:5}
   h1{font-size:28px;margin-top:4px}
   .stats{gap:2px 14px}
   .stat b{font-size:13px}
@@ -156,6 +169,7 @@ dd{font:500 13px/1.45 var(--f-mono);font-variant-numeric:tabular-nums;min-width:
 .sunbar{position:absolute;left:10px;right:10px;bottom:52px;display:flex;justify-content:center;pointer-events:none}
 .sunbar>div{pointer-events:auto;display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;background:var(--chip-bg);color:var(--chip-fg);border-radius:14px;padding:8px 12px;box-shadow:0 1px 3px rgba(0,0,0,.15);max-width:100%}
 .sunbar output{font:500 12px/1 var(--f-mono);min-width:12ch}
+.sunbar .sunnote{font-size:11.5px;color:var(--muted)}
 .sunbar input[type=range]{width:min(260px,52vw);accent-color:#e0a020}
 .sunbar .seg{box-shadow:none}
 /* share dialog */
@@ -182,7 +196,7 @@ dialog.share p{font-size:13px;color:var(--muted);margin:0 0 12px}
   <div class="stats" aria-label="Summary">
     <div class="stat"><b>6 homes</b><span>3-storey terraces</span></div>
     <div class="stat"><b>4 bed · 2.5 bath</b><span>single internal garage</span></div>
-    <div class="stat"><b>137.1 m²</b><span>+ 7.9 m² deck</span></div>
+    <div class="stat"><b>141–148 m²</b><span>floor area, as per plans</span></div>
     <div class="stat"><b>Freehold</b><span>no body corporate</span></div>
   </div>
   <div class="hdr-actions"><button id="bShare">Share</button></div>
@@ -215,13 +229,27 @@ dialog.share p{font-size:13px;color:var(--muted);margin:0 0 12px}
     </div>
     <div class="tourbar"><div class="tourcap" id="tourcap" hidden><i id="tourn"></i><span id="tourt"></span><span class="prog"><b id="tourp"></b></span></div></div>
     <div class="sunbar" id="sunbar" hidden><div>
-      <span aria-hidden="true">☀</span><output id="sunlbl" for="sunT">1:00 pm</output>
+      <span aria-hidden="true">☀</span><output id="sunlbl" for="sunT">1:00 pm</output><span class="sunnote">Decks face north-east</span>
       <input type="range" id="sunT" min="0" max="1000" value="500" aria-label="Time of day">
       <div class="seg" id="season" role="group" aria-label="Season"><button data-s="sum" aria-pressed="true">Summer</button><button data-s="eq" aria-pressed="false">Spring/Autumn</button><button data-s="win" aria-pressed="false">Winter</button></div>
     </div></div>
     <div class="jump" id="jump"></div>
   </div>
 </div>
+
+<section class="wrap spec" aria-label="Full specification">
+  <details>
+    <summary><b>Full specification</b><span>Industrial Cool interiors by Nicola Manning Design · applies to all six homes unless noted</span></summary>
+    <div class="spec-grid">
+      <div><h4>Kitchen</h4><ul><li>30 mm engineered stone island benchtop</li><li>Bosch 60 cm induction cooktop, built-in oven, integrated rangehood and dishwasher</li><li>Mosaicfx Kit Kat Nero stacked mosaic splashback</li></ul></div>
+      <div><h4>Flooring</h4><ul><li>Desert Oak SPC flooring across Level 1 living, dining and kitchen</li><li>Feltex Okiwi Bay plush carpet in Stone on stairs and bedrooms</li><li>Charcoal marine-grade carpet in the garage</li></ul></div>
+      <div><h4>Bathrooms</h4><ul><li>Full-height tiling: Sand Light Grey walls, Gem Ash Grey floors</li><li>Plumbline Como brushed gunmetal PVD tapware and showers</li><li>Wall-hung vanities · LED backlit mirror in the main bathroom</li><li>Showers throughout (no bath) · separate guest WC</li></ul></div>
+      <div><h4>Heating and comfort</h4><ul><li>Heat pump in the living area</li><li>Bedrooms pre-piped for heat pumps (concealed in-wall pipework) · 16C &amp; 16D have heat pumps installed in every bedroom</li><li>Underfloor heating and heated towel rails on Wi-Fi touchscreen thermostats</li><li>Double-glazed Low-E joinery · R7.0 roof and R2.4 wall insulation</li></ul></div>
+      <div><h4>Smart home and connectivity</h4><ul><li>Keyless smart lock (PIN and app)</li><li>Hardwired Cat6 data on every level from a central network panel</li><li>16C &amp; 16D: Google Home control of lighting scenes, heating, smart alarm and PoE video doorbell</li></ul></div>
+      <div><h4>Build and outdoor</h4><ul><li>GIB intertenancy walls between homes: 60-minute fire rated, STC 55 acoustic</li><li>Master Build Guarantee · Code Compliance Certificate issued</li><li>Fully fenced courtyard with artificial turf · private Level 1 deck</li><li>Garage with a 32 A circuit ready for an EV charger · shared parcel lockers</li><li>David Trubridge Hinaki pendant in the stairwell (Coral in 16A)</li></ul></div>
+    </div>
+  </details>
+</section>
 
 <div class="mbar" id="mbar" hidden><button id="mBook" type="button">Book a viewing</button></div>
 
@@ -248,7 +276,7 @@ dialog.share p{font-size:13px;color:var(--muted);margin:0 0 12px}
       <li><i class="sw" style="background:#1d1e20"></i><div><b>Roof</b><span>Metalcraft · Colorsteel Ebony</span></div></li>
       <li><i class="sw" style="background:#151617"></i><div><b>Joinery, garage doors, fascia, gutters and louvres</b><span>Matt black aluminium · black uPVC downpipes</span></div></li>
     </ul></details>
-    <p class="fine">Artist's impression for illustration only. The model is stylised and not to scale. Room layouts are drawn from floor plans and are approximate; room and floor areas are taken from the sales briefing pack. Furniture is indicative only and not included. Positions of nearby landmarks are indicative. Final details may differ, so refer to the official plans and your agreement.</p>
+    <p class="fine">Artist's impression for illustration only. The model is stylised and not to scale. Room layouts are drawn from floor plans and are approximate; floor areas are gross floor areas as per the consented plans, and room areas are approximate. Furniture is indicative only and not included. Positions of nearby landmarks are indicative. Final details may differ, so refer to the official plans and your agreement.</p>
   </aside>
 </main>
 
@@ -278,12 +306,12 @@ const lot=n=>{
   const st=STATUS[n], sale=st==='sale';
   const b={t:'16'+'ABCDEF'[n-1],s:'16 Sunnyvale Road, Greenlane',cat:st};
   b.rows=[['Status',CAT[st][0]],
-    ['Layout',n===1?'4 bed · 2.5 bath · single internal garage':'4 bed · 2.5 bath · single internal garage'],
+    ['Layout','4 bed · 2.5 bath · single internal garage'],
+    ['Floor area',{1:'148.2 m²',6:'141.2 m²'}[n]||'141.0 m²'],
     ...(n===1?[['GF','Foyer, bedroom (8.6 m²) with shower room (4.0 m²), internal garage (18.4 m²)'],['Level 1','Open-plan lounge, dining and kitchen with island, WC, deck'],['Level 2','Primary (10.7 m²), bedrooms of 10.1 m² and 7.1 m², bathroom, robes']]:[
-      ['Floor area','137.1 m² over three levels'],
-      ['GF','44.3 m² · foyer, guest bedroom with ensuite, internal garage'],
-      ['Level 1','42.9 m² · open-plan lounge, dining and kitchen, WC, 7.9 m² deck'],
-      ['Level 2','49.9 m² · primary bedroom and two bedrooms, bathroom, linen']]),
+      ['GF','Foyer · guest suite with ensuite, opening to the courtyard (home office or teen retreat) · internal garage'],
+      ['Level 1','Open-plan lounge, dining and kitchen · WC · 7.9 m² deck'],
+      ['Level 2','Primary bedroom and two bedrooms · bathroom with shower · linen']]),
     ['Outdoor',n===1?'Level 1 deck and 24.4 m² outdoor living space':'7.9 m² deck and 18 m² fenced backyard'],
     ['Title','Freehold (fee simple), no body corporate'],
     ['Heating',sale?'Heat pumps in the living area and every bedroom · underfloor heating in bathrooms':'Heat pump in the living area · underfloor heating in bathrooms'],
@@ -1155,12 +1183,11 @@ $('#bReset').onclick=()=>{stopTour();fly('overview');render('site');setCut(0);};
 const TOUR=[
   {t:'The terrace from the driveway side',v:'overview',sel:'site',cut:0,d:7000},
   {t:'Street entrance on Sunnyvale Rd',v:'entrance',sel:'entry',cut:0,d:6000},
-  {t:'Shared driveway: garages, entries, Level 1 decks',v:'driveway',sel:'joal',cut:0,rot:0,zoom:0.7,d:12000,car:1,follow:1},
-  {t:'GF: guest bedroom with ensuite, internal garage',sel:'lot3',cut:1,d:9000},
+  {t:'Shared driveway: garages, entries, Level 1 decks',v:'driveway',sel:'joal',cut:0,rot:-0.9,zoom:0.75,d:12000,car:1},
+  {t:'GF: guest suite with ensuite, internal garage',sel:'lot3',cut:1,d:9000},
   {t:'Level 1: open-plan living onto the deck',sel:'lot3',cut:2,d:9000},
   {t:'Level 2: three bedrooms and the bathroom',sel:'lot3',cut:3,d:9000},
   {t:'Fenced backyards',v:'yards',sel:'site',cut:0,d:6000},
-  {t:'Great South Rd to the railway',v:'context',sel:'site',cut:0,d:6000},
   {t:'Greenlane train station and shops',v:'landmarks',sel:'site',cut:0,d:7000},
   {t:'Evening, stair pendants lit',v:'overview',sel:'site',cut:0,night:true,d:6000}
 ];
