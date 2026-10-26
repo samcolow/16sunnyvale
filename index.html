@@ -337,7 +337,7 @@ const STATUS={1:'lease',2:'lease',3:'sale',4:'sale',5:'lease',6:'lease'};
 const CAT={sale:['For sale','--sale'],lease:['For rent','--lease'],sold:['Sold','--dev'],leased:['Rented','--dev'],dev:['Overview','--dev']};
 const lot=n=>{
   const st=STATUS[n], sale=st==='sale';
-  const b={t:'16'+'ABCDEF'[n-1],s:'16 Sunnyvale Road, Greenlane',cat:st};
+  const b={t:'16'+'ABCDEF'[n-1],s:'16'+'ABCDEF'[n-1]+' Sunnyvale Road, Greenlane',cat:st};
   b.rows=[['Status',CAT[st][0]],
     ['Layout','4 bed · 2.5 bath · single internal garage'],
     ['Floor area',{1:'148.2 m²',6:'141.2 m²'}[n]||'141.0 m²'],
