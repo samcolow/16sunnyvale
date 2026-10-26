@@ -42,7 +42,7 @@ h1{font:700 clamp(28px,5vw,44px)/1.02 var(--f-display);letter-spacing:-.02em;mar
 .stat b{font:500 18px/1.2 var(--f-mono);font-variant-numeric:tabular-nums}
 .stat span{font-size:12px;color:var(--muted)}
 .scene-band{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
-.scene{position:relative;max-width:1180px;margin:0 auto;height:clamp(440px,calc(100svh - 150px),720px);border-radius:14px;overflow:hidden;background:#cfdde4;touch-action:none}
+.scene{position:relative;max-width:1180px;margin:0 auto;height:var(--heroH,clamp(440px,calc(100svh - 190px),720px));border-radius:14px;overflow:hidden;background:#cfdde4;touch-action:none}
 .scene canvas{display:block;width:100%;height:100%}
 .labels{position:absolute;inset:0;pointer-events:none;overflow:hidden}
 .lbl{position:absolute;transform:translate(-50%,-100%);white-space:nowrap;font:500 11px/1 var(--f-body);padding:4px 7px;border-radius:5px;background:var(--chip-bg);color:var(--chip-fg);box-shadow:0 1px 3px rgba(0,0,0,.15)}
@@ -61,6 +61,25 @@ button:focus-visible{outline:2px solid var(--lease);outline-offset:2px}
 .seg button{box-shadow:none;background:transparent;padding:6px 10px;font-family:var(--f-mono);font-size:11px}
 .seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
 .ctrls .spacer{flex:1}
+.more{display:none}
+.ctrls .icon{width:36px;height:34px;padding:0;display:inline-flex;align-items:center;justify-content:center}
+.cue{display:flex;align-items:center;gap:6px;margin:8px auto 0;background:transparent;box-shadow:none;border:0;color:var(--muted);font:500 12px/1 var(--f-body);padding:8px 12px;transition:opacity .3s}
+.cue span{font-size:16px;line-height:1;animation:cue 1.8s ease-in-out infinite}
+@keyframes cue{0%,100%{transform:translateY(-2px)}50%{transform:translateY(3px)}}
+.cue.gone{opacity:0;pointer-events:none}
+@media (prefers-reduced-motion:reduce){.cue span{animation:none}}
+/* phones: core controls only, the rest behind More */
+@media (max-width:760px){
+  .more{display:inline-block}
+  .ctrls .opt{display:none}
+  .scene.open .ctrls .opt{display:inline-block}
+  .scene .jump{display:none}
+  .scene.open .jump{display:flex}
+  .scene .tourbar{bottom:12px}
+  .scene.open .tourbar{bottom:52px}
+  .scene .skey{top:auto;bottom:12px;right:12px}
+  .scene:has(#tourcap:not([hidden])) .skey{display:none}
+}
 .compass{padding:5px;width:34px;height:34px;display:inline-flex;align-items:center;justify-content:center}
 .compass svg{display:block}
 .tourbar{position:absolute;left:10px;right:10px;bottom:52px;display:flex;justify-content:center;pointer-events:none}
@@ -163,7 +182,6 @@ dd{font:400 13.5px/1.5 var(--f-body);min-width:0}
   .spec{order:4}
   main.wrap{order:5}
   .site-foot{order:6;padding-bottom:110px}
-  .skey{top:100px}
   .contact{position:static}
   h1{font-size:28px;margin-top:4px}
   .stats{gap:2px 14px}
@@ -173,7 +191,6 @@ dd{font:400 13.5px/1.5 var(--f-body);min-width:0}
   .stats{gap:2px 0}
   .stat:first-child{display:none}
   .stat+.stat+.stat b::before{content:'·';margin:0 8px;color:var(--muted)}
-  .scene{height:clamp(380px,calc(100svh - 230px),600px)}
 }
 @media (max-width:430px){.stat:last-child{display:none}}
 @media (max-width:760px){main.wrap{padding-bottom:18px}header.wrap{position:relative}.hdr-actions{position:absolute;right:max(16px,env(safe-area-inset-right,0px));top:30px}}
@@ -219,14 +236,15 @@ dialog.share p{font-size:13px;color:var(--muted);margin:0 0 12px}
   <div class="scene" id="scene">
     <div class="labels" id="labels"></div>
     <div class="ctrls">
-      <button id="bTour" aria-pressed="false">Play tour</button>
-      <button id="bNight" aria-pressed="false">Night</button>
-      <button id="bLife" aria-pressed="true">People &amp; cars</button>
-      <button id="bSun" aria-pressed="false">Sun</button>
+      <button id="bTour" class="icon" aria-pressed="false" aria-label="Play tour" title="Play tour"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg></button>
+      <button id="bNight" class="opt" aria-pressed="false">Night</button>
+      <button id="bLife" class="opt" aria-pressed="true">People &amp; cars</button>
+      <button id="bSun" class="opt" aria-pressed="false">Sun</button>
       <div class="seg" id="seg" role="group" aria-label="Floor"><button data-cut="0" aria-pressed="true">Outside</button><button data-cut="1">GF</button><button data-cut="2">L1</button><button data-cut="3">L2</button></div>
       <span class="spacer"></span>
       <button id="bNorth" class="compass" aria-label="Turn the view so north is up" title="North up"><svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true"><g id="needle"><path d="M16 3 L21 16 L11 16 Z" fill="#d6452f"/><path d="M16 29 L21 16 L11 16 Z" fill="currentColor" opacity=".45"/><text x="16" y="13.5" text-anchor="middle" font-size="7" font-weight="700" fill="#fff" font-family="IBM Plex Mono,monospace">N</text></g></svg></button>
-      <button id="bReset">Reset view</button>
+      <button id="bReset" class="opt">Reset view</button>
+      <button id="bMore" class="more" aria-expanded="false" aria-label="More controls">More</button>
     </div>
     <div class="skey" aria-label="Key"><span><i style="background:var(--sale)"></i>For sale</span><span><i style="background:var(--lease)"></i>For rent</span></div>
     <div class="tourbar"><div class="tourcap" id="tourcap" hidden><i id="tourn"></i><span id="tourt"></span><span class="prog"><b id="tourp"></b></span></div></div>
@@ -237,6 +255,7 @@ dialog.share p{font-size:13px;color:var(--muted);margin:0 0 12px}
     </div></div>
     <div class="jump" id="jump"></div>
   </div>
+  <button class="cue" id="cue" type="button">Scroll for features and contact <span aria-hidden="true">⌄</span></button>
 </div>
 
 <section class="wrap features" aria-label="Key features">
@@ -1204,9 +1223,10 @@ function goStep(i,now){
   setCut(s.cut); render(s.sel); setNight(!!s.night); controls.autoRotateSpeed=s.rot??0.5; fly(s.cut?lotView(3,s.cut):s.v,FLY); if(s.car&&lifeOn) carToDriveway();
   $('#tourn').textContent=(step+1)+'/'+TOUR.length; $('#tourt').textContent=s.t;
 }
-function startTour(){touring=true;$('#bTour').setAttribute('aria-pressed','true');$('#bTour').textContent='Pause tour';$('#tourcap').hidden=false;goStep(step<0?0:step,performance.now());}
+const ICON_PLAY='<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg>', ICON_PAUSE='<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z" fill="currentColor"/></svg>';
+function startTour(){touring=true;$('#bTour').setAttribute('aria-pressed','true');$('#bTour').innerHTML=ICON_PAUSE;$('#bTour').setAttribute('aria-label','Pause tour');$('#bTour').title='Pause tour';$('#tourcap').hidden=false;goStep(step<0?0:step,performance.now());}
 let touched=false;
-function stopTour(){touched=true;if(!touring)return;touring=false;controls.autoRotate=false;$('#bTour').setAttribute('aria-pressed','false');$('#bTour').textContent='Play tour';$('#tourcap').hidden=true;}
+function stopTour(){touched=true;if(!touring)return;touring=false;controls.autoRotate=false;$('#bTour').setAttribute('aria-pressed','false');$('#bTour').innerHTML=ICON_PLAY;$('#bTour').setAttribute('aria-label','Play tour');$('#bTour').title='Play tour';$('#tourcap').hidden=true;}
 $('#bTour').onclick=()=>{if(touring)stopTour();else{if(sunOn)setSun(false);startTour();}};
 
 /* compass: needle shows where north is on screen; tap to turn the view north-up like a map */
@@ -1227,10 +1247,10 @@ function orientNorth(){
 $('#bNorth').onclick=()=>{stopTour();orientNorth();};
 /* phone: sticky Book a viewing bar, hidden while the contact cards are on screen */
 {const bar=$('#mbar'), info=$('#info'), seen=new Set();
- const upd=()=>{bar.hidden=!matchMedia('(max-width:760px)').matches||seen.size>0;};
+ const upd=()=>{bar.hidden=!matchMedia('(max-width:760px)').matches||seen.size>0||scrollY<60;};
  const io=new IntersectionObserver(es=>{es.forEach(e=>e.isIntersecting?seen.add(e.target):seen.delete(e.target)); upd();},{threshold:0.2});
  const watch=()=>{io.disconnect(); seen.clear();  $('#contact').querySelectorAll('.cta-box').forEach(b=>io.observe(b));};
- new MutationObserver(watch).observe($('#contact'),{childList:true}); watch(); addEventListener('resize',upd); upd();
+ new MutationObserver(watch).observe($('#contact'),{childList:true}); watch(); addEventListener('resize',upd); addEventListener('scroll',upd,{passive:true}); upd();
  $('#mBook').onclick=()=>{ stopTour(); if(!/^lot\d$|^site$/.test(selected)) render('site');
    const t=$('#contact .cta-box'); (t||info).scrollIntoView({behavior:reduce?'auto':'smooth',block:'center'}); };}
 
@@ -1272,6 +1292,13 @@ $('#bShare').onclick=()=>{
 };
 $('#bShareClose').onclick=()=>dlg.close?dlg.close():dlg.removeAttribute('open');
 $('#bCopy').onclick=async()=>{try{await navigator.clipboard.writeText(SHARE_URL||location.href);$('#bCopy').textContent='Copied';}catch(e){$('#bCopy').textContent='Copy failed';} setTimeout(()=>$('#bCopy').textContent='Copy link',1800);};
+const heroFit=()=>{const top=document.querySelector('header.wrap').getBoundingClientRect().height, cue=$('#cue').offsetHeight+8;
+  const h=Math.max(360,Math.round(innerHeight-top-cue-10)); document.documentElement.style.setProperty('--heroH',h+'px');};
+let lastW=0,lastH=0; const refit=()=>{ if(innerWidth!==lastW||Math.abs(innerHeight-lastH)>140){lastW=innerWidth;lastH=innerHeight;heroFit();} };
+refit(); addEventListener('resize',refit);
+$('#cue').onclick=()=>{stopTour(); document.querySelector('.features').scrollIntoView({behavior:reduce?'auto':'smooth'});};
+addEventListener('scroll',()=>$('#cue').classList.toggle('gone',scrollY>40),{passive:true});
+$('#bMore').onclick=()=>{const o=sceneEl.classList.toggle('open'); $('#bMore').setAttribute('aria-expanded',String(o)); $('#bMore').textContent=o?'Close':'More';};
 function resize(){
   const w=sceneEl.clientWidth,h=sceneEl.clientHeight;
   renderer.setSize(w,h,false); camera.aspect=w/h;
