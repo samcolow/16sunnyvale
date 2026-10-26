@@ -100,6 +100,8 @@ dd{font:500 13px/1.45 var(--f-mono);font-variant-numeric:tabular-nums;min-width:
 .cta-box{margin:14px 0 0;padding-top:12px;border-top:1px solid var(--line)}
 .cta-who{margin:0;font-size:13px}.cta-who b{font-weight:600}.cta-who span{color:var(--muted);margin-left:6px}
 .cta-box .cta{margin-top:8px}
+.cta-who .agency{display:inline-block;margin-left:8px;padding:2px 8px;border-radius:999px;border:1px solid var(--line);background:var(--bg);color:var(--fg);font:600 11px/1.4 var(--f-body);letter-spacing:.02em}
+.cta-who .agency+span{margin-left:6px}
 .cta-det{margin:4px 0 0;font:500 13px/1.4 var(--f-mono)}.cta-det a{color:var(--fg)}
 .cta button{font:600 13px/1 var(--f-body);border-radius:999px;padding:10px 14px;border:1px solid var(--line);background:var(--surface);color:var(--fg);box-shadow:none}
 .cta-hint{margin:8px 0 0;font-size:11.5px;color:var(--muted)}
@@ -217,8 +219,8 @@ const labels=[];
 const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
 /* ===== listing settings: fill these in before sharing ===== */
 const CONTACTS={   // viewing and enquiry contacts: rentals go to the property manager, homes for sale to the agent
-  lease:{name:'Robin Chen',role:'Property manager · Crockers',email:'robin@crockers.co.nz',phone:'022 140 5697'},
-  sale:{name:'Dean Tuffley',role:'Sales agent · Ray White',email:'dean.tuffley@raywhite.com',phone:'021 311 993'}};
+  lease:{name:'Robin Chen',role:'Property manager',agency:'Crockers',email:'robin@crockers.co.nz',phone:'022 140 5697'},
+  sale:{name:'Dean Tuffley',role:'Sales agent',agency:'Ray White',email:'dean.tuffley@raywhite.com',phone:'021 311 993'}};
 const SHARE_URL=''; // set once the tour is hosted at its public address; until then the current page address is used
 /* phones and touch devices get lighter rendering */
 const LOW=matchMedia('(max-width: 760px), (pointer: coarse)').matches;
@@ -975,7 +977,7 @@ function highlight(id){
 function ctaRow(what,C,lead){
   const box=document.createElement('div'); box.className='cta-box';
   const h=document.createElement('p'); h.className='cta-who';
-  const b1=document.createElement('b'); b1.textContent=(lead?lead+': ':'')+C.name; const sp=document.createElement('span'); sp.textContent=C.role; h.append(b1,sp);
+  const b1=document.createElement('b'); b1.textContent=(lead?lead+': ':'')+C.name; const ag=document.createElement('span'); ag.className='agency'; ag.textContent=C.agency; const sp=document.createElement('span'); sp.textContent=C.role; h.append(b1,ag,sp);
   // contact details always visible as text, so they work even without an email app
   const det=document.createElement('p'); det.className='cta-det';
   const em=document.createElement('a'); em.href='mailto:'+C.email; em.textContent=C.email; em.target='_top';
