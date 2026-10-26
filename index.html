@@ -129,7 +129,27 @@ dd{font:500 13px/1.45 var(--f-mono);font-variant-numeric:tabular-nums;min-width:
 .mbar{position:fixed;left:0;right:0;bottom:0;z-index:20;padding:10px max(16px,env(safe-area-inset-left,0px)) calc(10px + env(safe-area-inset-bottom,0px));background:var(--surface);border-top:1px solid var(--line);box-shadow:0 -4px 14px rgba(0,0,0,.08)}
 .mbar button{width:100%;font:600 15px/1 var(--f-body);padding:14px;border-radius:999px;background:var(--ink);color:var(--bg);border:0;box-shadow:none}
 @media (min-width:761px){.mbar{display:none!important}}
-@media (max-width:760px){main.wrap{padding-bottom:96px}header.wrap{position:relative}.hdr-actions{position:absolute;right:max(16px,env(safe-area-inset-right,0px));top:44px}}
+/* phones: compact header, 3D model straight after it and fully on screen, features below */
+@media (max-width:760px){
+  body{display:flex;flex-direction:column}
+  body>*{min-width:0;width:100%;box-sizing:border-box}
+  header.wrap{order:1;padding-block:14px 10px;gap:6px}
+  .scene-band{order:2}
+  .features{order:3;padding-block:16px 4px}
+  main.wrap{order:4}
+  h1{font-size:28px;margin-top:4px}
+  .stats{gap:2px 14px}
+  .stat b{font-size:13px}
+  .eyebrow{font-size:10px;letter-spacing:.06em}
+}
+@media (max-width:380px){.stat:last-child{display:none}
+  .stat span{display:none}
+  .stats{gap:2px 0}
+  .stat:first-child{display:none}
+  .stat+.stat+.stat b::before{content:'·';margin:0 8px;color:var(--muted)}
+  .scene{height:clamp(380px,calc(100svh - 230px),600px)}
+}
+@media (max-width:760px){main.wrap{padding-bottom:96px}header.wrap{position:relative}.hdr-actions{position:absolute;right:max(16px,env(safe-area-inset-right,0px));top:30px}}
 @media (max-width:520px){.cta-head{flex-direction:column;align-items:flex-start;gap:8px}.cta-head .agency-logo{height:38px}.cta-box{padding:12px}.cta{display:grid;grid-template-columns:1fr 1fr;gap:8px}.cta .primary{grid-column:1/-1}.cta a,.cta button{text-align:center;padding:11px 10px}}
 .cta-hint{margin:10px 0 0;font-size:11.5px;color:var(--muted)}
 /* sun-path bar */
@@ -160,7 +180,7 @@ dialog.share p{font-size:13px;color:var(--muted);margin:0 0 12px}
     <h1>16 Sunnyvale Road</h1>
   </div>
   <div class="stats" aria-label="Summary">
-    <div class="stat"><b>6</b><span>3-storey terrace homes</span></div>
+    <div class="stat"><b>6 homes</b><span>3-storey terraces</span></div>
     <div class="stat"><b>4 bed · 2.5 bath</b><span>single internal garage</span></div>
     <div class="stat"><b>137.1 m²</b><span>+ 7.9 m² deck</span></div>
     <div class="stat"><b>Freehold</b><span>no body corporate</span></div>
