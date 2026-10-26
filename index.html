@@ -397,21 +397,17 @@ function seg3(a,b,w,t,m){ // slab from point a to point b (site frame), width w
   me.castShadow=true; me.receiveShadow=true; site.add(me); return me;
 }
 function interchange(xc){
-  /* Greenlane interchange: a large roundabout on a bridge deck at street level, spanning the rail line and both SH1 carriageways in the cutting below */
-  const R=13.5, zr=-41;                    // deck covers z -54.5 .. -27.5: rail (-35.5..-30.5) and SH1 (-50.5..-37.5)
-  bx(xc-4,xc+4,0,0.06,-27.4,61.5,M.asphalt,site);
+  const zr=-33;                            // roundabout at street level, deck spanning over the rail line in the cutting
+  bx(xc-4,xc+4,0,0.06,-27,61.5,M.asphalt,site);
   for(let z=-22;z<60;z+=6) box(0.18,0.08,3,M.lane,xc,0.07,z,site);
-  const deck=new THREE.Mesh(new THREE.CylinderGeometry(R,R,0.9,64),M.concrete); deck.position.set(xc,-0.45,zr); deck.castShadow=true; deck.receiveShadow=true; site.add(deck);
-  const ring=new THREE.Mesh(new THREE.CylinderGeometry(R-0.4,R-0.4,0.08,64),M.asphalt); ring.position.set(xc,0.04,zr); ring.receiveShadow=true; site.add(ring);
-  const isl=new THREE.Mesh(new THREE.CylinderGeometry(6.2,6.4,0.3,48),M.pad); isl.position.set(xc,0.15,zr); site.add(isl);
-  const kerb=new THREE.Mesh(new THREE.TorusGeometry(R-0.2,0.12,6,64),M.steel); kerb.rotation.x=Math.PI/2; kerb.position.set(xc,0.5,zr); site.add(kerb);   // edge barrier
-  tree(xc,zr,site,null,1.0);
-  // piers: between the rail and SH1, in the SH1 median, and outside each side of the cutting
-  [-28.6,-36.5,-44,-52.5].forEach(z=>[-8,0,8].forEach(dx=>{if(Math.hypot(dx,z-zr)>R-1.2)return;
-    const pr=new THREE.Mesh(new THREE.CylinderGeometry(0.7,0.7,3.6,12),M.concrete); pr.position.set(xc+dx,hAt(xc+dx)+1.8,z); pr.castShadow=true; site.add(pr);}));
-  // off- and on-ramps from the roundabout down to each SH1 carriageway
-  seg3([xc-R+1,0,zr+5],[xc-48,hAt(xc-48)+0.06,-48.5],5,0.35,M.asphalt);   // to and from the southern carriageway
-  seg3([xc+R-1,0,zr-5],[xc+48,hAt(xc+48)+0.06,-39.5],5,0.35,M.asphalt);   // to and from the northern carriageway
+  const deck=new THREE.Mesh(new THREE.CylinderGeometry(7.6,7.6,0.6,48),M.concrete); deck.position.set(xc,-0.3,zr); deck.castShadow=true; site.add(deck);
+  const ring=new THREE.Mesh(new THREE.CylinderGeometry(7.4,7.4,0.08,48),M.asphalt); ring.position.set(xc,0.04,zr); site.add(ring);
+  const isl=new THREE.Mesh(new THREE.CylinderGeometry(3.3,3.4,0.3,40),M.pad); isl.position.set(xc,0.15,zr); site.add(isl);
+  tree(xc,zr,site,null,0.6);
+  bx(xc-4,xc+4,-0.6,0.06,-29.5,-25.4,M.concrete,site);
+  [[-4.5,-31],[4.5,-31],[-4.5,-38],[4.5,-38]].forEach(([dx,z])=>{const pr=new THREE.Mesh(new THREE.CylinderGeometry(0.6,0.6,3.9,12),M.concrete);pr.position.set(xc+dx,-2.55,z);pr.castShadow=true;site.add(pr);});
+  // off-ramp and on-ramp down into the cutting to SH1
+  [-1,1].forEach(sd=>seg3([xc+sd*6.2,0,zr-3.8],[xc+sd*30,hAt(xc+sd*30)+0.06,-40.5],5,0.35,M.asphalt));
 }
 interchange(-120); // Greenlane Rd East and the SH1 exit, south
 
