@@ -60,6 +60,11 @@ button:focus-visible{outline:2px solid var(--lease);outline-offset:2px}
 .seg{display:inline-flex;background:var(--chip-bg);border-radius:999px;box-shadow:0 1px 3px rgba(0,0,0,.15);padding:2px}
 .seg button{box-shadow:none;background:transparent;padding:6px 10px;font-family:var(--f-mono);font-size:11px}
 .seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+/* browser in dark mode: active controls in lime so they stay visible even if the browser darkens the page */
+@media (prefers-color-scheme: dark){
+  button[aria-pressed="true"],.seg button[aria-pressed="true"]{background:#c9f23a!important;color:#1d2a44!important}
+  .ctrls .icon[aria-pressed="true"] svg{color:#1d2a44}
+}
 /* night view: active controls in lime so they stand out against the dark scene */
 .night .ctrls button[aria-pressed="true"],.night .ctrls .seg button[aria-pressed="true"],.night .sunbar .seg button[aria-pressed="true"]{background:var(--sale);color:var(--on-sale)}
 .night .ctrls button,.night .ctrls .seg,.night .jump button,.night .skey,.night .tourcap{background:rgba(24,30,46,.88);color:#e8eaf4}
