@@ -97,16 +97,18 @@ dd{font:500 13px/1.45 var(--f-mono);font-variant-numeric:tabular-nums;min-width:
 .cta a{font:600 13px/1 var(--f-body);text-decoration:none;border-radius:999px;padding:10px 14px;border:1px solid var(--line);color:var(--fg);background:var(--surface)}
 .cta a.primary{background:var(--ink);color:var(--bg);border-color:transparent}
 .cta a:focus-visible{outline:2px solid var(--lease);outline-offset:2px}
-.cta-box{margin:14px 0 0;padding-top:12px;border-top:1px solid var(--line)}
-.cta-who{margin:0;font-size:13px}.cta-who b{font-weight:600}.cta-who span{color:var(--muted);margin-left:6px}
-.cta-box .cta{margin-top:8px}
-.cta-who .agency{display:inline-block;margin-left:8px;padding:2px 8px;border-radius:999px;border:1px solid var(--line);background:var(--bg);color:var(--fg);font:600 11px/1.4 var(--f-body);letter-spacing:.02em}
-.cta-who .agency+span,.cta-who .agency-logo+span{margin-left:6px}
-.cta-who{display:flex;flex-wrap:wrap;align-items:center;gap:4px 0}
-.cta-who .agency-logo{height:42px;width:auto;margin-left:10px;border-radius:4px;display:inline-block}
-.cta-det{margin:4px 0 0;font:500 13px/1.4 var(--f-mono)}.cta-det a{color:var(--fg)}
+.cta-box{margin:14px 0 0;padding:14px;border:1px solid var(--line);border-radius:12px;background:var(--bg)}
+.cta-box+.cta-box{margin-top:10px}
+.cta-head{display:flex;gap:12px;align-items:center}
+.cta-head .agency-logo{height:46px;width:auto;border-radius:6px;flex:none}
+.cta-head>div{display:flex;flex-direction:column;gap:2px;min-width:0}
+.cta-head b{font:600 15px/1.2 var(--f-body)}
+.cta-head span{font-size:12.5px;color:var(--muted)}
+.cta-head .cta-det{font:500 12.5px/1.4 var(--f-mono);color:var(--fg);white-space:pre-wrap}
+.cta-head .cta-det a{color:inherit;text-decoration:none;border-bottom:1px solid var(--line)}
+.cta-box .cta{margin-top:12px}
 .cta button{font:600 13px/1 var(--f-body);border-radius:999px;padding:10px 14px;border:1px solid var(--line);background:var(--surface);color:var(--fg);box-shadow:none}
-.cta-hint{margin:8px 0 0;font-size:11.5px;color:var(--muted)}
+.cta-hint{margin:10px 0 0;font-size:11.5px;color:var(--muted)}
 /* sun-path bar */
 .sunbar{position:absolute;left:10px;right:10px;bottom:52px;display:flex;justify-content:center;pointer-events:none}
 .sunbar>div{pointer-events:auto;display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;background:var(--chip-bg);color:var(--chip-fg);border-radius:14px;padding:8px 12px;box-shadow:0 1px 3px rgba(0,0,0,.15);max-width:100%}
@@ -803,12 +805,12 @@ slatFence(21.2,-8.3,21.2,6.0);                  // east boundary, pushed out to 
 bx(18.15,21.1,0,0.08,-4.5,5.95,M.turf,site); tree(19.7,2.5,site,M.maple,0.55);
 slatFence(18.1,-4.6,21.2,-4.6);                // closes Lot 6's side yard off the JOAL
 // street fence with the address sign: set back toward Lot 1, runs from the JOAL to the rear boundary, gate lined up with Lot 1's door
-slatFence(-20.5,-4.6,-20.5,-2.5); slatFence(-20.5,-1.45,-20.5,6.0);
-slatFence(-20.5,-4.6,-18.05,-4.6);             // driveway-side fence returns to Lot 1's wall
+slatFence(-20.5,-4.6,-20.5,-2.5,1.2); slatFence(-20.5,-1.45,-20.5,6.0,1.2);   // street frontage, lower than the boundary fences
+slatFence(-20.5,-4.6,-18.05,-4.6,1.2);             // driveway-side fence returns to Lot 1's wall
 {const gate=new THREE.Group(); site.add(gate);
-  for(let k=0;k<8;k++) bx(-20.53,-20.47,0.15+k*0.2,0.27+k*0.2,-2.45,-1.5,M.black,gate);
-  bx(-20.56,-20.44,0.05,1.75,-2.5,-2.43,M.black,gate); bx(-20.56,-20.44,0.05,1.75,-1.52,-1.45,M.black,gate);
-  bx(-20.62,-20.56,0.95,1.1,-1.7,-1.57,M.steel,gate);}
+  for(let k=0;k<5;k++) bx(-20.53,-20.47,0.15+k*0.2,0.27+k*0.2,-2.45,-1.5,M.black,gate);
+  bx(-20.56,-20.44,0.05,1.2,-2.5,-2.43,M.black,gate); bx(-20.56,-20.44,0.05,1.2,-1.52,-1.45,M.black,gate);
+  bx(-20.62,-20.56,0.8,0.95,-1.7,-1.57,M.steel,gate);}
 for(let k=0;k<5;k++) slatFence(-12+k*W,3.95,-12+k*W,6.0,1.6);
 // side garden between the street fence and Lot 1
 bx(-20.4,-18.05,0,0.08,-4.5,5.95,M.turf,site);                 // Lot 1's fenced side yard
@@ -827,7 +829,7 @@ sx.fillStyle='#c4c8cc'; sx.font='700 132px Helvetica, Arial, sans-serif'; sx.tex
 sx.fillRect(218,46,3,108); sx.font='600 40px Helvetica, Arial, sans-serif'; sx.fillText('SUNNYVALE',246,80); sx.fillText('ROAD',246,134);
 const signTex=new THREE.CanvasTexture(sc); signTex.anisotropy=4;
 const sign=new THREE.Mesh(new THREE.BoxGeometry(0.04,0.53,1.6),[M.black,new THREE.MeshLambertMaterial({map:signTex}),M.black,M.black,M.black,M.black]);
-sign.position.set(-20.6,1.0,-3.55); entry.add(sign);
+sign.position.set(-20.6,0.75,-3.55); entry.add(sign);
 bx(-19.9,-17.3,0,0.1,-8.25,-7.6,M.concrete,entry);
 bx(-20,-17.2,0.1,1.0,-8.25,-7.65,M.black,entry);
 bx(-19.8,-18.7,0.15,0.6,-7.65,-7.61,M.garage,entry); bx(-18.5,-17.4,0.15,0.6,-7.65,-7.61,M.garage,entry);
@@ -978,27 +980,30 @@ function highlight(id){
 }
 function ctaRow(what,C,lead){
   const box=document.createElement('div'); box.className='cta-box';
-  const h=document.createElement('p'); h.className='cta-who';
-  const b1=document.createElement('b'); b1.textContent=(lead?lead+': ':'')+C.name; const ag=C.logo?Object.assign(document.createElement('img'),{className:'agency-logo',src:C.logo,alt:C.agency}):Object.assign(document.createElement('span'),{className:'agency',textContent:C.agency}); const sp=document.createElement('span'); sp.textContent=C.role; h.append(b1,ag,sp);
-  // contact details always visible as text, so they work even without an email app
-  const det=document.createElement('p'); det.className='cta-det';
+  const head=document.createElement('div'); head.className='cta-head';
+  if(C.logo){const im=document.createElement('img'); im.className='agency-logo'; im.src=C.logo; im.alt=C.agency; head.append(im);}
+  const who=document.createElement('div');
+  const nm=document.createElement('b'); nm.textContent=C.name;
+  const rl=document.createElement('span'); rl.textContent=(lead?lead+' · ':'')+C.role+(C.logo?'':' · '+C.agency);
+  const det=document.createElement('span'); det.className='cta-det';
   const em=document.createElement('a'); em.href='mailto:'+C.email; em.textContent=C.email; em.target='_top';
   const ph=document.createElement('a'); ph.href='tel:'+C.phone.replace(/[^+\d]/g,'').replace(/^0/,'+64'); ph.textContent=C.phone; ph.target='_top';
-  det.append(em,document.createTextNode(' · '),ph);
+  det.append(em,document.createTextNode('  ·  '),ph);
+  who.append(nm,rl,det); head.append(who);
   const row=document.createElement('div'); row.className='cta';
   const subj=encodeURIComponent('Viewing request: '+what);
   const body=encodeURIComponent('Hi '+C.name.split(' ')[0]+',\n\nI would like to book a viewing of '+what+'.\n\nName:\nPhone:\nPreferred times:\n');
   const bk=document.createElement('a'); bk.className='primary'; bk.textContent='Book a viewing'; bk.target='_top';
-  bk.href='mailto:'+C.email+'?subject='+subj+'&body='+body; bk.title='Opens an email to '+C.name+' with the viewing request filled in';
+  bk.href='mailto:'+C.email+'?subject='+subj+'&body='+body; bk.title='Opens a pre-filled email to '+C.name;
   const cp=document.createElement('button'); cp.type='button'; cp.textContent='Copy email';
   cp.onclick=async()=>{let ok=false; try{await navigator.clipboard.writeText(C.email); ok=true;}catch(e){
       const r=document.createRange(); r.selectNodeContents(em); const sel=getSelection(); sel.removeAllRanges(); sel.addRange(r); ok=document.execCommand&&document.execCommand('copy');}
-    cp.textContent=ok?'Copied':'Select and copy above'; setTimeout(()=>cp.textContent='Copy email',2000);};
+    cp.textContent=ok?'Copied':'Select and copy'; setTimeout(()=>cp.textContent='Copy email',2000);};
   const cl=document.createElement('a'); cl.textContent='Call'; cl.href=ph.href; cl.target='_top';
   row.append(bk,cp,cl);
-  const hint=document.createElement('p'); hint.className='cta-hint'; hint.textContent='Book a viewing opens a pre-filled email in your mail app. No mail app? Copy the address or call.';
-  box.append(h,det,row,hint); return box;
+  box.append(head,row); return box;
 }
+function ctaHint(){const p=document.createElement('p'); p.className='cta-hint'; p.textContent='Book a viewing opens a pre-filled email in your mail app. No mail app? Copy the address or call.'; return p;}
 function render(id){
   selected=id; placeRing(id); highlight(id);
   const d=INFO[id], c=CAT[d.cat];
@@ -1010,8 +1015,8 @@ function render(id){
   d.rows.forEach(([k,v])=>{const dt=document.createElement('dt');dt.textContent=k;const dd=document.createElement('dd');dd.textContent=v;dl.append(dt,dd);});
   el.append(pill,h,s,dl);
   if(d.note){const n=document.createElement('p');n.className='note';n.textContent=d.note;el.append(n);}
-  if(/^lot\d$/.test(id)){const st=STATUS[+id[3]]; if(CONTACTS[st]) el.append(ctaRow(d.t+', 16 Sunnyvale Road',CONTACTS[st]));}
-  if(id==='site'){el.append(ctaRow('16C or 16D, 16 Sunnyvale Road',CONTACTS.sale,'For sales'),ctaRow('a home to rent at 16 Sunnyvale Road',CONTACTS.lease,'For rental'));}
+  if(/^lot\d$/.test(id)){const st=STATUS[+id[3]]; if(CONTACTS[st]) el.append(ctaRow(d.t+', 16 Sunnyvale Road',CONTACTS[st],st==='sale'?'For sales':'For rental'),ctaHint());}
+  if(id==='site'){el.append(ctaRow('16C or 16D, 16 Sunnyvale Road',CONTACTS.sale,'For sales'),ctaRow('a home to rent at 16 Sunnyvale Road',CONTACTS.lease,'For rental'),ctaHint());}
 }
 
 /* ---------- picking ---------- */
