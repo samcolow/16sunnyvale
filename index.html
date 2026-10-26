@@ -101,7 +101,7 @@ button:focus-visible{outline:2px solid var(--lease);outline-offset:2px}
 .jump{position:absolute;bottom:10px;left:10px;right:10px;display:flex;gap:6px;overflow-x:auto;pointer-events:none;padding-bottom:2px}
 .jump button{pointer-events:auto;flex:none}
 main.wrap{padding-block:24px 40px;display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:24px}
-@media (max-width:760px){main.wrap{grid-template-columns:1fr}}
+@media (max-width:760px){main.wrap{grid-template-columns:1fr} #info.is-site{display:none}}
 .panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px 18px 16px;min-width:0}
 .panel h2{font:700 24px/1.1 var(--f-display);margin:8px 0 2px;letter-spacing:-.01em}
 .panel .sub{color:var(--muted);font-size:13px;margin:0 0 12px}
@@ -140,7 +140,7 @@ dd{font:400 13.5px/1.5 var(--f-body);min-width:0}
 .features ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px 28px}
 @media (max-width:1100px){.features ul{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .features li{padding:2px 0 2px 12px;border-left:2px solid var(--line);min-width:0}
-.ribbon{margin:22px 0 0;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px;padding:10px 14px;border-radius:10px;background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--sale)}
+.ribbon{margin:0 0 16px;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px;padding:10px 14px;border-radius:10px;background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--sale)}
 .ribbon b{font:600 13px/1.3 var(--f-body)}
 .ribbon span{font-size:12.5px;color:var(--muted)}
 .spec{padding-block:24px 0}
@@ -270,15 +270,15 @@ dialog.share p{font-size:13px;color:var(--muted);margin:0 0 12px}
 </div>
 
 <section class="wrap features" aria-label="Key features">
+  <p class="ribbon"><b>16C &amp; 16D for sale</b><span>Upgraded specs: smart home ready · heat pumps in every room</span></p>
   <ul>
-    <li><b>Double Grammar Zone</b><span>Auckland Grammar · Epsom Girls Grammar</span></li>
-    <li><b>Convenient location</b><span>12 min walk to the train · Woolworths nearby · 2 min to SH1</span></li>
+    <li><b>Double Grammar Zone</b><span>Auckland Grammar · Epsom Girls Grammar · Remuera Intermediate · Cornwall Park District School</span></li>
+    <li><b>Convenient location</b><span>12 min walk to Greenlane station · Woolworths nearby · 13 min to Cornwall Park · 2 min to SH1</span></li>
     <li><b>Freehold and brand new</b><span>No body corporate · CCC issued · Master Build</span></li>
     <li><b>Sunny living and deck</b><span>Open-plan living onto a private timber deck</span></li>
     <li><b>Warm and connected</b><span>Heat pump · underfloor-heated bathrooms · internet ready</span></li>
     <li><b>Quality window furnishings</b><span>Linen sheers and blackout curtains in every room</span></li>
   </ul>
-  <p class="ribbon"><b>16C &amp; 16D for sale</b><span>Upgraded specs: smart home ready · heat pumps in every room</span></p>
 </section>
 
 <section class="wrap spec" aria-label="Full specification">
@@ -356,7 +356,7 @@ const lot=n=>{
   return b;
 };
 const INFO={
-  site:{t:'About the development',s:'Six freehold terrace homes · Greenlane · THAB zone',cat:'dev',rows:[['School zones','Auckland Grammar, Epsom Girls Grammar, Remuera Intermediate, Cornwall Park District School'],['Getting around','12 min walk to Greenlane train station · 8 min to Greenlane shops · 13 min to Cornwall Park · 2 min drive to SH1']],note:'Tap a home, then use GF, L1 or L2 to look inside.'},
+  site:{t:'About the development',s:'Six freehold terrace homes · Greenlane',cat:'dev',rows:[['School zones','Auckland Grammar, Epsom Girls Grammar, Remuera Intermediate, Cornwall Park District School'],['Getting around','12 min walk to Greenlane station · Woolworths nearby · 13 min to Cornwall Park · 2 min to SH1']],note:'Tap a home, then use GF, L1 or L2 to look inside.'},
   lot1:lot(1),lot2:lot(2),lot3:lot(3),lot4:lot(4),lot5:lot(5),lot6:lot(6),
   entry:{t:'Street entrance',s:'Sign on the front fence · mail and parcel hub at the driveway',cat:'dev',rows:[['Sign','Matte black plate with brushed stainless lettering'],['Parcels','Shared secure parcel lockers'],['Letters','Six individual letterboxes'],['Fencing','Horizontal timber slats, matte black'],['Backyards','Fully fenced, artificial turf']],note:'Sign drawn larger than real size so it reads in the model.'},
   stn:{t:'Greenlane train station',s:'Southern and Onehunga lines',cat:'dev',rows:[['From the site','12 min walk']],note:'Position in the model is indicative.'},
@@ -1128,7 +1128,7 @@ function listingRow(n){
 function render(id){
   selected=id; placeRing(id); highlight(id);
   const d=INFO[id], c=CAT[d.cat];
-  const el=$('#info'); el.innerHTML='';
+  const el=$('#info'); el.innerHTML=''; el.classList.toggle('is-site',id==='site');
   if(d.cat!=='dev'){const pill=document.createElement('span'); pill.className='pill'; pill.style.background='var('+c[1]+')'; pill.style.color=d.cat==='sale'?'var(--on-sale)':d.cat==='lease'?'var(--on-lease)':'var(--surface)'; pill.textContent=c[0]; el.append(pill);}
   const h=document.createElement('h2'); h.textContent=d.t;
   const s=document.createElement('p'); s.className='sub'; s.textContent=d.s;
