@@ -100,6 +100,9 @@ dd{font:500 13px/1.45 var(--f-mono);font-variant-numeric:tabular-nums;min-width:
 .cta-box{margin:14px 0 0;padding-top:12px;border-top:1px solid var(--line)}
 .cta-who{margin:0;font-size:13px}.cta-who b{font-weight:600}.cta-who span{color:var(--muted);margin-left:6px}
 .cta-box .cta{margin-top:8px}
+.cta-det{margin:4px 0 0;font:500 13px/1.4 var(--f-mono)}.cta-det a{color:var(--fg)}
+.cta button{font:600 13px/1 var(--f-body);border-radius:999px;padding:10px 14px;border:1px solid var(--line);background:var(--surface);color:var(--fg);box-shadow:none}
+.cta-hint{margin:8px 0 0;font-size:11.5px;color:var(--muted)}
 /* sun-path bar */
 .sunbar{position:absolute;left:10px;right:10px;bottom:52px;display:flex;justify-content:center;pointer-events:none}
 .sunbar>div{pointer-events:auto;display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;background:var(--chip-bg);color:var(--chip-fg);border-radius:14px;padding:8px 12px;box-shadow:0 1px 3px rgba(0,0,0,.15);max-width:100%}
@@ -971,16 +974,26 @@ function highlight(id){
 }
 function ctaRow(what,C,lead){
   const box=document.createElement('div'); box.className='cta-box';
-  const h=document.createElement('p'); h.className='cta-who'; h.innerHTML=''; 
+  const h=document.createElement('p'); h.className='cta-who';
   const b1=document.createElement('b'); b1.textContent=(lead?lead+': ':'')+C.name; const sp=document.createElement('span'); sp.textContent=C.role; h.append(b1,sp);
+  // contact details always visible as text, so they work even without an email app
+  const det=document.createElement('p'); det.className='cta-det';
+  const em=document.createElement('a'); em.href='mailto:'+C.email; em.textContent=C.email; em.target='_top';
+  const ph=document.createElement('a'); ph.href='tel:'+C.phone.replace(/[^+\d]/g,'').replace(/^0/,'+64'); ph.textContent=C.phone; ph.target='_top';
+  det.append(em,document.createTextNode(' · '),ph);
   const row=document.createElement('div'); row.className='cta';
-  const add=(txt,href,cls)=>{const a=document.createElement('a');a.textContent=txt;a.href=href;a.target='_top';if(cls)a.className=cls;row.append(a);};
   const subj=encodeURIComponent('Viewing request: '+what);
   const body=encodeURIComponent('Hi '+C.name.split(' ')[0]+',\n\nI would like to book a viewing of '+what+'.\n\nName:\nPhone:\nPreferred times:\n');
-  add('Book a viewing','mailto:'+C.email+'?subject='+subj+'&body='+body,'primary');
-  add('Email','mailto:'+C.email+'?subject='+encodeURIComponent('Enquiry: '+what));
-  add('Call '+C.phone,'tel:'+C.phone.replace(/[^+\d]/g,'').replace(/^0/,'+64'));
-  box.append(h,row); return box;
+  const bk=document.createElement('a'); bk.className='primary'; bk.textContent='Book a viewing'; bk.target='_top';
+  bk.href='mailto:'+C.email+'?subject='+subj+'&body='+body; bk.title='Opens an email to '+C.name+' with the viewing request filled in';
+  const cp=document.createElement('button'); cp.type='button'; cp.textContent='Copy email';
+  cp.onclick=async()=>{let ok=false; try{await navigator.clipboard.writeText(C.email); ok=true;}catch(e){
+      const r=document.createRange(); r.selectNodeContents(em); const sel=getSelection(); sel.removeAllRanges(); sel.addRange(r); ok=document.execCommand&&document.execCommand('copy');}
+    cp.textContent=ok?'Copied':'Select and copy above'; setTimeout(()=>cp.textContent='Copy email',2000);};
+  const cl=document.createElement('a'); cl.textContent='Call'; cl.href=ph.href; cl.target='_top';
+  row.append(bk,cp,cl);
+  const hint=document.createElement('p'); hint.className='cta-hint'; hint.textContent='Book a viewing opens a pre-filled email in your mail app. No mail app? Copy the address or call.';
+  box.append(h,det,row,hint); return box;
 }
 function render(id){
   selected=id; placeRing(id); highlight(id);
