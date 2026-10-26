@@ -18,7 +18,7 @@
 /* Layout: masthead → full-bleed 3D site model with floor views and an auto tour → home sheet + key (stacked on phone). */
 :root{
   --bg:#eef0f3; --surface:#fbfbf7; --fg:#1b2438; --muted:#55607a; --line:#d6dae4; --ink:#1d2a44;
-  --lease:#5a5bd8; --sale:#c9f23a; --aqua:#4fdcc0; --dev:#6b7390; --on-lease:#ffffff; --on-sale:#1d2a44;
+  --lease:#8fdcae; --sale:#b9b6f7; --aqua:#4fdcc0; --dev:#6b7390; --on-lease:#14301f; --on-sale:#1d2a44;
   --chip-bg:rgba(255,255,255,.9); --chip-fg:#1c1f21;
   --f-display:"Bricolage Grotesque","Avenir Next",system-ui,sans-serif;
   --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
@@ -48,7 +48,7 @@ h1{font:700 clamp(28px,5vw,44px)/1.02 var(--f-display);letter-spacing:-.02em;mar
 .lbl{position:absolute;transform:translate(-50%,-100%);white-space:nowrap;font:500 11px/1 var(--f-body);padding:4px 7px;border-radius:5px;background:var(--chip-bg);color:var(--chip-fg);box-shadow:0 1px 3px rgba(0,0,0,.15)}
 .lbl.lot{font:500 11px/1 var(--f-mono);padding:3px 6px}
 .lbl.lot.sale{background:var(--sale);color:var(--on-sale)}
-.lbl.lot:not(.sale){border-left:3px solid var(--lease)}
+.lbl.lot:not(.sale){background:var(--lease);color:var(--on-lease)}
 .lbl.room{font:500 9px/1 var(--f-mono);padding:2px 4px;border-radius:4px;transform:translate(-50%,-50%);opacity:.95}
 .lbl.geo{background:transparent;box-shadow:none;color:#3a4245;opacity:.7;font:500 10px/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase}
 .night .lbl.geo{color:#b9c4c8}
@@ -60,13 +60,13 @@ button:focus-visible{outline:2px solid var(--lease);outline-offset:2px}
 .seg{display:inline-flex;background:var(--chip-bg);border-radius:999px;box-shadow:0 1px 3px rgba(0,0,0,.15);padding:2px}
 .seg button{box-shadow:none;background:transparent;padding:6px 10px;font-family:var(--f-mono);font-size:11px}
 .seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
-/* browser in dark mode: active controls in light purple so they stay visible even if the browser darkens the page */
+/* browser in dark mode: active controls in soft white so they stay visible even if the browser darkens the page */
 @media (prefers-color-scheme: dark){
-  button[aria-pressed="true"],.seg button[aria-pressed="true"]{background:#b9b6f7!important;color:#1d2a44!important}
+  button[aria-pressed="true"],.seg button[aria-pressed="true"]{background:#f4f5f8!important;color:#1d2a44!important}
   .ctrls .icon[aria-pressed="true"] svg{color:#1d2a44}
 }
-/* night view: active controls in light purple so they stand out against the dark scene */
-.night .ctrls button[aria-pressed="true"],.night .ctrls .seg button[aria-pressed="true"],.night .sunbar .seg button[aria-pressed="true"]{background:#b9b6f7;color:#1d2a44}
+/* night view: active controls in soft white so they stand out against the dark scene */
+.night .ctrls button[aria-pressed="true"],.night .ctrls .seg button[aria-pressed="true"],.night .sunbar .seg button[aria-pressed="true"]{background:#f4f5f8;color:#1d2a44}
 .night .ctrls button,.night .ctrls .seg,.night .jump button,.night .skey,.night .tourcap{background:rgba(24,30,46,.88);color:#e8eaf4}
 .ctrls .spacer{flex:1}
 .more{display:none}
