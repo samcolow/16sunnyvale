@@ -1018,11 +1018,11 @@ function ctaRow(what,C,lead){
 function ctaHint(){const p=document.createElement('p'); p.className='cta-hint'; p.textContent='Book a viewing opens a pre-filled email in your mail app. No mail app? Copy the address or call.'; return p;}
 function listingRow(n){
   const L=LISTINGS[n]||{}, box=document.createElement('div'); box.className='listing';
-  const h=document.createElement('b'); h.textContent='Photos and full listing'; box.append(h);
+  const h=document.createElement('b'); h.textContent='Photos, video and full listing'; box.append(h);
   const links=[['Trade Me',L.trademe],['realestate.co.nz',L.rea]].filter(([,u])=>u);
   if(links.length){const row=document.createElement('div'); row.className='cta';
     links.forEach(([t,u])=>{const a=document.createElement('a'); a.href=u; a.target='_blank'; a.rel='noopener'; a.textContent='View on '+t; row.append(a);}); box.append(row);}
-  else{const sp=document.createElement('span'); sp.textContent='Professional photos and the full listing are coming soon.'; box.append(sp);}
+  else{const sp=document.createElement('span'); sp.textContent='Professional photos and video are coming soon.'; box.append(sp);}
   return box;
 }
 function render(id){
