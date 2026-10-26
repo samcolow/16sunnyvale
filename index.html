@@ -60,10 +60,10 @@ button:focus-visible{outline:2px solid var(--lease);outline-offset:2px}
 .seg{display:inline-flex;background:var(--chip-bg);border-radius:999px;box-shadow:0 1px 3px rgba(0,0,0,.15);padding:2px}
 .seg button{box-shadow:none;background:transparent;padding:6px 10px;font-family:var(--f-mono);font-size:11px}
 .seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
-/* browser in dark mode: active controls in soft white so they stay visible; navy everywhere else */
+/* browser in dark mode: active controls in a vivid mid blue with a ring, which stays distinct whether the browser keeps the page light or darkens it; navy everywhere else */
 @media (prefers-color-scheme: dark){
-  button[aria-pressed="true"],.seg button[aria-pressed="true"]{background:#f4f5f8!important;color:#1d2a44!important;border-color:transparent!important}
-  .ctrls .icon[aria-pressed="true"] svg{color:#1d2a44}
+  button[aria-pressed="true"],.seg button[aria-pressed="true"]{background:#3d6ef5!important;color:#ffffff!important;border-color:transparent!important;box-shadow:0 0 0 2px rgba(61,110,245,.35)!important}
+  .ctrls .icon[aria-pressed="true"] svg{color:#ffffff}
 }
 /* night view: navy active controls with a fine light edge so they separate from the dark bar */
 .night .ctrls button[aria-pressed="true"],.night .ctrls .seg button[aria-pressed="true"],.night .sunbar .seg button[aria-pressed="true"]{background:#1d2a44;color:#ffffff;border-color:rgba(255,255,255,.55)}
