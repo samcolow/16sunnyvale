@@ -1132,7 +1132,7 @@ $('#bReset').onclick=()=>{stopTour();fly('overview');render('site');setCut(0);};
 const TOUR=[
   {t:'The terrace from the driveway side',v:'overview',sel:'site',cut:0},
   {t:'Street entrance on Sunnyvale Rd',v:'entrance',sel:'entry',cut:0},
-  {t:'Shared driveway: garages, entries, Level 1 decks',v:'driveway',sel:'joal',cut:0,rot:-0.5},
+  {t:'Shared driveway: garages, entries, Level 1 decks',v:'driveway',sel:'joal',cut:0,rot:-0.5,zoom:0.55},
   {t:'GF: guest bedroom with ensuite, internal garage',sel:'lot3',cut:1},
   {t:'Level 1: open-plan living onto the deck',sel:'lot3',cut:2},
   {t:'Level 2: three bedrooms and the bathroom',sel:'lot3',cut:3},
@@ -1240,6 +1240,9 @@ function loop(now){
   if(touring){
     const el=now-stepStart;
     controls.autoRotate=!tween&&!reduce;
+    const zs=TOUR[step].zoom;   // slow push-in while the camera circles (distance shrinks to zs over the stop)
+    if(zs&&!tween&&!reduce){const off=camera.position.clone().sub(controls.target), k=Math.pow(zs,dt/((DWELL-FLY)/1000));
+      if(off.length()*k>controls.minDistance+2) camera.position.copy(controls.target).add(off.multiplyScalar(k));}
     $('#tourp').style.width=Math.min(100,el/DWELL*100)+'%';
     if(el>DWELL) goStep(step+1,now);
   }
