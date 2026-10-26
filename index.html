@@ -89,12 +89,19 @@ dd{font:500 13px/1.45 var(--f-mono);font-variant-numeric:tabular-nums;min-width:
 .legend li b{display:block;font-weight:600}
 .legend li span{color:var(--muted)}
 .legend h3+ul{margin-bottom:16px}
+.legend details{border-top:1px solid var(--line);padding:10px 0}
+.legend details:last-of-type{border-bottom:1px solid var(--line)}
+.legend summary{cursor:pointer;font:500 11px/1.2 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);list-style-position:inside}
+.legend details ul{margin-top:12px}
 .fine{font-size:11.5px;color:var(--muted);margin:14px 0 0;line-height:1.5}
 /* key features strip */
-.features{padding-block:0 14px}
-.features ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px}
+.features{padding-block:2px 18px}
+.features ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+@media (max-width:900px){.features ul{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .features li{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px;min-width:0}
-.features li.pod{border-color:var(--lease);box-shadow:inset 0 3px 0 var(--lease)}
+.ribbon{margin:10px 0 0;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px;padding:10px 14px;border-radius:10px;background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--sale)}
+.ribbon b{font:600 13px/1.3 var(--f-body)}
+.ribbon span{font-size:12.5px;color:var(--muted)}
 .features li b{display:block;font:600 13px/1.25 var(--f-body)}
 .features li span{display:block;font-size:12px;color:var(--muted);margin-top:2px}
 .hdr-actions{display:flex;gap:8px;align-items:center}
@@ -122,8 +129,8 @@ dd{font:500 13px/1.45 var(--f-mono);font-variant-numeric:tabular-nums;min-width:
 .mbar{position:fixed;left:0;right:0;bottom:0;z-index:20;padding:10px max(16px,env(safe-area-inset-left,0px)) calc(10px + env(safe-area-inset-bottom,0px));background:var(--surface);border-top:1px solid var(--line);box-shadow:0 -4px 14px rgba(0,0,0,.08)}
 .mbar button{width:100%;font:600 15px/1 var(--f-body);padding:14px;border-radius:999px;background:var(--ink);color:var(--bg);border:0;box-shadow:none}
 @media (min-width:761px){.mbar{display:none!important}}
-@media (max-width:760px){main.wrap{padding-bottom:96px}}
-@media (max-width:520px){.cta-head{flex-direction:column;align-items:flex-start;gap:8px}.cta-head .agency-logo{height:38px}}
+@media (max-width:760px){main.wrap{padding-bottom:96px}header.wrap{position:relative}.hdr-actions{position:absolute;right:max(16px,env(safe-area-inset-right,0px));top:44px}}
+@media (max-width:520px){.cta-head{flex-direction:column;align-items:flex-start;gap:8px}.cta-head .agency-logo{height:38px}.cta-box{padding:12px}.cta{display:grid;grid-template-columns:1fr 1fr;gap:8px}.cta .primary{grid-column:1/-1}.cta a,.cta button{text-align:center;padding:11px 10px}}
 .cta-hint{margin:10px 0 0;font-size:11.5px;color:var(--muted)}
 /* sun-path bar */
 .sunbar{position:absolute;left:10px;right:10px;bottom:52px;display:flex;justify-content:center;pointer-events:none}
@@ -163,14 +170,14 @@ dialog.share p{font-size:13px;color:var(--muted);margin:0 0 12px}
 
 <section class="wrap features" aria-label="Key features">
   <ul>
-    <li><b>Convenient location</b><span>12 min to Greenlane train station · Woolworths a short walk away · 2 min drive to SH1</span></li>
     <li><b>Double Grammar Zone</b><span>Auckland Grammar and Epsom Girls Grammar</span></li>
-    <li><b>Sunny living and deck</b><span>Open-plan living flows out to a private timber deck</span></li>
-    <li><b>Warm and connected</b><span>Heat pump in the living area · underfloor-heated bathrooms · keyless entry · internet ready</span></li>
+    <li><b>Convenient location</b><span>12 min walk to Greenlane train station · Woolworths nearby · 2 min to SH1</span></li>
+    <li><b>Freehold and brand new</b><span>No body corporate · CCC issued · Master Build Guarantee</span></li>
+    <li><b>Sunny living and deck</b><span>Open-plan living onto a private timber deck</span></li>
+    <li><b>Warm and connected</b><span>Heat pump in living · underfloor-heated bathrooms · internet ready</span></li>
     <li><b>Quality window furnishings</b><span>Linen sheers and blackout curtains in every room</span></li>
-    <li><b>Freehold and brand new</b><span>No body corporate · CCC issued · Master Build Guarantee · EV-ready garage</span></li>
-    <li class="pod"><b>16C &amp; 16D for sale</b><span>Upgraded specs: Smart home ready · heat pumps in every room</span></li>
   </ul>
+  <p class="ribbon"><b>16C &amp; 16D for sale</b><span>Upgraded specs: smart home ready · heat pumps in every room</span></p>
 </section>
 
 <div class="scene-band">
@@ -213,20 +220,20 @@ dialog.share p{font-size:13px;color:var(--muted);margin:0 0 12px}
       <li><i class="sw" style="background:var(--sale)"></i><div><b>For sale</b><span>16C &amp; 16D</span></div></li>
       <li><i class="sw" style="background:var(--lease)"></i><div><b>For rent</b><span>16A, 16B, 16E &amp; 16F</span></div></li>
     </ul>
-    <h3>Floor views</h3>
+    <details><summary>Floor view colours</summary>
     <ul>
       <li><i class="sw" style="background:#bf9f72"></i><div><b>Living, dining, kitchen</b><span>Level 1, open plan</span></div></li>
       <li><i class="sw" style="background:#d6d0c3"></i><div><b>Bedrooms, robes, landing</b><span>Guest bedroom on the ground floor, three on Level 2</span></div></li>
       <li><i class="sw" style="background:#b9c9cf"></i><div><b>Bathrooms and WC</b><span>Ensuite, main bathroom, separate WC</span></div></li>
       <li><i class="sw" style="background:#8f9295"></i><div><b>Garage</b><span>Single internal garage</span></div></li>
-    </ul>
-    <h3>Exterior palette</h3>
+    </ul></details>
+    <details><summary>Exterior materials</summary>
     <ul>
       <li><i class="sw" style="background:#34373a"></i><div><b>Hardie Stria, vertical</b><span>Dark charcoal · stair blocks and fins</span></div></li>
       <li><i class="sw" style="background:#eeeae2"></i><div><b>Hardie Oblique, horizontal</b><span>Warm white · living and bedroom faces</span></div></li>
       <li><i class="sw" style="background:#c6c9ca"></i><div><b>Austral Bricks Platinum</b><span>Ground floor base</span></div></li>
       <li><i class="sw" style="background:#1d1e20"></i><div><b>Colorsteel Ebony roof</b><span>Matte black joinery, fascias and slatted fences</span></div></li>
-    </ul>
+    </ul></details>
     <p class="fine">Artist's impression for illustration only. The model is stylised and not to scale. Room layouts are drawn from floor plans and are approximate; room and floor areas are taken from the sales briefing pack. Furniture is indicative only and not included. Positions of nearby landmarks are indicative. Final details may differ, so refer to the official plans and your agreement.</p>
   </aside>
 </main>
@@ -274,7 +281,7 @@ const lot=n=>{
   return b;
 };
 const INFO={
-  site:{t:'16 Sunnyvale Road',s:'Greenlane · THAB zone · Double Grammar Zone',cat:'dev',rows:[['Homes','6 three-storey terraces'],['Typical home','4 bed · 2.5 bath · 137.1 m² + deck'],['Title','Freehold, no body corporate'],['Build','Master Build Guarantee · Code Compliance Certificate issued'],['School zones','Auckland Grammar, Epsom Girls Grammar, Remuera Intermediate, Cornwall Park District School'],['Getting around','12 min walk to Greenlane train station · 8 min to Greenlane shops · 13 min to Cornwall Park · 2 min drive to SH1']],note:'Tap a home, then use GF, L1 or L2 to look inside.'},
+  site:{t:'16 Sunnyvale Road',s:'Greenlane · THAB zone · Double Grammar Zone',cat:'dev',rows:[['Homes','16C & 16D for sale · 16A, 16B, 16E & 16F for rent'],['School zones','Auckland Grammar, Epsom Girls Grammar, Remuera Intermediate, Cornwall Park District School'],['Getting around','12 min walk to Greenlane train station · 8 min to Greenlane shops · 13 min to Cornwall Park · 2 min drive to SH1']],note:'Tap a home, then use GF, L1 or L2 to look inside.'},
   lot1:lot(1),lot2:lot(2),lot3:lot(3),lot4:lot(4),lot5:lot(5),lot6:lot(6),
   entry:{t:'Street entrance',s:'Sign on the front fence · mail and parcel hub at the driveway',cat:'dev',rows:[['Sign','Matte black plate with brushed stainless lettering'],['Parcels','Shared secure parcel lockers'],['Letters','Six individual letterboxes'],['Fencing','Horizontal timber slats, matte black'],['Backyards','Fully fenced, artificial turf']],note:'Sign drawn larger than real size so it reads in the model.'},
   stn:{t:'Greenlane train station',s:'Southern and Onehunga lines',cat:'dev',rows:[['From the site','12 min walk']],note:'Position in the model is indicative.'},
@@ -1162,10 +1169,10 @@ function orientNorth(){
 }
 $('#bNorth').onclick=()=>{stopTour();orientNorth();};
 /* phone: sticky Book a viewing bar, hidden while the contact cards are on screen */
-{const bar=$('#mbar'), info=$('#info'); let ctaVisible=false;
- const upd=()=>{bar.hidden=!matchMedia('(max-width:760px)').matches||ctaVisible;};
- const io=new IntersectionObserver(es=>{ctaVisible=es.some(e=>e.isIntersecting); upd();},{threshold:0.2});
- const watch=()=>{io.disconnect(); info.querySelectorAll('.cta-box').forEach(b=>io.observe(b));};
+{const bar=$('#mbar'), info=$('#info'), seen=new Set();
+ const upd=()=>{bar.hidden=!matchMedia('(max-width:760px)').matches||seen.size>0;};
+ const io=new IntersectionObserver(es=>{es.forEach(e=>e.isIntersecting?seen.add(e.target):seen.delete(e.target)); upd();},{threshold:0.2});
+ const watch=()=>{io.disconnect(); seen.clear(); io.observe($('#scene')); info.querySelectorAll('.cta-box').forEach(b=>io.observe(b));};
  new MutationObserver(watch).observe(info,{childList:true}); watch(); addEventListener('resize',upd); upd();
  $('#mBook').onclick=()=>{ stopTour(); if(!/^lot\d$|^site$/.test(selected)) render('site');
    const t=info.querySelector('.cta-box'); (t||info).scrollIntoView({behavior:reduce?'auto':'smooth',block:'center'}); };}
