@@ -86,7 +86,8 @@ button:focus-visible{outline:2px solid var(--lease);outline-offset:2px}
   .scene .tourbar{bottom:12px}
   .scene.open .tourbar{bottom:52px}
   .scene .skey{top:auto;bottom:12px;right:12px}
-  .scene:has(#tourcap:not([hidden])) .skey{display:none}
+  .scene:has(#tourcap:not([hidden])) .skey,.scene:has(#sunbar:not([hidden])) .skey,.scene:has(#sunbar:not([hidden])) .jump{display:none!important}
+  .scene .sunbar{bottom:12px}
 }
 .compass{padding:5px;width:34px;height:34px;display:inline-flex;align-items:center;justify-content:center}
 .compass svg{display:block}
@@ -900,7 +901,8 @@ for(let k=0;k<5;k++) for(let i=0;i<3;i++){
 
 // JOAL (Lot 7) on the SH1 side of the terrace
 const joal=bx(-20.5,18.6,0,0.07,-7.6,-4.6,M.joal,site);   // Lot 7 driveway, 3.0 m
-bx(-20.5,21.2,0,0.07,-8.3,-7.6,M.chips,site);               // edge strip: bollards and parcel hub joal.userData.pick='joal';
+bx(-20.5,21.2,0,0.07,-8.3,-7.6,M.chips,site);               // edge strip: bollards and parcel hub
+joal.userData.pick='joal';
 const bulbs=[];
 [-20,-8,4,16].forEach(x=>{box(0.18,0.9,0.18,M.black,x,0.45,-7.95,site);const b=new THREE.Mesh(new THREE.BoxGeometry(0.2,0.12,0.2),lamp);b.position.set(x,0.85,-7.95);site.add(b);bulbs.push(b);});
 // matte black horizontal slat fences
@@ -1287,7 +1289,7 @@ function applySun(){
   const dir=NORTH.clone().multiplyScalar(Math.cos(az)).addScaledVector(EAST,Math.sin(az)).multiplyScalar(Math.cos(el)).setY(Math.sin(el));
   sun.position.copy(dir.multiplyScalar(140));
   const up=Math.max(0,Math.sin(el)), warm=Math.min(1,up*3);
-  sun.intensity=el>0?0.25+0.75*Math.min(1,up*2.2):0.03; hemi.intensity=0.3+0.45*Math.min(1,up*3);
+  sun.intensity=el>0?0.22+0.6*Math.min(1,up*2.2):0.03; hemi.intensity=0.3+0.38*Math.min(1,up*3);
   sun.color.setRGB(1,0.78+0.2*warm,0.6+0.36*warm);
   const bg=new THREE.Color(0x18222b).lerp(new THREE.Color(0xcfdde4),Math.min(1,0.15+up*3));
   scene.background=bg; scene.fog.color.copy(bg); sceneEl.style.background='#'+bg.getHexString();
