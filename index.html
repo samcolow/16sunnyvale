@@ -1145,7 +1145,7 @@ $('#bSun').onclick=()=>setSun(!sunOn);
 $('#sunT').oninput=applySun;
 document.querySelectorAll('#season button').forEach(b=>b.onclick=()=>{season=b.dataset.s;document.querySelectorAll('#season button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));applySun();});
 
-/* share: QR code and copy link */
+/* share: copy link */
 const dlg=$('#shareDlg');
 $('#bShare').onclick=()=>{
   $('#shareUrl').textContent=SHARE_URL||location.href;
