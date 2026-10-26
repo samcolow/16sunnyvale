@@ -347,7 +347,7 @@ const lot=n=>{
     ['Outdoor',n===1?'Level 1 deck and 24.4 m² outdoor living space':'7.9 m² deck and 18 m² fenced backyard'],
     ['Title','Freehold (fee simple), no body corporate'],
     ['Heating',sale?'Heat pumps in the living area and every bedroom · underfloor heating in bathrooms':'Heat pump in the living area · underfloor heating in bathrooms'],
-    ['Smart home',sale?'Google Home: lighting, heating, alarm and video doorbell · keyless entry · internet ready':'Keyless entry · internet ready'],
+    ['Smart home',sale?'Smart home control of lighting scenes, climate, smart alarm and PoE video doorbell · keyless entry · internet ready':'Keyless entry · internet ready'],
     ['Window furnishings','Linen sheers and blackout curtains in every room'],
     ['Garage','Carpeted, with a 32 A circuit ready for an EV charger']];
   b.note=n===1?'End home on the Sunnyvale Rd frontage with its own floor plan; the front door faces the street. Use GF, L1 and L2 to look inside.'
@@ -608,7 +608,7 @@ function unit(n,x){
   bx(-0.4,0,7.3,8.3,-4.56,-4.5,M.black,L2.shell);
   bx(-0.6,3,8.6,9.0,-4.6,-4.5,M.charcoal,L2.shell,true);   // charcoal surround over the white bay
   [-0.45,-0.3,-0.15,0,0.15].forEach(bx0=>bx(bx0-0.03,bx0+0.03,3.0,8.6,-4.68,-4.6,M.black,L2.shell,true));   // vertical battens, per the north elevation
-  // stair-void pendant (Coral in Lot 1, Hinaki elsewhere)
+  // stair-void pendant
   const pend=new THREE.Mesh(n===1?new THREE.IcosahedronGeometry(0.42,1):new THREE.SphereGeometry(0.36,12,10),n===1?M.coral:M.bamboo);
   pend.position.set(n===1?-2.45:-1.8,7.1,n===1?-4.0:-3.7); if(n!==1) pend.scale.set(1,1.4,1); L2.shell.add(pend);
   {const px=n===1?-2.45:-1.8,pz=n===1?-4.0:-3.7; bx(px-0.01,px+0.01,7.6,9,pz-0.01,pz+0.01,M.part,L2.shell);}
