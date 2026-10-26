@@ -139,7 +139,7 @@ dialog.share p{font-size:13px;color:var(--muted);margin:0 0 12px}
   <ul>
     <li><b>Double Grammar Zone</b><span>Auckland Grammar and Epsom Girls Grammar</span></li>
     <li><b>Freehold title</b><span>No body corporate or residents' association</span></li>
-    <li><b>12 min walk to the train</b><span>Greenlane station · Woolworths a short walk away · 2 min drive to SH1</span></li>
+    <li><b>Walk to the train and shops</b><span>12 min to Greenlane train station · Woolworths a short walk away · 2 min drive to SH1</span></li>
     <li><b>Sunny living and deck</b><span>Open-plan living flows out to a private timber deck</span></li>
     <li><b>Smart, warm and connected</b><span>Google Home, heat pump, underfloor-heated bathrooms, network and internet ready</span></li>
     <li><b>Brand new, CCC issued</b><span>Master Build Guarantee · EV-ready garage</span></li>
@@ -242,10 +242,10 @@ const lot=n=>{
   return b;
 };
 const INFO={
-  site:{t:'16 Sunnyvale Road',s:'Greenlane · THAB zone · Double Grammar Zone',cat:'dev',rows:[['Homes','6 three-storey terraces'],['Typical home','4 bed · 2.5 bath · 137.1 m² + deck'],['Title','Freehold, no body corporate'],['Build','Master Build Guarantee · Code Compliance Certificate issued'],['School zones','Auckland Grammar, Epsom Girls Grammar, Remuera Intermediate, Cornwall Park District School'],['Getting around','12 min walk to Greenlane station · 8 min to Greenlane shops · 13 min to Cornwall Park · 2 min drive to SH1']],note:'Tap a home, then use GF, L1 or L2 to look inside.'},
+  site:{t:'16 Sunnyvale Road',s:'Greenlane · THAB zone · Double Grammar Zone',cat:'dev',rows:[['Homes','6 three-storey terraces'],['Typical home','4 bed · 2.5 bath · 137.1 m² + deck'],['Title','Freehold, no body corporate'],['Build','Master Build Guarantee · Code Compliance Certificate issued'],['School zones','Auckland Grammar, Epsom Girls Grammar, Remuera Intermediate, Cornwall Park District School'],['Getting around','12 min walk to Greenlane train station · 8 min to Greenlane shops · 13 min to Cornwall Park · 2 min drive to SH1']],note:'Tap a home, then use GF, L1 or L2 to look inside.'},
   lot1:lot(1),lot2:lot(2),lot3:lot(3),lot4:lot(4),lot5:lot(5),lot6:lot(6),
   entry:{t:'Street entrance',s:'Sign on the front fence · mail and parcel hub at the driveway',cat:'dev',rows:[['Sign','Matte black plate with brushed stainless lettering'],['Parcels','Shared secure parcel lockers'],['Letters','Six individual letterboxes'],['Fencing','Horizontal timber slats, matte black'],['Backyards','Fully fenced, artificial turf']],note:'Sign drawn larger than real size so it reads in the model.'},
-  stn:{t:'Greenlane station',s:'Southern and Onehunga lines',cat:'dev',rows:[['From the site','12 min walk']],note:'Position in the model is indicative.'},
+  stn:{t:'Greenlane train station',s:'Southern and Onehunga lines',cat:'dev',rows:[['From the site','12 min walk']],note:'Position in the model is indicative.'},
   mcd:{t:"McDonald's",s:'Great South Rd',cat:'dev',rows:[['Where','Great South Rd, Greenlane']],note:'Position in the model is indicative.'},
   ww:{t:'Woolworths',s:'Greenlane shops',cat:'dev',rows:[['From the site','8 min walk to Greenlane shops']],note:'Position in the model is indicative.'},
   joal:{t:'Shared driveway',s:'Jointly owned access lot',cat:'dev',rows:[['Ownership','Each home holds a share of the driveway lot'],['Access','Right-of-way easement'],['Body corporate','None'],['Width','3.0 m'],['Parking','Single internal garage each + on-street']],note:'Freehold titles with a jointly owned access lot, so no body corporate levies.'}
@@ -402,12 +402,12 @@ interchange(-120); // Greenlane Rd East and the SH1 exit, south
 /* neighbourhood landmarks (positions indicative, not to scale) */
 const LM=[];
 function landmark(id,x,z,build,label){const g=new THREE.Group();g.position.set(x,0,z);g.userData={id,cat:'dev',r:12};site.add(g);build(g);pickables.push(g);LM.push([label,x,z]);}
-// Greenlane station: south of the Greenlane roundabout, platform on the green (Sunnyvale) side of the rail, away from SH1
+// Greenlane train station: south of the Greenlane roundabout, platform on the green (Sunnyvale) side of the rail, away from SH1
 landmark('stn',-148,-29.6,g=>{ g.position.y=hAt(-148);
   bx(-12,12,-0.2,0.9,-0.8,0.8,M.concrete,g);
   bx(-4,4,0.9,3.2,0.1,0.8,M.nbRoof,g); bx(-4.3,4.3,3.2,3.4,-0.6,1.0,M.black,g);
   [-3.6,3.6].forEach(x=>bx(x-0.08,x+0.08,0.9,3.2,-0.5,-0.34,M.black,g));
-},'Greenlane station');
+},'Greenlane train station');
 seg3([-136,hAt(-136)+0.9,-27.9],[-128,0.06,-24],2.2,0.2,M.concrete);   // ramp from the platform up to the street
 landmark('mcd',-109,48,g=>{   // between the Greenlane exit road and Woolworths, fronting Great South Rd
   bx(-4,4,0,3.6,-4,4,M.nb,g); bx(-4.3,4.3,3.6,4.0,-4.3,4.3,M.roof,g);
@@ -1083,7 +1083,7 @@ const TOUR=[
   {t:'Level 2: three bedrooms and the bathroom',sel:'lot3',cut:3},
   {t:'Fenced backyards',v:'yards',sel:'site',cut:0},
   {t:'Great South Rd to the railway',v:'context',sel:'site',cut:0},
-  {t:'Greenlane station and shops',v:'landmarks',sel:'site',cut:0},
+  {t:'Greenlane train station and shops',v:'landmarks',sel:'site',cut:0},
   {t:'Evening, stair pendants lit',v:'overview',sel:'site',cut:0,night:true}
 ];
 const DWELL=6500, FLY=1800;
