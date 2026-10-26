@@ -88,6 +88,7 @@ dd{font:500 13px/1.45 var(--f-mono);font-variant-numeric:tabular-nums;min-width:
 .features{padding-block:0 14px}
 .features ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px}
 .features li{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px;min-width:0}
+.features li.pod{border-color:var(--lease);box-shadow:inset 0 3px 0 var(--lease)}
 .features li b{display:block;font:600 13px/1.25 var(--f-body)}
 .features li span{display:block;font-size:12px;color:var(--muted);margin-top:2px}
 .hdr-actions{display:flex;gap:8px;align-items:center}
@@ -137,12 +138,13 @@ dialog.share p{font-size:13px;color:var(--muted);margin:0 0 12px}
 
 <section class="wrap features" aria-label="Key features">
   <ul>
-    <li><b>Double Grammar Zone</b><span>Auckland Grammar and Epsom Girls Grammar</span></li>
-    <li><b>Freehold title</b><span>No body corporate or residents' association</span></li>
+    <li class="pod"><b>Smart home and internet ready</b><span>Google Home control of lighting, heating, alarm and video doorbell · keyless entry · hardwired data on every level</span></li>
+    <li class="pod"><b>Heat pumps in every room</b><span>Living area and every bedroom, plus underfloor-heated bathrooms</span></li>
+    <li class="pod"><b>Quality window furnishings</b><span>High-quality window furnishings fitted throughout</span></li>
     <li><b>Convenient location</b><span>12 min to Greenlane train station · Woolworths a short walk away · 2 min drive to SH1</span></li>
+    <li><b>Double Grammar Zone</b><span>Auckland Grammar and Epsom Girls Grammar</span></li>
     <li><b>Sunny living and deck</b><span>Open-plan living flows out to a private timber deck</span></li>
-    <li><b>Smart, warm and connected</b><span>Google Home, heat pump, underfloor-heated bathrooms, smart home and internet ready</span></li>
-    <li><b>Brand new, CCC issued</b><span>Master Build Guarantee · EV-ready garage</span></li>
+    <li><b>Freehold and brand new</b><span>No body corporate · CCC issued · Master Build Guarantee · EV-ready garage</span></li>
   </ul>
 </section>
 
@@ -234,8 +236,9 @@ const lot=n=>{
       ['Level 2','49.9 m² · primary bedroom and two bedrooms, bathroom, linen']]),
     ['Outdoor',n===1?'Level 1 deck and 24.4 m² outdoor living space':'7.9 m² deck and 18 m² fenced backyard'],
     ['Title','Freehold (fee simple), no body corporate'],
-    ['Heating',sale?'Heat pumps in living and all bedrooms · underfloor heating in bathrooms':'Heat pump in living · underfloor heating in bathrooms'],
-    ['Smart home',sale?'Google Home: lighting, heating, alarm, video doorbell and smart lock':'Keyless entry · smart home and internet ready'],
+    ['Heating','Heat pumps in the living area and every bedroom · underfloor heating in bathrooms'],
+    ['Smart home','Google Home: lighting, heating, alarm and video doorbell · keyless entry · internet ready'],
+    ['Window furnishings','High-quality window furnishings throughout'],
     ['Garage','Carpeted, with a 32 A circuit ready for an EV charger']];
   b.note=n===1?'End home on the Sunnyvale Rd frontage with its own floor plan; the front door faces the street. Use GF, L1 and L2 to look inside.'
     :'Use GF, L1 and L2 to look inside. '+(n%2?'':'This home is a mirror image of the layout shown for 16C. ')+(n===6?'End home with a side yard.':'');
