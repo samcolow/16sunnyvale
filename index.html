@@ -138,13 +138,12 @@ dialog.share p{font-size:13px;color:var(--muted);margin:0 0 12px}
 
 <section class="wrap features" aria-label="Key features">
   <ul>
-    <li class="pod"><b>Smart home and internet ready</b><span>Google Home control of lighting, heating, alarm and video doorbell · keyless entry · hardwired data on every level</span></li>
-    <li class="pod"><b>Heat pumps in every room</b><span>Living area and every bedroom, plus underfloor-heated bathrooms</span></li>
-    <li class="pod"><b>Quality window furnishings</b><span>High-quality window furnishings fitted throughout</span></li>
     <li><b>Convenient location</b><span>12 min to Greenlane train station · Woolworths a short walk away · 2 min drive to SH1</span></li>
     <li><b>Double Grammar Zone</b><span>Auckland Grammar and Epsom Girls Grammar</span></li>
     <li><b>Sunny living and deck</b><span>Open-plan living flows out to a private timber deck</span></li>
+    <li><b>Warm and connected</b><span>Heat pump in the living area · underfloor-heated bathrooms · keyless entry · internet ready</span></li>
     <li><b>Freehold and brand new</b><span>No body corporate · CCC issued · Master Build Guarantee · EV-ready garage</span></li>
+    <li class="pod"><b>16C &amp; 16D for sale: upgraded spec</b><span>Google Home smart home · heat pumps in every room · high-quality window furnishings</span></li>
   </ul>
 </section>
 
@@ -236,9 +235,9 @@ const lot=n=>{
       ['Level 2','49.9 m² · primary bedroom and two bedrooms, bathroom, linen']]),
     ['Outdoor',n===1?'Level 1 deck and 24.4 m² outdoor living space':'7.9 m² deck and 18 m² fenced backyard'],
     ['Title','Freehold (fee simple), no body corporate'],
-    ['Heating','Heat pumps in the living area and every bedroom · underfloor heating in bathrooms'],
-    ['Smart home','Google Home: lighting, heating, alarm and video doorbell · keyless entry · internet ready'],
-    ['Window furnishings','High-quality window furnishings throughout'],
+    ['Heating',sale?'Heat pumps in the living area and every bedroom · underfloor heating in bathrooms':'Heat pump in the living area · underfloor heating in bathrooms'],
+    ['Smart home',sale?'Google Home: lighting, heating, alarm and video doorbell · keyless entry · internet ready':'Keyless entry · internet ready'],
+    ...(sale?[['Window furnishings','High-quality window furnishings throughout']]:[]),
     ['Garage','Carpeted, with a 32 A circuit ready for an EV charger']];
   b.note=n===1?'End home on the Sunnyvale Rd frontage with its own floor plan; the front door faces the street. Use GF, L1 and L2 to look inside.'
     :'Use GF, L1 and L2 to look inside. '+(n%2?'':'This home is a mirror image of the layout shown for 16C. ')+(n===6?'End home with a side yard.':'');
