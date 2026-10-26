@@ -139,7 +139,7 @@ dialog.share p{font-size:13px;color:var(--muted);margin:0 0 12px}
   <ul>
     <li><b>Double Grammar Zone</b><span>Auckland Grammar and Epsom Girls Grammar</span></li>
     <li><b>Freehold title</b><span>No body corporate or residents' association</span></li>
-    <li><b>Walk to the train and shops</b><span>12 min to Greenlane train station · Woolworths a short walk away · 2 min drive to SH1</span></li>
+    <li><b>Convenient location</b><span>12 min to Greenlane train station · Woolworths a short walk away · 2 min drive to SH1</span></li>
     <li><b>Sunny living and deck</b><span>Open-plan living flows out to a private timber deck</span></li>
     <li><b>Smart, warm and connected</b><span>Google Home, heat pump, underfloor-heated bathrooms, network and internet ready</span></li>
     <li><b>Brand new, CCC issued</b><span>Master Build Guarantee · EV-ready garage</span></li>
@@ -991,7 +991,7 @@ function render(id){
   el.append(pill,h,s,dl);
   if(d.note){const n=document.createElement('p');n.className='note';n.textContent=d.note;el.append(n);}
   if(/^lot\d$/.test(id)){const st=STATUS[+id[3]]; if(CONTACTS[st]) el.append(ctaRow(d.t+', 16 Sunnyvale Road',CONTACTS[st]));}
-  if(id==='site'){el.append(ctaRow('a home to rent at 16 Sunnyvale Road',CONTACTS.lease,'To rent'),ctaRow('16C or 16D, 16 Sunnyvale Road',CONTACTS.sale,'To buy'));}
+  if(id==='site'){el.append(ctaRow('16C or 16D, 16 Sunnyvale Road',CONTACTS.sale,'For sales'),ctaRow('a home to rent at 16 Sunnyvale Road',CONTACTS.lease,'For rental'));}
 }
 
 /* ---------- picking ---------- */
