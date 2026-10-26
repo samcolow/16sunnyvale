@@ -974,17 +974,9 @@ function setLife(on){lifeOn=on; $('#bLife').setAttribute('aria-pressed',String(o
 
 /* ---------- selection ---------- */
 const ring=new THREE.Mesh(new THREE.RingGeometry(1,1.12,64),new THREE.MeshBasicMaterial({color:0x1c1f21,transparent:true,opacity:0.85}));
-ring.rotation.x=-Math.PI/2; scene.add(ring);
+ring.rotation.x=-Math.PI/2; ring.visible=false; scene.add(ring);   // selection rings retired: the selected home is tinted instead
 let selected='site';
-function placeRing(id){
-  ring.visible=true;
-  if(id==='site'){ring.position.set(...toW([-3,0.14,-2.5]));ring.scale.setScalar(25);return;}
-  if(id==='joal'){ring.visible=false;return;}
-  if(id==='entry'){ring.position.set(...toW([-19.5,0.14,-7.5]));ring.scale.setScalar(3.4);return;}
-  const g=pickables.find(p=>p.userData.id===id); if(!g)return;
-  const v=new THREE.Vector3(); g.getWorldPosition(v);
-  ring.position.set(v.x,0.14,v.z); ring.scale.setScalar(g.userData.r);
-}
+function placeRing(id){ ring.visible=false; }
 /* selected home: light tint on everything in that unit (night-lit glass and pendants keep their own materials) */
 const HL=new Map(), NOHL=new Set([glass,voidGlass,balGlass,M.bamboo,M.coral,lamp]);
 let hlGroup=null;
@@ -1132,7 +1124,7 @@ $('#bReset').onclick=()=>{stopTour();fly('overview');render('site');setCut(0);};
 const TOUR=[
   {t:'The terrace from the driveway side',v:'overview',sel:'site',cut:0},
   {t:'Street entrance on Sunnyvale Rd',v:'entrance',sel:'entry',cut:0},
-  {t:'Shared driveway: garages, entries, Level 1 decks',v:'driveway',sel:'joal',cut:0,rot:-0.5,zoom:0.55},
+  {t:'Shared driveway: garages, entries, Level 1 decks',v:'driveway',sel:'joal',cut:0,rot:-0.9,zoom:0.75},
   {t:'GF: guest bedroom with ensuite, internal garage',sel:'lot3',cut:1},
   {t:'Level 1: open-plan living onto the deck',sel:'lot3',cut:2},
   {t:'Level 2: three bedrooms and the bathroom',sel:'lot3',cut:3},
