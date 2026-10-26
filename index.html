@@ -60,13 +60,13 @@ button:focus-visible{outline:2px solid var(--lease);outline-offset:2px}
 .seg{display:inline-flex;background:var(--chip-bg);border-radius:999px;box-shadow:0 1px 3px rgba(0,0,0,.15);padding:2px}
 .seg button{box-shadow:none;background:transparent;padding:6px 10px;font-family:var(--f-mono);font-size:11px}
 .seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
-/* browser in dark mode: active controls in lime so they stay visible even if the browser darkens the page */
+/* browser in dark mode: active controls in light purple so they stay visible even if the browser darkens the page */
 @media (prefers-color-scheme: dark){
-  button[aria-pressed="true"],.seg button[aria-pressed="true"]{background:#c9f23a!important;color:#1d2a44!important}
+  button[aria-pressed="true"],.seg button[aria-pressed="true"]{background:#b9b6f7!important;color:#1d2a44!important}
   .ctrls .icon[aria-pressed="true"] svg{color:#1d2a44}
 }
-/* night view: active controls in lime so they stand out against the dark scene */
-.night .ctrls button[aria-pressed="true"],.night .ctrls .seg button[aria-pressed="true"],.night .sunbar .seg button[aria-pressed="true"]{background:var(--sale);color:var(--on-sale)}
+/* night view: active controls in light purple so they stand out against the dark scene */
+.night .ctrls button[aria-pressed="true"],.night .ctrls .seg button[aria-pressed="true"],.night .sunbar .seg button[aria-pressed="true"]{background:#b9b6f7;color:#1d2a44}
 .night .ctrls button,.night .ctrls .seg,.night .jump button,.night .skey,.night .tourcap{background:rgba(24,30,46,.88);color:#e8eaf4}
 .ctrls .spacer{flex:1}
 .more{display:none}
@@ -812,6 +812,7 @@ const PLANS1=[
   },
   { // Level 2
     flip:true,L:5,R:640,T:0,B:880,zr:3.8,
+    well:{x0:522,x1:633,y0:45,y1:300,steps:8},   // top flight of 16A's U-stair, arriving at the rear
     slab:[[5,0],[405,0],[405,35],[640,35],[640,880],[5,880]],
     rooms:[
       ['bed',[[5,0],[405,0],[405,220],[320,220],[320,325],[5,325]],'Bedroom · 10.1 m²',[170,170]],
