@@ -964,8 +964,8 @@ actor(personMesh(mat(0xa33b3b),LM_.denim,LM_.skin2),[{tp:[-30.3,0,57]},{show:1},
 [[0x2e4a6b,3],[0x55595c,12]].forEach(([c,w])=>actor(carMesh(c),[{wait:w},{tp:[135,0,68.2]},{show:1},{to:[-195,0,68.2],sp:11},{hide:1},{wait:5}],'c'));
 // a resident's car: off Great South Rd, down Sunnyvale Rd and the shared driveway into the 16E garage, later reversing out
 {const gx=ux(5)+1.47;
- actor(carMesh(0x6b7d5c),[{wait:4},{tp:[-80,0,63.8]},{show:1},{to:[-31,0,63.8],sp:9},{to:[-24.2,0,57],sp:5},{to:[-24.2,0,-3.2],sp:6},{to:[-21.2,0,-6.1],sp:2.5},{to:[gx-4.5,0,-6.1],sp:3},{to:[gx,0,-5.2],sp:1.5},
-   {door:5,v:1},{wait:2.6},{to:[gx,0,-0.6],sp:1.2},{wait:0.5},{door:5,v:0},{wait:2.6},{hide:1},{wait:14},
+ actor(carMesh(0x6b7d5c),[{wait:4},{tp:[-80,0,63.8]},{show:1},{to:[-31,0,63.8],sp:9},{to:[-24.2,0,57],sp:5},{to:[-24.2,0,-3.2],sp:6},{to:[-21.2,0,-6.1],sp:2.5},{mark:'drv'},{to:[gx-4.5,0,-6.1],sp:4},{to:[gx,0,-5.2],sp:2.5},
+   {door:5,v:1},{wait:1.6},{to:[gx,0,-0.6],sp:2},{wait:0.5},{door:5,v:0},{wait:2.6},{hide:1},{wait:14},
    {door:5,v:1},{tp:[gx,0,-0.6]},{show:1},{wait:2.6},{to:[gx,0,-6.0],sp:1,rev:1},{door:5,v:0},{to:[gx-3,0,-6.1],sp:2},{to:[-21.2,0,-6.1],sp:3},{to:[-27.6,0,-3.0],sp:2.5},{to:[-27.6,0,57],sp:6},{to:[-33,0,68.2],sp:5},{to:[-110,0,68.2],sp:9},{hide:1},{wait:8}],'c');}
 let lifeOn=true, lifeT=0;
 function updateLife(dt){
@@ -988,8 +988,14 @@ function updateLife(dt){
     if(a.kind==='p'){const s=a.script[a.i]; a.obj.position.y+=s&&s.to?Math.abs(Math.sin(lifeT*7+a.pos.x))*0.04:0;}
   });
 }
+/* tour: place the resident car on the driveway so it drives into the 16E garage during the driveway stop (~8.5 s) */
+function carToDriveway(){
+  const a=actors.find(x=>x.script.some(st=>st.mark==='drv')); if(!a) return;
+  a.i=a.script.findIndex(st=>st.mark==='drv'); a.t=0; a.pos.set(-1,0,-6.1); a.head=Math.PI/2; a.obj.visible=true;
+  const d=units[5].gdoor; d.userData.open=0; d.userData.target=0; d.scale.y=1; d.position.z=0;
+}
 function updateDoors(dt){for(const n in units){const d=units[n].gdoor, u=d.userData; if(u.open===u.target) continue;
-  u.open=u.target>u.open?Math.min(u.target,u.open+dt/2.4):Math.max(u.target,u.open-dt/2.4);
+  u.open=u.target>u.open?Math.min(u.target,u.open+dt/1.8):Math.max(u.target,u.open-dt/2.4);
   d.scale.y=Math.max(0.04,1-u.open); d.position.z=-u.open*0.05;}}
 function setLife(on){lifeOn=on; $('#bLife').setAttribute('aria-pressed',String(on)); life.visible=on&&cut===0;}
 
@@ -1145,22 +1151,22 @@ $('#bReset').onclick=()=>{stopTour();fly('overview');render('site');setCut(0);};
 
 /* ---------- automatic tour ---------- */
 const TOUR=[
-  {t:'The terrace from the driveway side',v:'overview',sel:'site',cut:0},
-  {t:'Street entrance on Sunnyvale Rd',v:'entrance',sel:'entry',cut:0},
-  {t:'Shared driveway: garages, entries, Level 1 decks',v:'driveway',sel:'joal',cut:0,rot:-0.9,zoom:0.75},
-  {t:'GF: guest bedroom with ensuite, internal garage',sel:'lot3',cut:1},
-  {t:'Level 1: open-plan living onto the deck',sel:'lot3',cut:2},
-  {t:'Level 2: three bedrooms and the bathroom',sel:'lot3',cut:3},
-  {t:'Fenced backyards',v:'yards',sel:'site',cut:0},
-  {t:'Great South Rd to the railway',v:'context',sel:'site',cut:0},
-  {t:'Greenlane train station and shops',v:'landmarks',sel:'site',cut:0},
-  {t:'Evening, stair pendants lit',v:'overview',sel:'site',cut:0,night:true}
+  {t:'The terrace from the driveway side',v:'overview',sel:'site',cut:0,d:7000},
+  {t:'Street entrance on Sunnyvale Rd',v:'entrance',sel:'entry',cut:0,d:6000},
+  {t:'Shared driveway: garages, entries, Level 1 decks',v:'driveway',sel:'joal',cut:0,rot:-0.9,zoom:0.75,d:10000,car:1},
+  {t:'GF: guest bedroom with ensuite, internal garage',sel:'lot3',cut:1,d:9000},
+  {t:'Level 1: open-plan living onto the deck',sel:'lot3',cut:2,d:9000},
+  {t:'Level 2: three bedrooms and the bathroom',sel:'lot3',cut:3,d:9000},
+  {t:'Fenced backyards',v:'yards',sel:'site',cut:0,d:6000},
+  {t:'Great South Rd to the railway',v:'context',sel:'site',cut:0,d:6000},
+  {t:'Greenlane train station and shops',v:'landmarks',sel:'site',cut:0,d:7000},
+  {t:'Evening, stair pendants lit',v:'overview',sel:'site',cut:0,night:true,d:6000}
 ];
 const DWELL=10000, FLY=2400;
 let touring=false, step=-1, stepStart=0;
 function goStep(i,now){
   step=i%TOUR.length; stepStart=now; const s=TOUR[step];
-  setCut(s.cut); render(s.sel); setNight(!!s.night); controls.autoRotateSpeed=s.rot||0.5; fly(s.cut?lotView(3,s.cut):s.v,FLY);
+  setCut(s.cut); render(s.sel); setNight(!!s.night); controls.autoRotateSpeed=s.rot||0.5; fly(s.cut?lotView(3,s.cut):s.v,FLY); if(s.car&&lifeOn) carToDriveway();
   $('#tourn').textContent=(step+1)+'/'+TOUR.length; $('#tourt').textContent=s.t;
 }
 function startTour(){touring=true;$('#bTour').setAttribute('aria-pressed','true');$('#bTour').textContent='Pause tour';$('#tourcap').hidden=false;goStep(step<0?0:step,performance.now());}
@@ -1256,10 +1262,11 @@ function loop(now){
     const el=now-stepStart;
     controls.autoRotate=!tween&&!reduce;
     const zs=TOUR[step].zoom;   // slow push-in while the camera circles (distance shrinks to zs over the stop)
-    if(zs&&!tween&&!reduce){const off=camera.position.clone().sub(controls.target), k=Math.pow(zs,dt/((DWELL-FLY)/1000));
+    if(zs&&!tween&&!reduce){const off=camera.position.clone().sub(controls.target), k=Math.pow(zs,dt/(((TOUR[step].d||DWELL)-FLY)/1000));
       if(off.length()*k>controls.minDistance+2) camera.position.copy(controls.target).add(off.multiplyScalar(k));}
-    $('#tourp').style.width=Math.min(100,el/DWELL*100)+'%';
-    if(el>DWELL) goStep(step+1,now);
+    const dw=TOUR[step].d||DWELL;
+    $('#tourp').style.width=Math.min(100,el/dw*100)+'%';
+    if(el>dw) goStep(step+1,now);
   }
   controls.update();
   renderer.render(scene,camera);
