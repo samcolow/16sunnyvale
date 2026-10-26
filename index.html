@@ -60,6 +60,9 @@ button:focus-visible{outline:2px solid var(--lease);outline-offset:2px}
 .seg{display:inline-flex;background:var(--chip-bg);border-radius:999px;box-shadow:0 1px 3px rgba(0,0,0,.15);padding:2px}
 .seg button{box-shadow:none;background:transparent;padding:6px 10px;font-family:var(--f-mono);font-size:11px}
 .seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+/* night view: active controls in lime so they stand out against the dark scene */
+.night .ctrls button[aria-pressed="true"],.night .ctrls .seg button[aria-pressed="true"],.night .sunbar .seg button[aria-pressed="true"]{background:var(--sale);color:var(--on-sale)}
+.night .ctrls button,.night .ctrls .seg,.night .jump button,.night .skey,.night .tourcap{background:rgba(24,30,46,.88);color:#e8eaf4}
 .ctrls .spacer{flex:1}
 .more{display:none}
 .ctrls .icon{width:36px;height:34px;padding:0;display:inline-flex;align-items:center;justify-content:center}
