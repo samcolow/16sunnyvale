@@ -41,7 +41,7 @@ h1{font:700 clamp(28px,5vw,44px)/1.02 var(--f-display);letter-spacing:-.02em;mar
 .stat b{font:500 18px/1.2 var(--f-mono);font-variant-numeric:tabular-nums}
 .stat span{font-size:12px;color:var(--muted)}
 .scene-band{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
-.scene{position:relative;max-width:1180px;margin:0 auto;height:clamp(440px,68vh,700px);border-radius:14px;overflow:hidden;background:#cfdde4;touch-action:none}
+.scene{position:relative;max-width:1180px;margin:0 auto;height:clamp(440px,calc(100svh - 150px),720px);border-radius:14px;overflow:hidden;background:#cfdde4;touch-action:none}
 .scene canvas{display:block;width:100%;height:100%}
 .labels{position:absolute;inset:0;pointer-events:none;overflow:hidden}
 .lbl{position:absolute;transform:translate(-50%,-100%);white-space:nowrap;font:500 11px/1 var(--f-body);padding:4px 7px;border-radius:5px;background:var(--chip-bg);color:var(--chip-fg);box-shadow:0 1px 3px rgba(0,0,0,.15)}
@@ -95,7 +95,7 @@ dd{font:500 13px/1.45 var(--f-mono);font-variant-numeric:tabular-nums;min-width:
 .legend details ul{margin-top:12px}
 .fine{font-size:11.5px;color:var(--muted);margin:14px 0 0;line-height:1.5}
 /* key features strip */
-.features{padding-block:2px 18px}
+.features{padding-block:18px 0}
 .features ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
 @media (max-width:1100px){.features ul{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .features li{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px;min-width:0}
@@ -154,14 +154,13 @@ dd{font:500 13px/1.45 var(--f-mono);font-variant-numeric:tabular-nums;min-width:
   .stats{gap:2px 14px}
   .stat b{font-size:13px}
   .eyebrow{font-size:10px;letter-spacing:.06em}
-}
-@media (max-width:380px){.stat:last-child{display:none}
   .stat span{display:none}
   .stats{gap:2px 0}
   .stat:first-child{display:none}
   .stat+.stat+.stat b::before{content:'·';margin:0 8px;color:var(--muted)}
   .scene{height:clamp(380px,calc(100svh - 230px),600px)}
 }
+@media (max-width:430px){.stat:last-child{display:none}}
 @media (max-width:760px){main.wrap{padding-bottom:96px}header.wrap{position:relative}.hdr-actions{position:absolute;right:max(16px,env(safe-area-inset-right,0px));top:30px}}
 @media (max-width:520px){.cta-head{flex-direction:column;align-items:flex-start;gap:8px}.cta-head .agency-logo{height:38px}.cta-box{padding:12px}.cta{display:grid;grid-template-columns:1fr 1fr;gap:8px}.cta .primary{grid-column:1/-1}.cta a,.cta button{text-align:center;padding:11px 10px}}
 .cta-hint{margin:10px 0 0;font-size:11.5px;color:var(--muted)}
@@ -202,18 +201,6 @@ dialog.share p{font-size:13px;color:var(--muted);margin:0 0 12px}
   <div class="hdr-actions"><button id="bShare">Share</button></div>
 </header>
 
-<section class="wrap features" aria-label="Key features">
-  <ul>
-    <li><b>Double Grammar Zone</b><span>Auckland Grammar · Epsom Girls Grammar</span></li>
-    <li><b>Convenient location</b><span>12 min walk to the train · Woolworths nearby · 2 min to SH1</span></li>
-    <li><b>Freehold and brand new</b><span>No body corporate · CCC issued · Master Build</span></li>
-    <li><b>Sunny living and deck</b><span>Open-plan living onto a private timber deck</span></li>
-    <li><b>Warm and connected</b><span>Heat pump · underfloor-heated bathrooms · internet ready</span></li>
-    <li><b>Quality window furnishings</b><span>Linen sheers and blackout curtains in every room</span></li>
-  </ul>
-  <p class="ribbon"><b>16C &amp; 16D for sale</b><span>Upgraded specs: smart home ready · heat pumps in every room</span></p>
-</section>
-
 <div class="scene-band">
   <div class="scene" id="scene">
     <div class="labels" id="labels"></div>
@@ -236,6 +223,18 @@ dialog.share p{font-size:13px;color:var(--muted);margin:0 0 12px}
     <div class="jump" id="jump"></div>
   </div>
 </div>
+
+<section class="wrap features" aria-label="Key features">
+  <ul>
+    <li><b>Double Grammar Zone</b><span>Auckland Grammar · Epsom Girls Grammar</span></li>
+    <li><b>Convenient location</b><span>12 min walk to the train · Woolworths nearby · 2 min to SH1</span></li>
+    <li><b>Freehold and brand new</b><span>No body corporate · CCC issued · Master Build</span></li>
+    <li><b>Sunny living and deck</b><span>Open-plan living onto a private timber deck</span></li>
+    <li><b>Warm and connected</b><span>Heat pump · underfloor-heated bathrooms · internet ready</span></li>
+    <li><b>Quality window furnishings</b><span>Linen sheers and blackout curtains in every room</span></li>
+  </ul>
+  <p class="ribbon"><b>16C &amp; 16D for sale</b><span>Upgraded specs: smart home ready · heat pumps in every room</span></p>
+</section>
 
 <section class="wrap spec" aria-label="Full specification">
   <details>
