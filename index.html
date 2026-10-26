@@ -1108,7 +1108,8 @@ const narrow=()=>sceneEl.clientWidth<520;
 const V={
   overview:[[22,30,-46],[-3,3,-2]],
   entrance:[[-40,6,-14],[-20,2,-5]],
-  driveway:[[-39.5,9,-13.6],[8,4.5,-3]],
+  driveway:[[-36,9,-23],[8,4.5,-3]],
+  drivewayM:[[-40,9.5,-24],[1,4.5,-3.5]],
   lot3:[[-3,9,-20],[-3,4.5,-2]],
   lot3cut:[[-1,20,-15],[-3,3,0]],
   yards:[[2,15,24],[-3,3,2]],
@@ -1118,8 +1119,9 @@ const V={
 let tween=null;
 function lotView(n,c){const xc=-15+(n-1)*W, y=(c-1)*FH; return [[xc+3,y+13,-11],[xc,y,-0.3]];}
 function fly(key,ms){
+  if(key==='driveway'&&narrow()) key='drivewayM';   // phones: centred on the middle homes
   const [p0,t0]=Array.isArray(key)?key:V[key]; let p=toW(p0), t=toW(t0);
-  if(narrow()) p=p.map((v,i)=>t[i]+(v-t[i])*1.4);
+  if(narrow()&&key!=='drivewayM') p=p.map((v,i)=>t[i]+(v-t[i])*1.4);   // phones sit further back, except the driveway view which is already wide
   if(reduce){camera.position.set(...p);controls.target.set(...t);return;}
   tween={p0:camera.position.clone(),t0:controls.target.clone(),p1:new THREE.Vector3(...p),t1:new THREE.Vector3(...t),s:performance.now(),d:ms||900};
 }
@@ -1172,7 +1174,7 @@ $('#bNorth').onclick=()=>{stopTour();orientNorth();};
 {const bar=$('#mbar'), info=$('#info'), seen=new Set();
  const upd=()=>{bar.hidden=!matchMedia('(max-width:760px)').matches||seen.size>0;};
  const io=new IntersectionObserver(es=>{es.forEach(e=>e.isIntersecting?seen.add(e.target):seen.delete(e.target)); upd();},{threshold:0.2});
- const watch=()=>{io.disconnect(); seen.clear(); io.observe($('#scene')); info.querySelectorAll('.cta-box').forEach(b=>io.observe(b));};
+ const watch=()=>{io.disconnect(); seen.clear();  info.querySelectorAll('.cta-box').forEach(b=>io.observe(b));};
  new MutationObserver(watch).observe(info,{childList:true}); watch(); addEventListener('resize',upd); upd();
  $('#mBook').onclick=()=>{ stopTour(); if(!/^lot\d$|^site$/.test(selected)) render('site');
    const t=info.querySelector('.cta-box'); (t||info).scrollIntoView({behavior:reduce?'auto':'smooth',block:'center'}); };}
