@@ -1002,7 +1002,7 @@ function ctaRow(what,C,lead){
   if(C.logo){const im=document.createElement('img'); im.className='agency-logo'; im.src=C.logo; im.alt=C.agency; head.append(im);}
   const who=document.createElement('div');
   const nm=document.createElement('b'); nm.textContent=C.name;
-  const rl=document.createElement('span'); rl.textContent=(lead?lead+' · ':'')+C.role+(C.logo?'':' · '+C.agency);
+  const rl=document.createElement('span'); rl.textContent=C.role+(C.logo?'':' · '+C.agency);
   const det=document.createElement('span'); det.className='cta-det';
   const em=document.createElement('a'); em.href='mailto:'+C.email; em.textContent=C.email; em.target='_top';
   const ph=document.createElement('a'); ph.href='tel:'+C.phone.replace(/[^+\d]/g,'').replace(/^0/,'+64'); ph.textContent=C.phone; ph.target='_top';
