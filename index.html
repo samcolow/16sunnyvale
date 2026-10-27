@@ -955,13 +955,14 @@ pickables.push(entry);
 // neighbours: two sections between the JOAL and the railway, plus surrounding houses
 function nbHouse(x,z,s){const g=new THREE.Group();g.position.set(x,0,z);site.add(g);s=s||1;
   box(9*s,3.2,7,M.nb,0,1.6,0,g); gable(9.6*s,2.6,7.6,M.nbRoof,0,3.2,0,g); tree(5.5*s,-3.5,g,null,0.85);}
-// No 18 and No 20 Sunnyvale Rd, centred on their sections and ghosted so the focus stays on No 16
+// No 18 and No 20 Sunnyvale Rd, set close to the street as on the aerial, ghosted so the focus stays on No 16
 {const gw=new THREE.MeshLambertMaterial({color:0xd8d6d0,transparent:true,opacity:0.22,depthWrite:false}), gr=new THREE.MeshLambertMaterial({color:0x8b8e90,transparent:true,opacity:0.22,depthWrite:false});
- [-12.95,-22.2].forEach(z=>{const g=new THREE.Group();g.position.set(0,0,z);site.add(g);
+ [[-12.95,-7.5],[-22.2,-6]].forEach(([z,x])=>{const g=new THREE.Group();g.position.set(x,0,z);site.add(g);
   const b=box(9,3.2,7,gw,0,1.6,0,g), r=gable(9.6,2.6,7.6,gr,0,3.2,0,g); [b,r].forEach(m=>{m.castShadow=false;m.receiveShadow=false;m.renderOrder=2;});});}
 [[-8.3,null],[-17.6,1.5],[-26.8,1.5]].forEach(([z,h])=>{ if(h) bx(-20.5,21.2,0,h,z-0.05,z+0.05,M.nbRoof,site); });
-[-11,-20.3].forEach(z=>bx(-20.4,-4.5,0,0.07,z-1.4,z+1.4,M.concrete,site));   // driveways
-nbHouse(28,-2,0.9); nbHouse(-6,16); nbHouse(9,16); nbHouse(-44,-6,0.9); nbHouse(-44,12,0.9); nbHouse(-14,34,0.9);
+[[-11,-12],[-20.3,-10.5]].forEach(([z,x1])=>bx(-20.4,x1,0,0.07,z-1.4,z+1.4,M.concrete,site));   // driveways up to the house fronts
+nbHouse(28,-2,0.9); nbHouse(-14,16);   // No 14, close to the street as on the aerial; its long back garden is planted
+[[-6,8.6,0.6],[6,8.6,0.6],[19.5,8.2,0.7],[2,17,0.9],[11,19,0.9],[19,15,0.85]].forEach(([x,z,k])=>tree(x,z,site,null,k));   // boundary trees and No 14's back garden, kept modest nbHouse(-44,-6,0.9); nbHouse(-44,12,0.9); nbHouse(-14,34,0.9);
 [[-52,-18],[30,20],[-56,22],[24,-20],[-20,-22]].forEach(([x,z])=>tree(x,z,site,null,0.9));
 // north arrow on the ground
 /* true north from Google map data: Sunnyvale Rd runs ~32° (NE) from Great South Rd, so the terrace axis (+x) points ~302° and the driveway side (-z) ~32° */
