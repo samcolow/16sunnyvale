@@ -292,7 +292,7 @@ dialog.share p{font-size:13px;color:var(--muted);margin:0 0 12px}
       <div><h4>Heating and comfort</h4><ul><li>Heat pump in the living area</li><li>Bedrooms pre-piped for heat pumps (concealed in-wall pipework) · 16C &amp; 16D have heat pumps installed in every bedroom</li><li>Underfloor heating and heated towel rails on Wi-Fi touchscreen thermostats</li><li>Double-glazed Low-E joinery · R7.0 roof and R2.4 wall insulation</li></ul></div>
       <div><h4>Smart home and connectivity</h4><ul><li>Keyless smart lock (PIN and app)</li><li>Hardwired Cat6 data on every level from a central network panel</li><li>16C &amp; 16D: Smart home control of lighting scenes, climate, smart alarm and PoE video doorbell</li></ul></div>
       <div><h4>Build and outdoor</h4><ul><li>GIB intertenancy walls between homes: 60-minute fire rated, STC 55 acoustic</li><li>Master Build Guarantee · Code Compliance Certificate issued</li><li>Fully fenced courtyard with artificial turf · private Level 1 deck</li><li>Garage with a 32 A circuit ready for an EV charger · shared parcel lockers</li><li>David Trubridge pendant in stairwell</li></ul></div>
-      <div><h4>Exterior materials</h4><ul class="mats"><li><i class="sw" style="background:#34373a"></i>James Hardie Stria, vertical: Resene Baltic Sea</li><li><i class="sw" style="background:#eeeae2"></i>James Hardie Oblique, horizontal: Resene Black White · soffits to match</li><li><i class="sw" style="background:#c6c9ca"></i>Brick: Brickworks Platinum by Austral Bricks</li><li><i class="sw" style="background:#1d1e20"></i>Roof: Metalcraft · Colorsteel Ebony</li><li><i class="sw" style="background:#151617"></i>Joinery, garage doors, fascia, gutters and louvres: Matt black aluminium · black uPVC downpipes</li></ul></div>
+      <div><h4>Exterior materials</h4><ul class="mats"><li><i class="sw" style="background:#34373a"></i>James Hardie Stria, vertical: Resene Baltic Sea</li><li><i class="sw" style="background:#eeeae2"></i>James Hardie Oblique, horizontal: Resene Black White · soffits to match</li><li><i class="sw" style="background:#585c61"></i>Brick: Austral Bricks Industry range in Platinum, a graphite glazed brick with a metallic sheen</li><li><i class="sw" style="background:#1d1e20"></i>Roof: Metalcraft · Colorsteel Ebony</li><li><i class="sw" style="background:#151617"></i>Joinery, garage doors, fascia, gutters and louvres: Matt black aluminium · black uPVC downpipes</li></ul></div>
     </div>
   </details>
 </section>
@@ -389,7 +389,7 @@ Object.assign(sun.shadow.camera,{left:-55,right:55,top:55,bottom:-55,near:5,far:
 sun.shadow.bias=-0.0005; scene.add(sun);
 
 function tex(fill,draw){const c=document.createElement('canvas');c.width=c.height=256;const x=c.getContext('2d');x.fillStyle=fill;x.fillRect(0,0,256,256);draw(x);const t=new THREE.CanvasTexture(c);t.anisotropy=4;return t;}
-const brickTex=tex('#c6c9ca',x=>{x.fillStyle='#adb1b3';for(let r=0;r<16;r++){const y=r*16;x.fillRect(0,y,256,2);for(let k=0;k<8;k++)x.fillRect(k*32+(r%2?16:0),y,2,16);}});
+const brickTex=tex('#585c61',x=>{x.fillStyle='#7d8186';for(let r=0;r<16;r++){const y=r*16;x.fillRect(0,y,256,2);for(let k=0;k<8;k++)x.fillRect(k*32+(r%2?16:0),y,2,16);}});
 const obliqueTex=tex('#eeeae2',x=>{for(let r=0;r<10;r++){x.fillStyle='#d4cfc4';x.fillRect(0,r*25.6,256,3);x.fillStyle='#f7f4ee';x.fillRect(0,r*25.6+3,256,2);}});
 const striaTex=tex('#34373a',x=>{for(let k=0;k<16;k++){x.fillStyle='#26282a';x.fillRect(k*16,0,3,256);x.fillStyle='#3d4043';x.fillRect(k*16+3,0,1,256);}});
 
