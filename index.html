@@ -449,12 +449,12 @@ const corrPt=(along,off)=>new THREE.Vector3(CORR.c[0]+CORR.u[0]*along+CORR.u[1]*
 /* ---------- site (local frame) ---------- */
 const site=new THREE.Group(); scene.add(site);
 /* terrain at street level either side of the rail + SH1 corridor */
-bx(-230,230,-4.55,0,-27,210,M.grass,site); bx(-230,230,-4.55,0,-210,-61,M.grass,site);
+bx(-230,230,-4.55,0,-29.5,210,M.grass,site); bx(-230,230,-4.55,0,-210,-61,M.grass,site);
 /* rail + SH1 grade: low under the Greenlane roundabout, rising north to sit above Sunnyvale Rd, dipping again under Market Rd */
 const GRADE=[[-230,-4.5],[-120,-4.5],[-60,1.5],[230,3.5]];
 function hAt(x){for(let k=0;k<GRADE.length-1;k++){const[a,ya]=GRADE[k],[b,yb]=GRADE[k+1];if(x>=a&&x<=b)return ya+(yb-ya)*(x-a)/(b-a);}return -4.5;}
 { const sh=new THREE.Shape(); sh.moveTo(-230,-4.6); GRADE.forEach(([x,y])=>sh.lineTo(x,y)); sh.lineTo(230,-4.6);
-  const g=new THREE.ExtrudeGeometry(sh,{depth:34,bevelEnabled:false}); const berm=new THREE.Mesh(g,M.grass);
+  const g=new THREE.ExtrudeGeometry(sh,{depth:31.5,bevelEnabled:false}); const berm=new THREE.Mesh(g,M.grass);
   berm.position.z=-61; berm.castShadow=true; berm.receiveShadow=true; site.add(berm);
   for(let k=0;k<GRADE.length-1;k++){ const [x0,y0]=GRADE[k],[x1,y1]=GRADE[k+1];
     seg3([x0,y0+0.04,-44],[x1,y1+0.04,-44],13,0.08,M.asphalt);            // SH1
@@ -958,13 +958,13 @@ function nbHouse(x,z,s){const g=new THREE.Group();g.position.set(x,0,z);site.add
 // a single-storey neighbour block with a ridge along its length (x0..x1 along the section, z0..z1 across)
 function nbBlock(x0,x1,z0,z1,mw,mr,parent){const w=z1-z0, d=x1-x0, g=new THREE.Group(); g.position.set((x0+x1)/2,0,(z0+z1)/2); parent.add(g);
   const b=box(d,3.2,w,mw,0,1.6,0,g), r=gable(w+0.6,2.4,d+0.6,mr,0,3.2,0,g); r.rotation.y=Math.PI/2; return [b,r];}
-// No 18 and No 20 Sunnyvale Rd: footprints and setbacks scaled off the aerial, ghosted so the focus stays on No 16
-const gw=new THREE.MeshLambertMaterial({color:0xd8d6d0,transparent:true,opacity:0.22,depthWrite:false}), gr=new THREE.MeshLambertMaterial({color:0x8b8e90,transparent:true,opacity:0.22,depthWrite:false});
+// No 18 and No 20 Sunnyvale Rd: footprints and setbacks scaled off the aerial, semi-transparent so the focus stays on No 16
+const gw=new THREE.MeshLambertMaterial({color:0xd8d6d0,transparent:true,opacity:0.4,depthWrite:false}), gr=new THREE.MeshLambertMaterial({color:0x8b8e90,transparent:true,opacity:0.4,depthWrite:false});
  const gw14=gw.clone(), gr14=gr.clone(); gw14.opacity=gr14.opacity=0.12;   // No 14 fainter: the backyards view looks across it
  const ghost=([x0,x1,z0,z1],w=gw,r=gr)=>nbBlock(x0,x1,z0,z1,w,r,site).forEach(m=>{m.castShadow=false;m.receiveShadow=false;m.renderOrder=2;});
- [[-13.4,7.6,-16.6,-9.3],[-11.4,6.6,-25.8,-18.6]].forEach(ghost);
-[[-8.3,null],[-17.6,1.5],[-26.8,1.5]].forEach(([z,h])=>{ if(h) bx(-20.5,21.2,0,h,z-0.05,z+0.05,M.nbRoof,site); });
-[[-11,-13.4],[-20.3,-11.4]].forEach(([z,x1])=>bx(-20.4,x1,0,0.07,z-1.4,z+1.4,M.concrete,site));   // driveways up to the house fronts
+ [[-13.4,7.6,-18.3,-11.2],[-11.4,6.6,-28.6,-21.4]].forEach(b=>ghost(b));
+bx(-20.5,21.2,0,1.5,-29.35,-29.25,M.nbRoof,site);   // rail-side boundary fence of No 20 (no fence drawn between 18 and 20)
+[[-9.8,-13.4,1.2],[-20.2,-11.4,1.05]].forEach(([z,x1,h])=>bx(-20.4,x1,0,0.07,z-h,z+h,M.concrete,site));   // driveways up to the house fronts
 // No 14: close to the street, main house plus a rear wing (L-shaped on the aerial), ghosted like No 18 and No 20 so it never hides the backyards; its long back garden is planted
 [[-18.4,-2,8,22],[-2.4,4.6,12,20]].forEach(b=>ghost(b,gw14,gr14));
 nbHouse(28,-2,0.9);
