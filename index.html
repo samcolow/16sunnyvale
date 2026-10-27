@@ -960,11 +960,11 @@ function nbBlock(x0,x1,z0,z1,mw,mr,parent){const w=z1-z0, d=x1-x0, g=new THREE.G
   const b=box(d,3.2,w,mw,0,1.6,0,g), r=gable(w+0.6,2.4,d+0.6,mr,0,3.2,0,g); r.rotation.y=Math.PI/2; return [b,r];}
 // No 18 and No 20 Sunnyvale Rd: footprints and setbacks scaled off the aerial, semi-transparent so the focus stays on No 16
 const gw=new THREE.MeshLambertMaterial({color:0xd8d6d0,transparent:true,opacity:0.12,depthWrite:false}), gr=new THREE.MeshLambertMaterial({color:0x8b8e90,transparent:true,opacity:0.12,depthWrite:false});
- const ghost=([x0,x1,z0,z1],w=gw,r=gr)=>nbBlock(x0,x1,z0,z1,w,r,site).forEach(m=>{m.castShadow=false;m.receiveShadow=false;m.renderOrder=2;});
- [[-13.4,0.6,-18.3,-11.2],[-11.4,1.6,-27.2,-21.4]].forEach(b=>ghost(b));
+ const ghost=([x0,x1,z0,z1],shadow=false)=>nbBlock(x0,x1,z0,z1,gw,gr,site).forEach(m=>{m.castShadow=shadow;m.receiveShadow=false;m.renderOrder=2;});
+ [[-13.4,0.6,-18.3,-11.2],[-11.4,1.6,-27.2,-21.4]].forEach(b=>ghost(b,true));   // cast real shadows in the Sun view
 // no boundary fences drawn for No 18 and No 20
 // No 14: close to the street, main house plus a rear wing (L-shaped on the aerial), ghosted like No 18 and No 20 so it never hides the backyards; its long back garden is planted
-[[-18.4,-2,10,20],[-2.4,4.6,12.5,18.5]].forEach(b=>ghost(b));
+[[-18.4,-2,10,20],[-2.4,4.6,12.5,18.5]].forEach(b=>ghost(b,true));
 nbHouse(28,-2,0.9);
 [[12,8.6,0.6],[18,8.6,0.6],[9,15,0.9],[14,19,0.9],[19.5,14,0.85]].forEach(([x,z,k])=>tree(x,z,site,null,k));   // boundary trees and No 14's back garden, kept modest
 nbHouse(-44,-6,0.9); nbHouse(-44,12,0.9); nbHouse(-14,34,0.9);
