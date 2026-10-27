@@ -449,12 +449,12 @@ const corrPt=(along,off)=>new THREE.Vector3(CORR.c[0]+CORR.u[0]*along+CORR.u[1]*
 /* ---------- site (local frame) ---------- */
 const site=new THREE.Group(); scene.add(site);
 /* terrain at street level either side of the rail + SH1 corridor */
-bx(-230,230,-4.55,0,-29.5,210,M.grass,site); bx(-230,230,-4.55,0,-210,-61,M.grass,site);
+bx(-230,230,-4.55,0,-30.3,210,M.grass,site); bx(-230,230,-4.55,0,-210,-61,M.grass,site);
 /* rail + SH1 grade: low under the Greenlane roundabout, rising north to sit above Sunnyvale Rd, dipping again under Market Rd */
 const GRADE=[[-230,-4.5],[-120,-4.5],[-60,1.5],[230,3.5]];
 function hAt(x){for(let k=0;k<GRADE.length-1;k++){const[a,ya]=GRADE[k],[b,yb]=GRADE[k+1];if(x>=a&&x<=b)return ya+(yb-ya)*(x-a)/(b-a);}return -4.5;}
 { const sh=new THREE.Shape(); sh.moveTo(-230,-4.6); GRADE.forEach(([x,y])=>sh.lineTo(x,y)); sh.lineTo(230,-4.6);
-  const g=new THREE.ExtrudeGeometry(sh,{depth:31.5,bevelEnabled:false}); const berm=new THREE.Mesh(g,M.grass);
+  const g=new THREE.ExtrudeGeometry(sh,{depth:30.7,bevelEnabled:false}); const berm=new THREE.Mesh(g,M.grass);
   berm.position.z=-61; berm.castShadow=true; berm.receiveShadow=true; site.add(berm);
   for(let k=0;k<GRADE.length-1;k++){ const [x0,y0]=GRADE[k],[x1,y1]=GRADE[k+1];
     seg3([x0,y0+0.04,-44],[x1,y1+0.04,-44],13,0.08,M.asphalt);            // SH1
@@ -464,11 +464,11 @@ function hAt(x){for(let k=0;k<GRADE.length-1;k++){const[a,ya]=GRADE[k],[b,yb]=GR
   }
   for(let x=-226;x<226;x+=8){ const y=hAt(x)+0.09; [-41.8,-46.2].forEach(z=>box(4,0.04,0.25,M.lane,x,y,z,site)); }
 }
-// Sunnyvale Rd: from Great South Rd (z=66) to a dead end at the railway (z=-27)
-bx(-29.4,-22.4,0,0.06,-27,62,M.asphalt,site);
-bx(-31.1,-29.5,0,0.1,-27,59.6,M.concrete,site); bx(-22.3,-20.6,0,0.1,-27,59.6,M.concrete,site);
-for(let z=-22;z<58;z+=6) box(0.18,0.08,3,M.lane,-25.9,0.07,z,site);
-box(8.6,1.0,0.3,M.steel,-25.9,0.5,-26.6,site);
+// Sunnyvale Rd: from Great South Rd (z=66) to a dead end at the railway (z=-30.3, level with the end of No 20)
+bx(-29.4,-22.4,0,0.06,-30.3,62,M.asphalt,site);
+bx(-31.1,-29.5,0,0.1,-30.3,59.6,M.concrete,site); bx(-22.3,-20.6,0,0.1,-30.3,59.6,M.concrete,site);
+for(let z=-25;z<58;z+=6) box(0.18,0.08,3,M.lane,-25.9,0.07,z,site);
+box(8.6,1.0,0.3,M.steel,-25.9,0.5,-29.9,site);   // dead-end barrier
 // Great South Rd
 bx(-200,140,0,0.06,61.5,70.5,M.asphalt,site);
 [[-200,-124],[-116,140]].forEach(([a,b])=>bx(a,b,0,0.1,70.8,72.4,M.concrete,site));   // west footpath, open at Greenlane Rd West
@@ -961,7 +961,7 @@ function nbBlock(x0,x1,z0,z1,mw,mr,parent){const w=z1-z0, d=x1-x0, g=new THREE.G
 // No 18 and No 20 Sunnyvale Rd: footprints and setbacks scaled off the aerial, semi-transparent so the focus stays on No 16
 const gw=new THREE.MeshLambertMaterial({color:0xd8d6d0,transparent:true,opacity:0.12,depthWrite:false}), gr=new THREE.MeshLambertMaterial({color:0x8b8e90,transparent:true,opacity:0.12,depthWrite:false});
  const ghost=([x0,x1,z0,z1],w=gw,r=gr)=>nbBlock(x0,x1,z0,z1,w,r,site).forEach(m=>{m.castShadow=false;m.receiveShadow=false;m.renderOrder=2;});
- [[-13.4,0.6,-18.3,-11.2],[-11.4,1.6,-28.6,-21.4]].forEach(b=>ghost(b));
+ [[-13.4,0.6,-18.3,-11.2],[-11.4,1.6,-27.2,-21.4]].forEach(b=>ghost(b));
 bx(-20.5,21.2,0,1.5,-29.35,-29.25,M.nbRoof,site);   // rail-side boundary fence of No 20 (no fence drawn between 18 and 20)
 bx(-20.4,6,0,0.07,-21.25,-19.15,M.concrete,site);   // No 20's driveway, past the house into the backyard   // driveways up to the house fronts
 // No 14: close to the street, main house plus a rear wing (L-shaped on the aerial), ghosted like No 18 and No 20 so it never hides the backyards; its long back garden is planted
@@ -982,7 +982,7 @@ addLabel('Sunnyvale Rd','geo',new THREE.Vector3(-25.9,1,30),{local:true});
 addLabel('Great South Rd','geo',new THREE.Vector3(-55,1,66),{local:true});
 addLabel('Greenlane Rd West','geo',new THREE.Vector3(-120,1,110),{local:true});
 addLabel('Greenlane exit · SH1','geo',new THREE.Vector3(-120,1,30),{local:true});
-addLabel('Dead end','geo',new THREE.Vector3(-25.9,1.2,-27),{local:true});
+addLabel('Dead end','geo',new THREE.Vector3(-25.9,1.2,-30.3),{local:true});
 // shared driveway ground label removed (tour caption and info panel still name it)
 addLabel('N','geo',new THREE.Vector3(40+2.6*NORTH_L[0],1.4,-20+2.6*NORTH_L[2]),{local:true});
 LM.forEach(([t,x,z])=>addLabel(t,'',new THREE.Vector3(x,t.includes('station')?0:7,z),{local:true}));
