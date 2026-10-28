@@ -1097,8 +1097,8 @@ actor(personMesh(mat(0xa33b3b),LM_.denim,LM_.skin2),[{tp:[-30.3,0,57]},{show:1},
 [[0x2e4a6b,3],[0x55595c,12]].forEach(([c,w])=>actor(carMesh(c),[{wait:w},{tp:[135,0,68.2]},{show:1},{to:[-195,0,68.2],sp:11},{hide:1},{wait:5}],'c'));
 // a resident's car: off Great South Rd, down Sunnyvale Rd and the shared driveway into the 16E garage, later reversing out
 {const gx=ux(5)+1.47;
- actor(carMesh(0x6b7d5c),[{wait:4},{tp:[-80,0,63.8]},{show:1},{to:[-31,0,63.8],sp:9},{to:[-24.2,0,57],sp:5},{mark:'tour'},{to:[-24.2,0,-3.2],sp:6},{to:[-21.2,0,-6.1],sp:4},{mark:'drv'},{door:5,v:1},{to:[gx-4.5,0,-6.1],sp:6},{to:[gx,0,-5.2],sp:3},
-   {wait:0.2},{to:[gx,0,-0.6],sp:2.5},{wait:0.5},{door:5,v:0},{wait:2.6},{hide:1},{wait:14},
+ actor(carMesh(0x6b7d5c),[{wait:4},{tp:[-80,0,63.8]},{show:1},{to:[-31,0,63.8],sp:9},{to:[-24.2,0,57],sp:5},{mark:'tour'},{to:[-24.2,0,-3.2],sp:6},{to:[-21.2,0,-6.1],sp:4},{mark:'drv'},{door:5,v:1},{to:[gx-4.5,0,-6.1],sp:7},{to:[gx,0,-5.2],sp:3},
+   {wait:0.2},{to:[gx,0,-0.6],sp:2.5},{wait:0.5},{door:5,v:0},{wait:2.6},{hide:1},{park:1},{wait:14},
    {door:5,v:1},{tp:[gx,0,-0.6]},{show:1},{wait:2.6},{to:[gx,0,-6.0],sp:1,rev:1},{door:5,v:0},{to:[gx-3,0,-6.1],sp:2},{to:[-21.2,0,-6.1],sp:3},{to:[-27.6,0,-3.0],sp:2.5},{to:[-27.6,0,57],sp:6},{to:[-33,0,68.2],sp:5},{to:[-110,0,68.2],sp:9},{hide:1},{wait:8}],'c');}
 let lifeOn=true, lifeT=0;
 function updateLife(dt){
@@ -1112,6 +1112,7 @@ function updateLife(dt){
       else if(s.parcel!==undefined){a.obj.userData.parcel.visible=!!s.parcel;}
       else if(s.flag){FLAGS[s.flag]=s.v;}
       else if(s.until){if(!FLAGS[s.until]) break;}
+      else if(s.park){if(touring&&a===tourCar) break;}   // during the tour the car stays parked until the next driveway stop
       else if(s.wait!==undefined){a.t+=dt; if(a.t<s.wait) break; a.t=0;}
       else if(s.to){const tg=new THREE.Vector3(...s.to), d=tg.clone().sub(a.pos), L=d.length(), mv=s.sp*dt;
         if(L>1e-3){const h=Math.atan2(d.x,d.z)+(s.rev?Math.PI:0); let dh=((h-a.head+Math.PI)%(2*Math.PI)+2*Math.PI)%(2*Math.PI)-Math.PI; a.head+=dh*Math.min(1,dt*(a.kind==='c'?4:8));}
@@ -1125,9 +1126,9 @@ function updateLife(dt){
 let tourCar=null;
 function carToDriveway(){
   const a=actors.find(x=>x.script.some(st=>st.mark==='drv')); if(!a) return;
-  a.i=a.script.findIndex(st=>st.mark==='tour'); a.t=0; a.pos.set(-24.2,0,8); a.head=Math.PI; a.obj.visible=true;   // coming down Sunnyvale Rd
+  a.i=a.script.findIndex(st=>st.mark==='tour'); a.t=0; a.pos.set(-24.2,0,12); a.head=Math.PI; a.obj.visible=true;   // coming down Sunnyvale Rd (it was parked out of sight, so no visible jump)
   tourCar=a;
-  const d=units[5].gdoor; d.userData.open=0; d.userData.target=0; d.scale.y=1; d.position.z=0;
+  units[5].gdoor.userData.target=0;
 }
 function updateDoors(dt){for(const n in units){const d=units[n].gdoor, u=d.userData; if(u.open===u.target) continue;
   u.open=u.target>u.open?Math.min(u.target,u.open+dt/1.8):Math.max(u.target,u.open-dt/2.4);
