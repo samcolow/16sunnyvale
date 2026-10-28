@@ -1279,10 +1279,12 @@ const V={
 };
 let tween=null;
 function lotView(n,c){const xc=-15+(n-1)*W, y=(c-1)*FH; return [[xc+3,y+13,-11],[xc,y,-0.3]];}
-function fly(key,ms){
+function fly(key,ms,keepAz){
   if(key==='driveway'&&narrow()) key='drivewayM';   // phones: centred on the middle homes
   const [p0,t0]=Array.isArray(key)?key:V[key]; let p=toW(p0), t=toW(t0);
   if(narrow()&&key!=='drivewayM') p=p.map((v,i)=>t[i]+(v-t[i])*1.4);   // phones sit further back, except the driveway view which is already wide
+  if(keepAz){ const cx=camera.position.x-controls.target.x, cz=camera.position.z-controls.target.z, cl=Math.hypot(cx,cz), hz=Math.hypot(p[0]-t[0],p[2]-t[2]);
+    if(cl>1e-3) p=[t[0]+cx/cl*hz,p[1],t[2]+cz/cl*hz]; }   // tour: keep the current viewing direction and carry on panning
   if(reduce){camera.position.set(...p);controls.target.set(...t);return;}
   tween={p0:camera.position.clone(),t0:controls.target.clone(),p1:new THREE.Vector3(...p),t1:new THREE.Vector3(...t),s:performance.now(),d:ms||900};
 }
@@ -1295,9 +1297,9 @@ const TOUR=[
   {t:'The terrace from the driveway side',v:'overview',sel:'site',cut:0,d:7000},
   {t:'Street entrance on Sunnyvale Rd',v:'entrance',sel:'entry',cut:0,d:6000},
   {t:'Shared driveway: garages, entries, Level 1 decks',v:'driveway',sel:'joal',cut:0,rot:-0.9,zoom:0.75,d:12000,car:1},
-  {t:'GF: guest suite with ensuite, internal garage',sel:'lot3',cut:1,d:9000},
-  {t:'Level 1: open-plan living onto the deck',sel:'lot3',cut:2,d:9000},
-  {t:'Level 2: three bedrooms and the bathroom',sel:'lot3',cut:3,d:9000},
+  {t:'GF: guest suite with ensuite, internal garage',sel:'lot3',cut:1,d:9000,rot:-0.5},
+  {t:'Level 1: open-plan living onto the deck',sel:'lot3',cut:2,d:9000,rot:-0.5},
+  {t:'Level 2: three bedrooms and the bathroom',sel:'lot3',cut:3,d:9000,rot:-0.5},
   {t:'Fenced backyards',v:'yards',sel:'site',cut:0,d:6000},
   {t:'Greenlane train station and shops',v:'landmarks',sel:'site',cut:0,d:7000},
   {t:'Evening, stair pendants lit',v:'overview',sel:'site',cut:0,night:true,d:6000}
@@ -1306,7 +1308,7 @@ const DWELL=10000, FLY=2400;
 let touring=false, step=-1, stepStart=0;
 function goStep(i,now){
   step=i%TOUR.length; stepStart=now; const s=TOUR[step];
-  setCut(s.cut); render(s.sel); setNight(!!s.night); controls.autoRotateSpeed=s.rot??0.5; fly(s.cut?lotView(3,s.cut):s.v,FLY); if(s.car&&lifeOn) carToDriveway();
+  setCut(s.cut); render(s.sel); setNight(!!s.night); controls.autoRotateSpeed=s.rot??0.5; fly(s.cut?lotView(3,s.cut):s.v,FLY,!!s.cut&&step>0); if(s.car&&lifeOn) carToDriveway();
   $('#tourn').textContent=(step+1)+'/'+TOUR.length; $('#tourt').textContent=s.t;
 }
 const ICON_PLAY='<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg>', ICON_PAUSE='<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z" fill="currentColor"/></svg>';
