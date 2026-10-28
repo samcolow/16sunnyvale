@@ -1215,7 +1215,7 @@ function render(id){
   const st=/^lot\d$/.test(id)?STATUS[+id[3]]:null;
   if(st&&CONTACTS[st]) ct.append(ctaRow(d.t+', 16 Sunnyvale Road',CONTACTS[st],st==='sale'?'For sales':'For rental'));
   else ct.append(ctaRow('16C or 16D, 16 Sunnyvale Road',CONTACTS.sale,'For sales'),ctaRow('a home to rent at 16 Sunnyvale Road',CONTACTS.lease,'For rental'));
-  ct.append(ctaHint());
+  // (hint line removed: buttons, email and phone are self-explanatory)
 }
 
 /* ---------- picking ---------- */
