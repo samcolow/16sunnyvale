@@ -358,7 +358,7 @@ const lot=n=>{
 const INFO={
   site:{t:'About the development',s:'Six freehold terrace homes · Greenlane',cat:'dev',rows:[['School zones','Auckland Grammar, Epsom Girls Grammar, Remuera Intermediate, Cornwall Park District School'],['Getting around','Woolworths moments away · SH1 in 2 min · Greenlane station a 12-min walk · Cornwall Park in 13 min']],note:'Tap a home, then use GF, L1 or L2 to look inside.'},
   lot1:lot(1),lot2:lot(2),lot3:lot(3),lot4:lot(4),lot5:lot(5),lot6:lot(6),
-  entry:{t:'Street entrance',s:'Sign on the front fence · mail and parcel hub at the driveway',cat:'dev',rows:[['Sign','Matte black plate with brushed stainless lettering'],['Parcels','Shared secure parcel lockers'],['Letters','Six individual letterboxes'],['Fencing','Horizontal timber slats, matte black'],['Backyards','Fully fenced, artificial turf']],note:'Sign drawn larger than real size so it reads in the model.'},
+  entry:{t:'Street entrance',s:'Sign on the front fence · mail and parcel hub at the driveway',cat:'dev',rows:[['Sign','Brushed stainless steel with laser-cut lettering'],['Parcels','Shared secure parcel lockers'],['Letters','Six individual letterboxes'],['Fencing','Horizontal timber slats, matte black'],['Backyards','Fully fenced, artificial turf']],note:'Sign drawn larger than real size so it reads in the model.'},
   stn:{t:'Greenlane train station',s:'Southern and Onehunga lines',cat:'dev',rows:[['From the site','12 min walk']],note:'Position in the model is indicative.'},
   mcd:{t:"McDonald's",s:'Great South Rd',cat:'dev',rows:[['Where','Great South Rd, Greenlane']],note:'Position in the model is indicative.'},
   ww:{t:'Woolworths',s:'Greenlane shops',cat:'dev',rows:[['From the site','8 min walk to Greenlane shops']],note:'Position in the model is indicative.'},
@@ -993,8 +993,9 @@ prism([[-22.4,-7.6],[-22.4,-8.9],[-20.6,-7.6]],0,0.12,M.joal,site); prism([[-22.
 const entry=new THREE.Group(); entry.userData={id:'entry',cat:'dev',r:3.4}; site.add(entry);
 const sc=document.createElement('canvas'); sc.width=600; sc.height=200; const sx=sc.getContext('2d');
 sx.translate(600,0); sx.scale(-1,1);           // drawn mirrored; the site frame is flipped
-sx.fillStyle='#151617'; sx.fillRect(0,0,600,200);
-sx.fillStyle='#c4c8cc'; sx.font='700 132px Helvetica, Arial, sans-serif'; sx.textBaseline='middle'; sx.fillText('16',34,108);
+sx.fillStyle='#b9bec2'; sx.fillRect(0,0,600,200);   // brushed stainless steel plate
+for(let y=0;y<200;y+=2){sx.fillStyle='rgba('+(Math.random()<.5?'255,255,255,':'60,66,72,')+(0.05+Math.random()*0.08)+')'; sx.fillRect(0,y,600,1);}
+sx.fillStyle='#1c1e20'; /* laser-cut lettering: the dark fence shows through */ sx.font='700 132px Helvetica, Arial, sans-serif'; sx.textBaseline='middle'; sx.fillText('16',34,108);
 sx.fillRect(218,46,3,108); sx.font='600 40px Helvetica, Arial, sans-serif'; sx.fillText('SUNNYVALE',246,80); sx.fillText('ROAD',246,134);
 const signTex=new THREE.CanvasTexture(sc); signTex.anisotropy=4;
 const sign=new THREE.Mesh(new THREE.BoxGeometry(0.04,0.53,1.6),[M.black,new THREE.MeshLambertMaterial({map:signTex}),M.black,M.black,M.black,M.black]);
