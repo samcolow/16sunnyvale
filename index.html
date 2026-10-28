@@ -142,6 +142,7 @@ dd{font:400 13.5px/1.5 var(--f-body);min-width:0}
 .features li{padding:2px 0 2px 12px;border-left:2px solid var(--line);min-width:0}
 .ribbon{margin:0 0 16px;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px;padding:10px 14px;border-radius:10px;background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--sale)}
 .ribbon b{font:600 13px/1.3 var(--f-body)}
+.ribbon.rent{border-left-color:var(--lease);margin-top:-8px}
 .ribbon span{font-size:12.5px;color:var(--muted)}
 .spec{padding-block:24px 0}
 .spec details{background:var(--surface);border:1px solid var(--line);border-radius:12px}
@@ -237,7 +238,7 @@ dialog.share p{font-size:13px;color:var(--muted);margin:0 0 12px}
   <div class="stats" aria-label="Summary">
     <div class="stat"><b>6 homes</b><span>3-storey terraces</span></div>
     <div class="stat"><b>4 bed · 2.5 bath</b><span>single internal garage</span></div>
-    <div class="stat"><b>141–148 m²</b><span>floor area, as per plans</span></div>
+    <div class="stat"><b>141–148 m²</b><span>floor area, per consented plans</span></div>
     <div class="stat"><b>Freehold</b><span>no body corporate</span></div>
   </div>
   <div class="hdr-actions"><button id="bShare">Share</button></div>
@@ -271,6 +272,7 @@ dialog.share p{font-size:13px;color:var(--muted);margin:0 0 12px}
 
 <section class="wrap features" aria-label="Key features">
   <p class="ribbon"><b>16C &amp; 16D for sale</b><span>Upgraded specs: smart home control · heat pumps in every room</span></p>
+  <p class="ribbon rent"><b>16A, 16B, 16E &amp; 16F for rent</b><span>Available from Monday 9 November</span></p>
   <ul>
     <li><b>Double Grammar Zone</b><span>Auckland Grammar · Epsom Girls Grammar · Remuera Intermediate · Cornwall Park District School</span></li>
     <li><b>Convenient location</b><span>Woolworths moments away · SH1 in 2 min · Greenlane station a 12-min walk · Cornwall Park in 13 min</span></li>
@@ -334,11 +336,13 @@ const LOW=matchMedia('(max-width: 760px), (pointer: coarse)').matches;
 /* ---------- data ---------- */
 /* listing status: change here when a home is leased or sold ('sale', 'lease', 'leased', 'sold') */
 const STATUS={1:'lease',2:'lease',3:'sale',4:'sale',5:'lease',6:'lease'};
+const AVAILABLE={lease:'From Monday 9 November 2026'};   // open homes: to be confirmed
 const CAT={sale:['For sale','--sale'],lease:['For rent','--lease'],sold:['Sold','--dev'],leased:['Rented','--dev'],dev:['Overview','--dev']};
 const lot=n=>{
   const st=STATUS[n], sale=st==='sale';
   const b={t:'16'+'ABCDEF'[n-1],s:'16'+'ABCDEF'[n-1]+' Sunnyvale Road, Greenlane',cat:st};
   b.rows=[['Status',CAT[st][0]],
+    ...(AVAILABLE[st]?[['Available',AVAILABLE[st]]]:[]),
     ['Layout','4 bed · 2.5 bath · single internal garage'],
     ['Floor area',{1:'148.2 m²',6:'141.2 m²'}[n]||'141.0 m²'],
     ...(n===1?[['GF','Foyer, bedroom (8.6 m²) with shower room (4.0 m²), internal garage (18.4 m²)'],['Level 1','Open-plan lounge, dining and kitchen with island, WC, deck'],['Level 2','Primary (10.7 m²), bedrooms of 10.1 m² and 7.1 m², bathroom, robes']]:[
