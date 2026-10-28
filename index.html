@@ -201,10 +201,11 @@ dd{font:400 13.5px/1.5 var(--f-body);min-width:0}
   .eyebrow{font-size:10px;letter-spacing:.06em}
   .stat span{display:none}
   .stats{gap:2px 0}
-  .stat:first-child,.stat:nth-child(3){display:none}   /* phones: bed/bath and Freehold */
+  .stat:first-child{display:none}   /* phones: bed/bath, floor area and Freehold */
   .stat+.stat+.stat b::before{content:'·';margin:0 8px;color:var(--muted)}
 }
-/* phones: Freehold stays visible (no longer hidden below 430px) */
+@media (max-width:425px){.stat b{font-size:13.5px!important;letter-spacing:-.02em}.stat+.stat+.stat b::before{margin:0 5px!important}}
+@media (max-width:370px){.stat b{font-size:12px!important}}   /* phones: bed/bath, m² and Freehold on one line */
 @media (max-width:760px){main.wrap{padding-bottom:18px}header.wrap{position:relative}.hdr-actions{position:absolute;right:max(16px,env(safe-area-inset-right,0px));top:30px}}
 @media (max-width:520px){.cta-head{flex-direction:column;align-items:flex-start;gap:8px}.cta-head .agency-logo{height:38px}.cta-box{padding:14px 0 0}.cta{display:grid;grid-template-columns:1fr;gap:8px}.cta a,.cta button{text-align:center;padding:11px 10px}}
 .cta-hint{margin:10px 0 0;font-size:11.5px;color:var(--muted)}
