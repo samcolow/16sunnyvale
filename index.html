@@ -200,10 +200,10 @@ dd{font:400 13.5px/1.5 var(--f-body);min-width:0}
   .eyebrow{font-size:10px;letter-spacing:.06em}
   .stat span{display:none}
   .stats{gap:2px 0}
-  .stat:first-child{display:none}
+  .stat:first-child,.stat:nth-child(3){display:none}   /* phones: bed/bath and Freehold */
   .stat+.stat+.stat b::before{content:'·';margin:0 8px;color:var(--muted)}
 }
-@media (max-width:430px){.stat:last-child{display:none}}
+/* phones: Freehold stays visible (no longer hidden below 430px) */
 @media (max-width:760px){main.wrap{padding-bottom:18px}header.wrap{position:relative}.hdr-actions{position:absolute;right:max(16px,env(safe-area-inset-right,0px));top:30px}}
 @media (max-width:520px){.cta-head{flex-direction:column;align-items:flex-start;gap:8px}.cta-head .agency-logo{height:38px}.cta-box{padding:14px 0 0}.cta{display:grid;grid-template-columns:1fr;gap:8px}.cta a,.cta button{text-align:center;padding:11px 10px}}
 .cta-hint{margin:10px 0 0;font-size:11.5px;color:var(--muted)}
@@ -270,7 +270,7 @@ dialog.share p{font-size:13px;color:var(--muted);margin:0 0 12px}
 </div>
 
 <section class="wrap features" aria-label="Key features">
-  <p class="ribbon"><b>16C &amp; 16D for sale</b><span>Upgraded specs: smart home ready · heat pumps in every room</span></p>
+  <p class="ribbon"><b>16C &amp; 16D for sale</b><span>Upgraded specs: smart home control · heat pumps in every room</span></p>
   <ul>
     <li><b>Double Grammar Zone</b><span>Auckland Grammar · Epsom Girls Grammar · Remuera Intermediate · Cornwall Park District School</span></li>
     <li><b>Convenient location</b><span>Woolworths moments away · SH1 in 2 min · Greenlane station a 12-min walk · Cornwall Park in 13 min</span></li>
@@ -1167,9 +1167,10 @@ function ctaRow(what,C,lead){
   det.append(em,ph);
   const line=document.createElement('div'); line.className='cta-name'; line.append(nm,rl); who.append(line,det); head.append(who);
   const row=document.createElement('div'); row.className='cta';
-  const subj=encodeURIComponent('Viewing request: '+what);
-  const body=encodeURIComponent('Hi '+C.name.split(' ')[0]+',\n\nI would like to book a viewing of '+what+'.\n\nName:\nPhone:\nPreferred times:\n');
-  const bk=document.createElement('a'); bk.className='primary'; bk.textContent='Book a viewing'; bk.target='_top';
+  const rent=C===CONTACTS.lease;
+  const subj=encodeURIComponent((rent?'Rental enquiry: ':'Viewing request: ')+what);
+  const body=encodeURIComponent('Hi '+C.name.split(' ')[0]+',\n\n'+(rent?'I am interested in renting '+what+' and would like to arrange a viewing':'I would like to book a viewing of '+what)+'.\n\nName:\nPhone:\nPreferred times:\n');
+  const bk=document.createElement('a'); bk.className='primary'; bk.textContent=rent?'Enquire to rent':'Book a viewing (for sale)'; bk.target='_top';
   bk.href='mailto:'+C.email+'?subject='+subj+'&body='+body; bk.title='Opens a pre-filled email to '+C.name;
   // the email address copies itself; the number dials
   em.title='Tap to copy'; em.onclick=async e=>{e.preventDefault(); const t=C.email; let ok=false;
@@ -1179,7 +1180,7 @@ function ctaRow(what,C,lead){
   row.append(bk);
   box.append(head,row); return box;
 }
-function ctaHint(){const p=document.createElement('p'); p.className='cta-hint'; p.textContent='Book a viewing opens a pre-filled email in your mail app. Tap an email address to copy it, or a number to call.'; return p;}
+function ctaHint(){const p=document.createElement('p'); p.className='cta-hint'; p.textContent='Each button opens a pre-filled email in your mail app. Tap an email address to copy it, or a number to call.'; return p;}
 function listingRow(n){
   const L=LISTINGS[n]||{}, box=document.createElement('div'); box.className='listing';
   const h=document.createElement('b'); h.textContent='Photos, video and full listing'; box.append(h);
