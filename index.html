@@ -412,6 +412,21 @@ const M={
 };
 const ROOM={garage:0x8f9295,entry:0xd8d2c6,stair:0x9b8b78,bed:0xd6d0c3,bath:0xb9c9cf,kitchen:0xc2a77f,dining:0xc2a77f,living:0xbf9f72,wc:0xb9c9cf,hall:0xd6d0c3,deck:0x6d5a48};
 const roomMat={}; for(const k in ROOM) roomMat[k]=mat(ROOM[k]);
+/* floor finishes (textures repeat once per metre): Desert Oak SPC planks, light grey carpet, Gem Ash Grey tiles, charcoal garage carpet */
+const floorTex=(fill,draw)=>{const t=tex(fill,draw); t.wrapS=t.wrapT=THREE.RepeatWrapping; return t;};
+const speck=(x,a,b,n)=>{for(let k=0;k<n;k++){x.fillStyle=Math.random()<.5?a:b; x.fillRect(Math.random()*256,Math.random()*256,1.5,1.5);}};
+const oakTex=floorTex('#c3a17a',x=>{for(let r=0;r<5;r++){const y=r*51.2, off=(r*97)%256;
+    for(let k=-1;k<2;k++){const x0=off+k*256; x.fillStyle=['#c7a57d','#bd9a71','#c9aa83','#b99670','#c2a079'][(r+k+5)%5]; x.fillRect(x0,y,254,50);}
+    x.fillStyle='rgba(90,64,40,.18)'; for(let g=0;g<7;g++) x.fillRect(0,y+4+g*6.5+Math.random()*3,256,1);
+    x.fillStyle='#8f7254'; x.fillRect(0,y+50,256,1.4); x.fillRect(off%256,y,1.4,51);}});
+const carpetTex=floorTex('#c9cac7',x=>speck(x,'rgba(255,255,255,.35)','rgba(90,95,100,.22)',2600));
+const tileTex=floorTex('#a9acaa',x=>{speck(x,'rgba(255,255,255,.18)','rgba(60,62,64,.15)',900); x.fillStyle='#8c8f8e'; [0,154].forEach(v=>{x.fillRect(v,0,2,256); x.fillRect(0,v,256,2);});});
+const garageTex=floorTex('#5d6064',x=>speck(x,'rgba(255,255,255,.12)','rgba(0,0,0,.25)',2400));
+const floorMat={...roomMat};
+const oakM=new THREE.MeshLambertMaterial({map:oakTex}), carpetM=new THREE.MeshLambertMaterial({map:carpetTex}), tileM=new THREE.MeshLambertMaterial({map:tileTex});
+['living','kitchen','dining','entry'].forEach(k=>floorMat[k]=oakM);            // foyer matches the living areas
+['bed','hall'].forEach(k=>floorMat[k]=carpetM);                                   // guest room, bedrooms, robes and top-floor landing
+['bath','wc'].forEach(k=>floorMat[k]=tileM); floorMat.garage=new THREE.MeshLambertMaterial({map:garageTex});
 const glass=new THREE.MeshLambertMaterial({color:0x8fa6b2,emissive:0x000000});
 const voidGlass=new THREE.MeshLambertMaterial({color:0x9db0b9,emissive:0x000000,transparent:true,opacity:0.45});
 const balGlass=new THREE.MeshLambertMaterial({color:0xa9c0c9,transparent:true,opacity:0.35});
@@ -654,7 +669,7 @@ function unit(n,x){
   bx(dk[0],dk[1],0,0.18,3.66,5.2,M.deck,G.ext);
   for(let k=1;k*0.277<dk[1]-dk[0];k++) bx(dk[0]+k*0.277,dk[0]+k*0.277+0.01,0.18,0.185,3.66,5.2,M.trunk,G.ext);
   // feijoa tree: in the back corner for the end homes (16A, 16F), in line with the garage back door for the others
-  if(n===1||n===6) feijoaTree(-2.45,5.45,G.ext); else feijoaTree(1.72,5.45,G.ext);
+  if(n===1||n===6) feijoaTree(-2.4,5.4,G.ext); else feijoaTree(2.4,5.4,G.ext);   // in the back corner of each yard
   // end walls: windows facing the street (Lot 1) and the east boundary (Lot 6)
   /* end elevation (Lots 1 and 6), from the render: charcoal Stria at both corners, white Oblique panel down the middle */
   if(n===1||n===6){
@@ -923,7 +938,7 @@ function interior(i,y0,L,x,mir,P,FU){
   prism(f.slab.map(p=>m(...p)),y0,0.12,M.slab,L.cut);
   f.rooms.forEach(([k,poly,t,lp])=>{
     let pts=null;
-    if(k){ pts=poly.map(p=>m(...p)); prism(pts,y0+0.12,0.03,roomMat[k],L.cut); }
+    if(k){ pts=poly.map(p=>m(...p)); prism(pts,y0+0.12,0.03,floorMat[k],L.cut); }
     if(t) lab(t,lp?m(...lp):[pts.reduce((s,p)=>s+p[0],0)/pts.length,pts.reduce((s,p)=>s+p[1],0)/pts.length]);
   });
   (f.extra||[]).forEach(([t,ex,ez])=>lab(t,[ex,ez]));
