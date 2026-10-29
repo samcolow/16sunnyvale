@@ -1000,14 +1000,16 @@ function interior(i,y0,L,x,mir,P,FU){
     if(h>CUT-0.05) return;   // above the cutaway: left open, like a real section
     bx(X0,X1,y0+0.12,y0+0.12+h,Z0,Z1,carpetM,L.cut);   // Feltex carpet on the stairs
   }));
-  if(f.well){ const w=f.well, n=w.steps, rise=FH/16, floorBelow=y0-FH+0.15, treadM=new THREE.MeshLambertMaterial({map:carpetTex,emissive:0x2e2a25});   // slight warm fill so shaded treads stay carpet-coloured
-    for(let j=0;j<n;j++){   // real treads: the top one just below the landing, each 1/16 of the floor height lower, down towards the floor below
-      const a=w.y1-(j+1)*(w.y1-w.y0)/n, b=w.y1-j*(w.y1-w.y0)/n, [X0,X1,Z0,Z1]=ext(w.x0,a,w.x1,b), top=y0+0.15-(j+1)*rise;
-      bx(X0,X1,y0+0.15-1.6,top,Z0,Z1,treadM,L.cut);                       // carpeted step, solid down to the base of the void
-      bx(X0,X1,top-0.006,top+0.004,Z0,Z0+0.025,M.gunmetal,L.cut);          // nosing line on the front edge
+  if(f.well){ const w=f.well, n=w.steps, rise=FH/16, floorBelow=y0-FH+0.15, treadM=new THREE.MeshLambertMaterial({map:carpetTex,emissive:0x2e2a25}), wellWallM=new THREE.MeshLambertMaterial({color:0xf4f2ee,emissive:0x3a3936});   // slight warm fill so shaded treads stay carpet-coloured
+    const LP=Math.min(0.9/sz,(w.y1-w.y0)*0.3), ys=w.y1-LP;   // flat landing at the top (about 0.9 m) before the first step down
+    { const [X0r,X1r,Z0,Z1]=ext(w.x0,ys,w.x1,w.y1), X0=Math.max(X0r,-2.91), X1=Math.min(X1r,2.91); bx(X0+0.03,X1-0.03,y0+0.15-1.6,y0+0.15,Z0,Z1,treadM,L.cut); bx(X0+0.03,X1-0.03,y0+0.145,y0+0.155,Z0,Z0+0.025,M.gunmetal,L.cut); }
+    for(let j=0;j<n;j++){   // real treads below the landing, each 1/16 of the floor height lower, down towards the floor below
+      const a=ys-(j+1)*(ys-w.y0)/n, b=ys-j*(ys-w.y0)/n, [X0r,X1r,Z0,Z1]=ext(w.x0,a,w.x1,b), X0=Math.max(X0r,-2.91), X1=Math.min(X1r,2.91), top=y0+0.15-(j+1)*rise;
+      bx(X0+0.03,X1-0.03,y0+0.15-1.6,top,Z0,Z1,treadM,L.cut);   // treads sit between the white well walls                       // carpeted step, solid down to the base of the void
+      bx(X0+0.03,X1-0.03,top-0.006,top+0.004,Z0,Z0+0.025,M.gunmetal,L.cut);          // nosing line on the front edge
     }
-    const [X0,X1,Z0,Z1]=ext(w.x0,w.y0,w.x1,w.y1);                           // well lining so the opening reads as a void, not a hole in the model
-    [[X0,X0+0.02,Z0,Z1],[X1-0.02,X1,Z0,Z1],[X0,X1,Z0,Z0+0.02],[X0,X1,Z1-0.02,Z1]].forEach(([a,b,c,d])=>bx(a,b,y0-1.6,y0+0.12,c,d,M.part,L.cut));   // plastered well lining
+    const [X0r,X1r,Z0,Z1]=ext(w.x0,w.y0,w.x1,w.y1), X0=Math.max(X0r,-2.91), X1=Math.min(X1r,2.91);   // stop short of the party-wall fin; well lining so the opening reads as a void, not a hole in the model
+    [[X0+0.004,X0+0.03,Z0,Z1],[X1-0.03,X1-0.004,Z0,Z1],[X0,X1,Z0+0.004,Z0+0.03],[X0,X1,Z1-0.03,Z1-0.004]].forEach(([a,b,c,d])=>bx(a,b,y0-1.62,y0+0.12,c,d,wellWallM,L.cut));   // white plastered well walls, set just inside the opening
   }
   FU[i].forEach(([mt,a,b,c,d,h0,h1])=>{const [X0,X1,Z0,Z1]=ext(a,b,c,d); bx(X0,X1,y0+0.15+h0,y0+0.15+h1,Z0,Z1,M[mt],L.cut);});
 }
