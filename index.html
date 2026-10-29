@@ -605,7 +605,7 @@ function unit(n,x){
       if(ch){ prism(CH,y0,FH,M.brick,L.shell,true); return; }
       const ix0=wr&&Math.max(x0,wr[0]), ix1=wr&&Math.min(x1,wr[1]), iz0=wr&&Math.max(z0,wr[2]), iz1=wr&&Math.min(z1,wr[3]);
       if(!wr||ix0>=ix1||iz0>=iz1){ bx(x0,x1,y0,y0+FH,z0,z1,SKIN[sk],L.shell,true); return; }
-      const yc=y0+FH-WD; bx(x0,x1,y0,yc,z0,z1,SKIN[sk],L.shell,true);   // solid below the void
+      const yc=y0+FH-WD; if(yc>y0+1e-3) bx(x0,x1,y0,yc,z0,z1,SKIN[sk],L.shell,true);   // solid below the void
       [[x0,ix0,z0,z1],[ix1,x1,z0,z1],[ix0,ix1,z0,iz0],[ix0,ix1,iz1,z1]].forEach(([a,b,c,d])=>{ if(b-a>1e-3&&d-c>1e-3) bx(a,b,yc,y0+FH,c,d,SKIN[sk],L.shell,true); });
     });
     interior(i,y0,L,x,mir,n===1?PLANS1:PLANS,n===1?FURN1:FURN);
@@ -851,8 +851,7 @@ const PLANS1=[
   },
   { // Level 2
     flip:true,L:5,R:640,T:0,B:880,zr:3.8,
-    well:{x0:522,x1:633,y0:130,y1:365,land:290,steps:8,depth:2.85,hole:[440,40,633,338],   // 16A U-stair: half a floor down to the mid landing, then back down to Level 1
-          mid:[440,40,633,130],flight2:{x0:440,x1:517,y0:130,y1:336,steps:8}},   // top flight of 16A's U-stair, arriving at the rear
+    well:{u:1,depth:3.0,hole:[405,99,637,275]},   // 16A U-stair from the Lot 1 plan: down the right flight, winders at the rear (half a floor down), back down the left flight to Level 1   // top flight of 16A's U-stair, arriving at the rear
     slab:[[5,0],[405,0],[405,35],[640,35],[640,880],[5,880]],
     rooms:[
       ['bed',[[5,0],[405,0],[405,220],[320,220],[320,325],[5,325]],'Bedroom · 10.1 m²',[170,170]],
@@ -871,7 +870,7 @@ const PLANS1=[
       ['i',405,35,405,220],['i',320,220,405,220],['i',320,220,320,235],['i',320,315,320,485],['i',320,570,320,880],
       ['robe',10,325,315,325],['i',5,400,320,400],['robe',10,475,315,475],
       ['i',325,575,325,880],['i',415,578,640,578],['i',325,690,400,690],['robe',400,690,400,875],
-      ['i',435,340,545,340],['i',545,340,545,370],['i',545,370,640,370],['i',435,340,435,465],['i',435,545,435,578],['i',520,155,520,225]
+      ['i',435,340,545,340],['i',545,340,545,370],['i',545,370,640,370],['i',435,340,435,465],['i',435,545,435,578]
     ]
   }
 ];
@@ -1003,6 +1002,21 @@ function interior(i,y0,L,x,mir,P,FU){
     bx(X0,X1,y0+0.12,y0+0.12+h,Z0,Z1,carpetM,L.cut);   // Feltex carpet on the stairs
   }));
   if(f.well){ const w=f.well, n=w.steps, rise=FH/16, D=w.depth||1.6, base=y0+0.15-D, treadM=new THREE.MeshLambertMaterial({map:carpetTex,emissive:0x2e2a25}), wellWallM=new THREE.MeshLambertMaterial({color:0xf4f2ee,emissive:0x3a3936});   // slight warm fill so shaded treads stay carpet-coloured
+    if(w.u){   // 16A: 16 risers = 4 straight + 8 winders + 4 straight
+      const T0=y0+0.15, P=[521.5,202], BX=[405,637,99,202], hit=a=>{const dx=Math.cos(a),dy=Math.sin(a); let t=1e9;
+        if(dx>1e-6)t=Math.min(t,(BX[1]-P[0])/dx); if(dx<-1e-6)t=Math.min(t,(BX[0]-P[0])/dx); if(dy<-1e-6)t=Math.min(t,(BX[2]-P[1])/dy); return [P[0]+dx*t,P[1]+dy*t];};
+      const C=[[637,99,Math.atan2(99-202,637-521.5)],[405,99,Math.atan2(99-202,405-521.5)]];
+      const tread=(pts,top)=>prism(pts.map(p=>m(...p)),base,top-base,treadM,L.cut);
+      const sd=(275-202)/4;
+      for(let j=1;j<=4;j++){ const a=275-sd*j, b=a+sd; tread([[528,a],[637,a],[637,b],[528,b]],T0-j*rise);   // right flight, from the hall down towards the rear
+        const [X0,X1,Z0,Z1]=ext(528,b-3,637,b); bx(X0,X1,T0-j*rise-0.006,T0-j*rise+0.004,Z0,Z1,M.gunmetal,L.cut); }
+      for(let k=0;k<8;k++){ const a0=-k*Math.PI/8, a1=-(k+1)*Math.PI/8, pts=[P,hit(a0)];   // winders turning round at the rear
+        C.forEach(([x,y,ca])=>{ if(ca<a0&&ca>a1) pts.push([x,y]); }); pts.push(hit(a1)); tread(pts,T0-(5+k)*rise); }
+      for(let i2=1;i2<=4;i2++){ const a=202+sd*(i2-1), b=a+sd, top=T0-(12+i2)*rise; tread([[405,a],[515,a],[515,b],[405,b]],top);   // left flight back down to Level 1
+        const [X0,X1,Z0,Z1]=ext(405,a,515,a+3); bx(X0,X1,top-0.006,top+0.004,Z0,Z1,M.gunmetal,L.cut); }
+      { const [X0,X1,Z0,Z1]=ext(515,202,528,275); bx(X0,X1,base,T0-4*rise,Z0,Z1,wellWallM,L.cut); }   // stringer wall between the two straight flights
+      [[405,271,528,279],[516,238,527,279]].forEach(([a,b,c,d])=>{const [X0,X1,Z0,Z1]=ext(a,b,c,d); bx(X0,X1,base,T0+1.0,Z0,Z1,wellWallM,L.cut);});   // ~1.5 m white safety wall at the top, guarding the drop
+    }else{
     const ys=w.land??(w.y1-Math.min(0.9/sz,(w.y1-w.y0)*0.3));   // flat landing at the top (about 0.9 m) before the first step down
     { const [X0r,X1r,Z0,Z1]=ext(w.x0,ys,w.x1,w.y1), X0=Math.max(X0r,-2.91), X1=Math.min(X1r,2.91); bx(X0+0.03,X1-0.03,base,y0+0.15,Z0,Z1,treadM,L.cut); bx(X0+0.03,X1-0.03,y0+0.145,y0+0.155,Z0,Z0+0.025,M.gunmetal,L.cut); }
     for(let j=0;j<n;j++){   // real treads below the landing, each 1/16 of the floor height lower, down towards the floor below
@@ -1015,6 +1029,7 @@ function interior(i,y0,L,x,mir,P,FU){
     if(w.mid){ const midTop=y0+0.15-n*rise; step(w.mid[0],w.mid[1],w.mid[2],w.mid[3],midTop);   // mid landing, half a floor down
       const f2=w.flight2, n2=f2.steps;
       for(let j=0;j<n2;j++){ const a=f2.y0+j*(f2.y1-f2.y0)/n2, b=f2.y0+(j+1)*(f2.y1-f2.y0)/n2; step(f2.x0,a,f2.x1,b,midTop-(j+1)*rise,false); } }
+    }
     const [X0r,X1r,Z0,Z1]=ext(hr[0],hr[1],hr[2],hr[3]), X0=Math.max(X0r,-2.91), X1=Math.min(X1r,2.91);   // stop short of the party-wall fin; well lining so the opening reads as a void, not a hole in the model
     [[X0+0.004,X0+0.03,Z0,Z1],[X1-0.03,X1-0.004,Z0,Z1],[X0,X1,Z0+0.004,Z0+0.03],[X0,X1,Z1-0.03,Z1-0.004]].forEach(([a,b,c,d])=>bx(a,b,base-0.02,y0+0.12,c,d,wellWallM,L.cut));   // white plastered well walls, set just inside the opening
   }
