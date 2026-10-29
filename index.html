@@ -1014,7 +1014,9 @@ function interior(i,y0,L,x,mir,P,FU){
         const [X0,X1,Z0,Z1]=ext(528,b-3,637,b); bx(X0,X1,T0-j*rise-0.006,T0-j*rise+0.004,Z0,Z1,M.gunmetal,L.cut); }
       for(let k=0;k<8;k++){ const a0=-k*Math.PI/8, a1=-(k+1)*Math.PI/8, pts=[P,hit(a0)];   // winders turning round against the driveway wall
         C.forEach(([x,y,ca])=>{ if(ca<a0&&ca>a1) pts.push([x,y]); }); pts.push(hit(a1)); tread(pts,T0-(5+k)*rise); }
-      { const [X0,X1,Z0,Z1]=ext(515,PY,528,220); bx(X0,X1,base,T0-4*rise,Z0,Z1,wellWallM,L.cut); }   // stringer wall between the flights
+      { const [X0,X1,Z0,Z1]=ext(519,PY,531,224), hi=T0+0.5, lo=T0-4*rise+0.5, me=bx(X0,X1,base,hi,Z0,Z1,wellWallM,L.cut), pa=me.geometry.attributes.position, cy=(base+hi)/2, cz=(Z0+Z1)/2;
+        for(let v=0;v<pa.count;v++) if(pa.getY(v)>0){ const z=pa.getZ(v)+cz, f=(z-Z0)/(Z1-Z0); pa.setY(v,lo+(hi-lo)*f-cy); }   // top slopes down with the flight
+        pa.needsUpdate=true; me.geometry.computeVertexNormals(); }   // low white safety wall continuing diagonally down to the winders
       [[405,35,637,38],[634,35,637,220],[528,217,637,220],[405,35,408,220]].forEach(([a,b,c,d])=>{const [X0r,X1r,Z0,Z1]=ext(a,b,c,d), X0=Math.max(X0r,-2.95), X1=Math.min(X1r,2.95); bx(X0,X1,base-0.02,T0-0.03,Z0,Z1,wellWallM,L.cut);});   // white plastered well walls
       [[405,216,531,224]].forEach(([a,b,c,d])=>{const [X0,X1,Z0,Z1]=ext(a,b,c,d); bx(X0,X1,base,T0+0.5,Z0,Z1,wellWallM,L.cut);});   // low white safety wall, in line with the bedroom wall
     }else{
