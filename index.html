@@ -390,7 +390,7 @@ const YAX=new THREE.Vector3(0,1,0);
 const rot=a=>new THREE.Vector3(...a).applyAxisAngle(YAX,TH).toArray();
 const toW=a=>rot([-3-a[0],a[1],a[2]-1]);
 
-const hemi=new THREE.HemisphereLight(0xdfeef5,0x7d8f6a,0.75); scene.add(hemi);
+const hemi=new THREE.HemisphereLight(0xe6edf2,0xb4aa9c,0.75); scene.add(hemi);   /* neutral warm bounce so white walls read white */
 const sun=new THREE.DirectionalLight(0xfff1dc,0.95);
 sun.position.set(...toW([60,70,-25])); sun.castShadow=true; sun.shadow.mapSize.set(LOW?1024:2048,LOW?1024:2048);
 Object.assign(sun.shadow.camera,{left:-55,right:55,top:55,bottom:-55,near:5,far:220});
@@ -405,9 +405,9 @@ const mat=c=>new THREE.MeshLambertMaterial({color:c});
 const M={
   brick:new THREE.MeshLambertMaterial({map:brickTex}), white:new THREE.MeshLambertMaterial({map:obliqueTex}), charcoal:new THREE.MeshLambertMaterial({map:striaTex}),
   roof:mat(0x1d1e20), black:mat(0x151617), garage:mat(0x2c2e30), door:mat(0x2c2e30), deck:mat(0x6d5a48), concrete:mat(0xbfbdb7), asphalt:mat(0x4a4f52),
-  grass:mat(0x9fb18f), chips:mat(0xf0efe8), turf:mat(0x7f9b6c), maple:mat(0xa3382a), trunk:mat(0x4a3a2c), tree:mat(0x6a8a5c),
+  grass:mat(0xa3b39b), chips:mat(0xf0efe8), turf:mat(0x7f9b6c), maple:mat(0xa3382a), trunk:mat(0x4a3a2c), tree:mat(0x6a8a5c),
   nb:mat(0xd8d6d0), nbRoof:mat(0x8b8e90), ballast:mat(0x8a8178), rail:mat(0x2b2b2b), lane:mat(0xf2efe6), steel:mat(0xb8bcc0), pad:mat(0xa6b69a), drive:mat(0x8e8b85), joal:mat(0x55595c),
-  slab:mat(0xd9d6cf), part:mat(0xf4f2ee), oak:mat(0xb08a5e), sofa:mat(0x57524c), bed:mat(0xe9e6df), quilt:mat(0x8a9aa3), bench:mat(0xdcdad5), car:mat(0x7d8a96), gunmetal:mat(0x55585b),
+  slab:mat(0xd9d6cf), part:mat(0xf4f2ee), oak:mat(0xb08a5e), sofa:mat(0x57524c), bed:mat(0xe9e6df), quilt:mat(0xcbc2b2), pillow:mat(0x4a4744), bench:mat(0xdcdad5), car:mat(0xe6e6e3), gunmetal:mat(0x55585b),
   bamboo:new THREE.MeshLambertMaterial({color:0xc9a46a,emissive:0x000000}), coral:new THREE.MeshLambertMaterial({color:0x1d1d1d,emissive:0x000000})
 };
 const ROOM={garage:0x8f9295,entry:0xd8d2c6,stair:0x9b8b78,bed:0xd6d0c3,bath:0xb9c9cf,kitchen:0xc2a77f,dining:0xc2a77f,living:0xbf9f72,wc:0xb9c9cf,hall:0xd6d0c3,deck:0x6d5a48};
@@ -426,7 +426,7 @@ const floorMat={...roomMat};
 const oakM=new THREE.MeshLambertMaterial({map:oakTex}), carpetM=new THREE.MeshLambertMaterial({map:carpetTex}), tileM=new THREE.MeshLambertMaterial({map:tileTex});
 ['living','kitchen','dining','entry'].forEach(k=>floorMat[k]=oakM);            // foyer matches the living areas
 ['bed','hall'].forEach(k=>floorMat[k]=carpetM);                                   // guest room, bedrooms, robes and top-floor landing
-['bath','wc'].forEach(k=>floorMat[k]=tileM); floorMat.garage=new THREE.MeshLambertMaterial({map:garageTex});
+['bath','wc'].forEach(k=>floorMat[k]=tileM); floorMat.stair=carpetM; floorMat.garage=new THREE.MeshLambertMaterial({map:garageTex});
 const glass=new THREE.MeshLambertMaterial({color:0x8fa6b2,emissive:0x000000});
 const voidGlass=new THREE.MeshLambertMaterial({color:0x9db0b9,emissive:0x000000,transparent:true,opacity:0.45});
 const balGlass=new THREE.MeshLambertMaterial({color:0xa9c0c9,transparent:true,opacity:0.35});
@@ -786,7 +786,7 @@ const PLANS=[
 ];
 /* furniture in plan pixels: [material,x0,y0,x1,y1,bottom,top] (heights in metres). Level 1 follows the sales plan; beds and garage are indicative */
 const FURN=[
-  [ ['bed',62,1400,468,1693,0,0.3],['quilt',162,1400,468,1693,0.3,0.36],['part',72,1415,147,1540,0.3,0.4],['part',72,1553,147,1678,0.3,0.4],['oak',52,1395,62,1698,0,0.8],['oak',57,1310,122,1380,0,0.45],
+  [ ['bed',62,1400,468,1693,0,0.3],['quilt',162,1400,468,1693,0.3,0.36],['pillow',72,1415,147,1540,0.3,0.4],['pillow',72,1553,147,1678,0.3,0.4],['oak',52,1395,62,1698,0,0.8],['oak',57,1310,122,1380,0,0.45],
     ['car',898,720,1213,1460,0.16,0.62],['gunmetal',913,920,1198,1290,0.62,1.02],
     ['black',885,790,913,890,0,0.34],['black',1198,790,1226,890,0,0.34],['black',885,1290,913,1390,0,0.34],['black',1198,1290,1226,1390,0,0.34],
     ['bench',725,1712,860,1792,0,0.85],['bench',866,1712,1022,1792,0,0.9],['gunmetal',900,1730,990,1775,0.9,0.93],['black',760,1714,825,1716,0.3,0.7] ],
@@ -795,9 +795,9 @@ const FURN=[
     ['oak',905,785,1097,895,0,0.4],['oak',1185,760,1240,1000,0,0.45],['black',1222,745,1236,1015,0.6,1.15],
     ['oak',884,1360,1044,1636,0,0.75],
     ['black',924,1328,1004,1358,0,0.45],['black',924,1638,1004,1668,0,0.45],['black',850,1385,882,1465,0,0.45],['black',850,1530,882,1610,0,0.45],['black',1046,1385,1078,1465,0,0.45],['black',1046,1530,1078,1610,0,0.45] ],
-  [ ['bed',986,180,1404,498,0,0.3],['quilt',986,180,1274,498,0.3,0.36],['part',1324,195,1394,330,0.3,0.4],['part',1324,345,1394,483,0.3,0.4],['oak',1404,175,1417,503,0,0.8],['oak',1344,520,1409,585,0,0.45],
-    ['bed',962,1330,1405,1684,0,0.3],['quilt',962,1330,1250,1684,0.3,0.36],['part',1325,1345,1395,1500,0.3,0.4],['part',1325,1514,1395,1669,0.3,0.4],['oak',1405,1325,1417,1689,0,0.8],['oak',1345,1250,1412,1318,0,0.45],['oak',1345,1696,1412,1764,0,0.45],
-    ['bed',30,1520,449,1838,0,0.3],['quilt',158,1520,449,1838,0.3,0.36],['part',38,1535,108,1672,0.3,0.4],['part',38,1686,108,1823,0.3,0.4],['oak',18,1515,30,1843,0,0.8],['oak',23,1440,88,1508,0,0.45] ]
+  [ ['bed',986,180,1404,498,0,0.3],['quilt',986,180,1274,498,0.3,0.36],['pillow',1324,195,1394,330,0.3,0.4],['pillow',1324,345,1394,483,0.3,0.4],['oak',1404,175,1417,503,0,0.8],['oak',1344,520,1409,585,0,0.45],
+    ['bed',962,1330,1405,1684,0,0.3],['quilt',962,1330,1250,1684,0.3,0.36],['pillow',1325,1345,1395,1500,0.3,0.4],['pillow',1325,1514,1395,1669,0.3,0.4],['oak',1405,1325,1417,1689,0,0.8],['oak',1345,1250,1412,1318,0,0.45],['oak',1345,1696,1412,1764,0,0.45],
+    ['bed',30,1520,449,1838,0,0.3],['quilt',158,1520,449,1838,0.3,0.36],['pillow',38,1535,108,1672,0.3,0.4],['pillow',38,1686,108,1823,0.3,0.4],['oak',18,1515,30,1843,0,0.8],['oak',23,1440,88,1508,0,0.45] ]
 ];
 /* 16A interiors, traced from the Lot 1 floor plans. Plans are drawn with the garage side on the left,
    so flip maps plan-left to the 16B side (+x). GF and L1 room areas are from the plans. */
@@ -868,7 +868,7 @@ const PLANS1=[
   }
 ];
 const FURN1=[
-  [ ['bed',320,815,505,945,0,0.3],['quilt',385,815,505,945,0.3,0.36],['part',325,822,365,878,0.3,0.4],['part',325,885,365,940,0.3,0.4],
+  [ ['bed',320,815,505,945,0,0.3],['quilt',385,815,505,945,0.3,0.36],['pillow',325,822,365,878,0.3,0.4],['pillow',325,885,365,940,0.3,0.4],
     ['car',83,724,222,1056,0.16,0.62],['gunmetal',90,815,215,980,0.62,1.02],
     ['black',76,755,90,805,0,0.34],['black',215,755,229,805,0,0.34],['black',76,975,90,1025,0,0.34],['black',215,975,229,1025,0,0.34],
     ['bench',178,1170,240,1214,0,0.85],['bench',242,1170,294,1214,0,0.9],['gunmetal',252,1180,284,1204,0.9,0.93] ],
@@ -877,9 +877,9 @@ const FURN1=[
     ['sofa',355,560,410,750,0,0.4],['sofa',410,560,428,750,0,0.72],['sofa',290,695,355,735,0,0.4],['sofa',290,735,355,750,0,0.72],
     ['oak',604,710,688,850,0,0.75],
     ['black',622,684,670,708,0,0.45],['black',622,852,670,876,0,0.45],['black',581,725,602,772,0,0.45],['black',581,790,602,837,0,0.45],['black',690,725,711,772,0,0.45],['black',690,790,711,837,0,0.45] ],
-  [ ['bed',12,80,208,223,0,0.3],['quilt',90,80,208,223,0.3,0.36],['part',16,87,50,148,0.3,0.4],['part',16,155,50,216,0.3,0.4],['oak',5,75,12,228,0,0.8],['oak',12,30,60,72,0,0.45],
-    ['bed',12,600,218,759,0,0.3],['quilt',95,600,218,759,0.3,0.36],['part',16,607,55,676,0.3,0.4],['part',16,683,55,752,0.3,0.4],['oak',5,595,12,764,0,0.8],['oak',12,550,62,592,0,0.45],['oak',12,767,62,809,0,0.45],
-    ['bed',444,640,633,783,0,0.3],['quilt',444,640,560,783,0.3,0.36],['part',598,647,630,710,0.3,0.4],['part',598,713,630,776,0.3,0.4],['oak',633,635,640,788,0,0.8] ]
+  [ ['bed',12,80,208,223,0,0.3],['quilt',90,80,208,223,0.3,0.36],['pillow',16,87,50,148,0.3,0.4],['pillow',16,155,50,216,0.3,0.4],['oak',5,75,12,228,0,0.8],['oak',12,30,60,72,0,0.45],
+    ['bed',12,600,218,759,0,0.3],['quilt',95,600,218,759,0.3,0.36],['pillow',16,607,55,676,0.3,0.4],['pillow',16,683,55,752,0.3,0.4],['oak',5,595,12,764,0,0.8],['oak',12,550,62,592,0,0.45],['oak',12,767,62,809,0,0.45],
+    ['bed',444,640,633,783,0,0.3],['quilt',444,640,560,783,0.3,0.36],['pillow',598,647,630,710,0.3,0.4],['pillow',598,713,630,776,0.3,0.4],['oak',633,635,640,788,0,0.8] ]
 ];
 /* bathroom fixtures, from the 1:20 bathroom floorplans (toilets, wall-hung vanities, mirrors, showers, heated towel rails) */
 FURN[0].push(['ceramic',117.3,611.0,199.4,652.7,0,0.8]);
@@ -966,9 +966,9 @@ function interior(i,y0,L,x,mir,P,FU){
   (f.stairs||[]).forEach(st=>st.steps.forEach(([a,b,k,xa,xb])=>{
     const [X0,X1,Z0,Z1]=ext(xa??st.x0,a,xb??st.x1,b), h=k*0.19;
     if(h>CUT-0.05) return;   // above the cutaway: left open, like a real section
-    bx(X0,X1,y0+0.12,y0+0.12+h,Z0,Z1,roomMat.stair,L.cut);
+    bx(X0,X1,y0+0.12,y0+0.12+h,Z0,Z1,carpetM,L.cut);   // Feltex carpet on the stairs
   }));
-  if(f.well){ const w=f.well, n=w.steps, base=new THREE.Color(ROOM.stair), dark=new THREE.Color(0x2b2622);
+  if(f.well){ const w=f.well, n=w.steps, base=new THREE.Color(0x8a8680), dark=new THREE.Color(0x2b2622);
     for(let j=0;j<n;j++){   // top tread at the rear, stepping down towards the front
       const a=w.y1-(j+1)*(w.y1-w.y0)/n, b=w.y1-j*(w.y1-w.y0)/n, [X0,X1,Z0,Z1]=ext(w.x0,a,w.x1,b);
       const c=base.clone().lerp(dark,Math.min(1,j/(n-1)*0.85));
@@ -1173,11 +1173,11 @@ const HL=new Map(), NOHL=new Set([glass,voidGlass,balGlass,M.bamboo,M.coral,lamp
 let hlGroup=null;
 function highlight(id){
   if(hlGroup){hlGroup.traverse(o=>{if(o.isMesh&&o.userData.hl){o.material=o.userData.hl;delete o.userData.hl;}});hlGroup=null;}
-  const g=/^lot\d$/.test(id)&&pickables.find(p=>p.userData.id===id); if(!g)return;
+  const g=/^lot\d$/.test(id)&&pickables.find(p=>p.userData.id===id); if(!g||night||cut)return;   // no wash at night or in the floor views
   const cuts=new Set(units[+id[3]].lv.map(L=>L.cut));
   g.traverse(o=>{ if(!o.isMesh||NOHL.has(o.material)||!o.material.emissive)return;
     for(let q=o.parent;q&&q!==g;q=q.parent) if(cuts.has(q)) return;   // keep the floor views readable
-    let c=HL.get(o.material); if(!c){c=o.material.clone(); c.emissive=new THREE.Color(0x5c6478); HL.set(o.material,c);}
+    let c=HL.get(o.material); if(!c){c=o.material.clone(); c.emissive=new THREE.Color(0x2a2f3c); HL.set(o.material,c);}
     o.userData.hl=o.material; o.material=c; });
   hlGroup=g;
 }
@@ -1274,6 +1274,7 @@ function setCut(c){
   fins.forEach(f=>{f.visible=c===0||f.userData.level<top;});
   life.visible=lifeOn&&c===0;   // paused out of view in the floor views
   labels.forEach(l=>{if(l.lotTag){l.pos.y=c===0?FH*3+1.2:top*FH+2.6;}});
+  if(typeof selected!=='undefined') highlight(selected);
 }
 document.querySelectorAll('#seg button').forEach(b=>b.onclick=()=>{stopTour();const c=+b.dataset.cut;setCut(c);
   if(c){const n=focusLot(); if(!/^lot\d$/.test(selected)) render('lot'+n); fly(lotView(n,c));}else fly('overview');});
@@ -1290,6 +1291,7 @@ function setNight(on){
   glass.emissive.set(on?0x8a5a22:0x000000); voidGlass.emissive.set(on?0xffb35c:0x000000);
   M.bamboo.emissive.set(on?0xffa040:0x000000); M.coral.emissive.set(on?0x5a3010:0x000000);
   lamp.color.set(on?0xffd28a:0x5a5f62);
+  if(typeof selected!=='undefined') highlight(selected);
   sceneEl.classList.toggle('night',on); $('#bNight').setAttribute('aria-pressed',String(on)); $('#bNight').textContent=on?'Day':'Night';
 }
 $('#bNight').onclick=()=>{stopTour();if(sunOn)setSun(false);setNight(!night);};
