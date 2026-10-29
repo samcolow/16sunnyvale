@@ -430,7 +430,7 @@ const oakM=new THREE.MeshLambertMaterial({map:oakTex}), carpetM=new THREE.MeshLa
 const glass=new THREE.MeshLambertMaterial({color:0x8fa6b2,emissive:0x000000});
 const voidGlass=new THREE.MeshLambertMaterial({color:0x9db0b9,emissive:0x000000,transparent:true,opacity:0.45});
 const balGlass=new THREE.MeshLambertMaterial({color:0xa9c0c9,transparent:true,opacity:0.35});
-M.ceramic=mat(0xf6f6f3); M.mirror=new THREE.MeshLambertMaterial({color:0xbfcbd1,emissive:0x1b2328});
+M.ceramic=mat(0xf6f6f3); M.mirror=new THREE.MeshLambertMaterial({color:0xd3dce0,emissive:0x1b2328}); M.robe=mat(0xe7e4de); M.chair=mat(0x7a5638);
 const lamp=new THREE.MeshBasicMaterial({color:0x5a5f62});
 
 const pickables=[];
@@ -794,7 +794,7 @@ const FURN=[
     ['sofa',1000,615,1130,740,0,0.42],['sofa',1000,585,1130,615,0,0.75],
     ['oak',905,785,1097,895,0,0.4],['oak',1185,760,1240,1000,0,0.45],['black',1222,745,1236,1015,0.6,1.15],
     ['oak',884,1360,1044,1636,0,0.75],
-    ['black',924,1328,1004,1358,0,0.45],['black',924,1638,1004,1668,0,0.45],['black',850,1385,882,1465,0,0.45],['black',850,1530,882,1610,0,0.45],['black',1046,1385,1078,1465,0,0.45],['black',1046,1530,1078,1610,0,0.45] ],
+    ['chair',924,1328,1004,1358,0,0.45],['chair',924,1638,1004,1668,0,0.45],['chair',850,1385,882,1465,0,0.45],['chair',850,1530,882,1610,0,0.45],['chair',1046,1385,1078,1465,0,0.45],['chair',1046,1530,1078,1610,0,0.45] ],
   [ ['bed',986,180,1404,498,0,0.3],['quilt',986,180,1274,498,0.3,0.36],['pillow',1324,195,1394,330,0.3,0.4],['pillow',1324,345,1394,483,0.3,0.4],['oak',1404,175,1417,503,0,0.8],['oak',1344,520,1409,585,0,0.45],
     ['bed',962,1330,1405,1684,0,0.3],['quilt',962,1330,1250,1684,0.3,0.36],['pillow',1325,1345,1395,1500,0.3,0.4],['pillow',1325,1514,1395,1669,0.3,0.4],['oak',1405,1325,1417,1689,0,0.8],['oak',1345,1250,1412,1318,0,0.45],['oak',1345,1696,1412,1764,0,0.45],
     ['bed',30,1520,449,1838,0,0.3],['quilt',158,1520,449,1838,0.3,0.36],['pillow',38,1535,108,1672,0.3,0.4],['pillow',38,1686,108,1823,0.3,0.4],['oak',18,1515,30,1843,0,0.8],['oak',23,1440,88,1508,0,0.45] ]
@@ -876,7 +876,7 @@ const FURN1=[
     ['oak',203,618,243,668,0,0.38],['black',117,575,125,705,0.6,1.1],
     ['sofa',355,560,410,750,0,0.4],['sofa',410,560,428,750,0,0.72],['sofa',290,695,355,735,0,0.4],['sofa',290,735,355,750,0,0.72],
     ['oak',604,710,688,850,0,0.75],
-    ['black',622,684,670,708,0,0.45],['black',622,852,670,876,0,0.45],['black',581,725,602,772,0,0.45],['black',581,790,602,837,0,0.45],['black',690,725,711,772,0,0.45],['black',690,790,711,837,0,0.45] ],
+    ['chair',622,684,670,708,0,0.45],['chair',622,852,670,876,0,0.45],['chair',581,725,602,772,0,0.45],['chair',581,790,602,837,0,0.45],['chair',690,725,711,772,0,0.45],['chair',690,790,711,837,0,0.45] ],
   [ ['bed',12,80,208,223,0,0.3],['quilt',90,80,208,223,0.3,0.36],['pillow',16,87,50,148,0.3,0.4],['pillow',16,155,50,216,0.3,0.4],['oak',5,75,12,228,0,0.8],['oak',12,30,60,72,0,0.45],
     ['bed',12,600,218,759,0,0.3],['quilt',95,600,218,759,0.3,0.36],['pillow',16,607,55,676,0.3,0.4],['pillow',16,683,55,752,0.3,0.4],['oak',5,595,12,764,0,0.8],['oak',12,550,62,592,0,0.45],['oak',12,767,62,809,0,0.45],
     ['bed',444,640,633,783,0,0.3],['quilt',444,640,560,783,0.3,0.36],['pillow',598,647,630,710,0.3,0.4],['pillow',598,713,630,776,0.3,0.4],['oak',633,635,640,788,0,0.8] ]
@@ -886,7 +886,7 @@ FURN[0].push(['ceramic',117.3,611.0,199.4,652.7,0,0.8]);
 FURN[0].push(['ceramic',121.7,645.7,195.1,759.2,0,0.4]);
 FURN[0].push(['oak',266.3,611.0,439.0,722.2,0.3,0.7]);
 FURN[0].push(['ceramic',300.8,624.9,404.5,708.3,0.7,0.75]);
-FURN[0].push(['mirror',277.1,611.0,428.2,615.6,0.95,1.15]);
+FURN[0].push(['mirror',277.1,611.0,428.2,615.6,0.8,1.02]);
 FURN[0].push(['part',72.0,840.3,268.5,1051.0,0,0.04]);
 FURN[0].push(['gunmetal',154.0,1046.4,164.8,1051.0,0.9,1.15]);
 FURN[0].push(['gunmetal',305.2,1044.1,402.3,1051.0,0.55,1.05]);
@@ -903,7 +903,7 @@ FURN[2].push(['part',287.0,126.5,511.5,347.8,0,0.04]);
 FURN[2].push(['gunmetal',381.3,126.5,393.7,131.4,0.9,1.15]);
 FURN[2].push(['oak',287.0,367.2,411.1,586.0,0.3,0.7]);
 FURN[2].push(['ceramic',301.9,384.2,396.2,569.0,0.7,0.75]);
-FURN[2].push(['mirror',287.0,384.2,292.0,569.0,0.95,1.15]);
+FURN[2].push(['mirror',287.0,384.2,292.0,569.0,0.8,1.02]);
 FURN[2].push(['gunmetal',738.6,283.8,746.0,400.5,0.55,1.05]);
 PLANS[2].walls.push(['scr',511.5,126.5,511.5,230.6]);
 PLANS[2].walls.push(['scr',511.5,230.6,383.3,345.6]);
@@ -914,7 +914,7 @@ FURN1[0].push(['ceramic',437.5,1195.4,477.4,1213.0,0,0.8]);
 FURN1[0].push(['ceramic',439.6,1149.4,475.3,1198.3,0,0.4]);
 FURN1[0].push(['oak',501.5,1164.1,596.0,1213.0,0.3,0.7]);
 FURN1[0].push(['ceramic',509.7,1170.4,588.4,1207.5,0.7,0.75]);
-FURN1[0].push(['mirror',501.5,1211.0,596.0,1213.0,0.95,1.15]);
+FURN1[0].push(['mirror',501.5,1211.0,596.0,1213.0,0.8,1.02]);
 FURN1[0].push(['gunmetal',413.8,1090.2,482.0,1093.1,0.55,1.05]);
 PLANS1[0].walls.push(['scr',400.0,1114.6,400.0,1213.0]);
 FURN1[1].push(['ceramic',739.3,1056.2,760.0,1099.3,0,0.8]);
@@ -929,7 +929,7 @@ FURN1[2].push(['ceramic',573.5,373.3,607.1,392.7,0,0.8]);
 FURN1[2].push(['ceramic',575.3,389.5,605.3,443.3,0,0.4]);
 FURN1[2].push(['oak',550.6,519.2,630.0,573.0,0.3,0.7]);
 FURN1[2].push(['ceramic',563.5,525.9,620.9,566.9,0.7,0.75]);
-FURN1[2].push(['mirror',550.6,570.8,630.0,573.0,0.95,1.15]);
+FURN1[2].push(['mirror',550.6,570.8,630.0,573.0,0.8,1.02]);
 FURN1[2].push(['gunmetal',508.1,569.8,547.0,573.0,0.55,1.05]);
 PLANS1[2].walls.push(['scr',440.0,464.5,522.2,464.5]);
 FURN[0].push(['black',305,468,309,480,0.3,0.38]);   // storage door handle
@@ -952,7 +952,7 @@ function interior(i,y0,L,x,mir,P,FU){
     else if(t==='win'){ ws(y0,0.9,0.18,M.part); ws(y0+0.9,CUT-0.9,0.05,glass); }
     else if(t==='sl'){ ws(y0+0.12,CUT-0.12,0.05,glass); ws(y0+CUT-0.04,0.04,0.08,M.black); }
     else if(t==='gd') ws(y0,0.3,0.06,M.garage);
-    else if(t==='robe') ws(y0+0.12,CUT-0.12,0.04,M.gunmetal);
+    else if(t==='robe') ws(y0+0.12,CUT-0.12,0.04,M.robe);   // white wardrobe doors
     else if(t==='rail'){ ws(y0+0.12,0.9,0.03,balGlass); ws(y0+1.0,0.04,0.05,M.black); }
     else if(t==='scr') ws(y0+0.15,1.0,0.02,balGlass);   // shower screen
     else if(t==='sdoor'){ const dh=e||0.95; ws(y0+0.12,dh,0.025,M.part); ws(y0+0.12+dh,0.012,0.03,M.gunmetal); }   // under-stair storage door: white like the wall, fine head line
@@ -1173,11 +1173,12 @@ const HL=new Map(), NOHL=new Set([glass,voidGlass,balGlass,M.bamboo,M.coral,lamp
 let hlGroup=null;
 function highlight(id){
   if(hlGroup){hlGroup.traverse(o=>{if(o.isMesh&&o.userData.hl){o.material=o.userData.hl;delete o.userData.hl;}});hlGroup=null;}
-  const g=/^lot\d$/.test(id)&&pickables.find(p=>p.userData.id===id); if(!g||night||cut)return;   // no wash at night or in the floor views
+  const g=/^lot\d$/.test(id)&&pickables.find(p=>p.userData.id===id); if(!g||night)return;   // no wash at night (lit windows read better)
   const cuts=new Set(units[+id[3]].lv.map(L=>L.cut));
   g.traverse(o=>{ if(!o.isMesh||NOHL.has(o.material)||!o.material.emissive)return;
     for(let q=o.parent;q&&q!==g;q=q.parent) if(cuts.has(q)) return;   // keep the floor views readable
-    let c=HL.get(o.material); if(!c){c=o.material.clone(); c.emissive=new THREE.Color(0x2a2f3c); HL.set(o.material,c);}
+    if(cut){ const bb=o.geometry.boundingBox||(o.geometry.computeBoundingBox(),o.geometry.boundingBox); if(bb.max.y-bb.min.y<0.3) return; }   // no tint on flat decks and paving in floor views
+    let c=HL.get(o.material); if(!c){c=o.material.clone(); c.emissive=new THREE.Color(0x4a5163); HL.set(o.material,c);}
     o.userData.hl=o.material; o.material=c; });
   hlGroup=g;
 }
