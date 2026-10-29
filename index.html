@@ -1379,7 +1379,7 @@ document.querySelectorAll('#seg button').forEach(b=>b.onclick=()=>{stopTour();co
 
 /* ---------- modes ---------- */
 const DAY={bg:0xcfdde4,hemi:0.75,sun:0.95}, NIGHT={bg:0x18222b,hemi:0.22,sun:0.12};
-scene.fog=new THREE.Fog(DAY.bg,120,280);
+scene.fog=new THREE.Fog(DAY.bg,230,480);   // haze only on the far horizon
 let night=false;
 function setNight(on){
   night=on; const p=on?NIGHT:DAY;
@@ -1406,14 +1406,14 @@ const V={
   lot3cut:[[-1,20,-15],[-3,3,0]],
   yards:[[2,15,24],[-3,3,2]],
   context:[[30,120,-110],[-10,0,0]],
-  landmarks:[[-70,140,-100],[-95,0,10]]
+  landmarks:[[-104,92,-64],[-120,0,8]], landmarksM:[[-100,175,-112],[-120,0,8]]   // closer and lower so the station, Woolworths and McDonald's read clearly
 };
 let tween=null;
 function lotView(n,c){const xc=-15+(n-1)*W, y=(c-1)*FH; return [[xc+3,y+13,-11],[xc,y,-0.3]];}
 function fly(key,ms,keepAz,turn){
-  if(key==='driveway'&&narrow()) key='drivewayM';   // phones: centred on the middle homes
+  if((key==='driveway'||key==='landmarks')&&narrow()) key+='M';   // phones: centred on the middle homes
   const [p0,t0]=Array.isArray(key)?key:V[key]; let p=toW(p0), t=toW(t0);
-  if(narrow()&&key!=='drivewayM') p=p.map((v,i)=>t[i]+(v-t[i])*1.4);   // phones sit further back, except the driveway view which is already wide
+  if(narrow()&&!/M$/.test(key)) p=p.map((v,i)=>t[i]+(v-t[i])*1.4);   // phones sit further back, except the driveway view which is already wide
   if(keepAz){ const cx=camera.position.x-controls.target.x, cz=camera.position.z-controls.target.z, cl=Math.hypot(cx,cz), hz=Math.hypot(p[0]-t[0],p[2]-t[2]);
     if(cl>1e-3) p=[t[0]+cx/cl*hz,p[1],t[2]+cz/cl*hz]; }   // tour: keep the current viewing direction and carry on panning
   if(turn){ const dx=p[0]-t[0], dz=p[2]-t[2], c=Math.cos(turn), sn=Math.sin(turn); p=[t[0]+dx*c+dz*sn,p[1],t[2]-dx*sn+dz*c]; }   // start the view turned round by this angle
