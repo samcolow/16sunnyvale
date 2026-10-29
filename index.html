@@ -979,7 +979,7 @@ function interior(i,y0,L,x,mir,P,FU,endHome){
   });
   (f.extra||[]).forEach(([t,ex,ez])=>lab(t,[ex,ez]));
   f.walls.forEach(([t,a,b,c,d,e])=>{
-    if(t==='win'&&!endHome&&!f.flip&&a===f.L&&c===f.L) t='w';   // side windows only on the end home (16F); 16B|16C and 16D|16E share intertenancy walls
+    if(t==='win'&&!f.flip&&((!endHome&&a===f.L&&c===f.L)||(a===f.R&&c===f.R))) t='w';   // no windows on intertenancy walls; only 16F's outer end wall keeps its side windows
     const [x0,z0]=m(a,b),[x1,z1]=m(c,d), ws=(yy,h,th,mm)=>wallSeg(x0,z0,x1,z1,yy,h,th,mm,L.cut);
     if(t==='w') ws(y0,CUT,0.18,M.part);
     else if(t==='i') ws(y0,CUT,0.1,M.part);
