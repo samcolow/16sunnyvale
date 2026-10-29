@@ -1328,7 +1328,7 @@ function render(id){
   if(/^lot\d$/.test(id)){ const n=+id[3], row=document.createElement('div'); row.className='cta home-acts';
     const wt=document.createElement('button'); wt.type='button'; wt.className='primary'; wt.textContent='Walk through '+d.t; wt.onclick=()=>walkThrough(n);
     const fp=document.createElement('a'); fp.className='soon'; fp.setAttribute('aria-disabled','true'); fp.textContent='Floor plan (PDF) · coming soon'; fp.title='Floor plan download coming soon';
-    row.append(wt,fp); el.append(row, listingRow(n)); }
+    row.append(wt,fp); el.append(row); }   // no listing links: the portal listings link to this page instead
   // contact panel follows the selection: the right person for a home, both for the overview
   const ct=$('#contact'); ct.innerHTML='';
   const ch=document.createElement('h3'); ch.className='contact-h'; ch.textContent='Get in touch'; ct.append(ch);
