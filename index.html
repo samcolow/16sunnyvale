@@ -407,7 +407,7 @@ const M={
   roof:mat(0x1d1e20), black:mat(0x151617), garage:mat(0x2c2e30), door:mat(0x2c2e30), deck:mat(0x6d5a48), concrete:mat(0xbfbdb7), asphalt:mat(0x4a4f52),
   grass:mat(0xa3b39b), chips:mat(0xf0efe8), turf:mat(0x7f9b6c), maple:mat(0xa3382a), trunk:mat(0x4a3a2c), tree:mat(0x6a8a5c),
   nb:mat(0xd8d6d0), nbRoof:mat(0x8b8e90), ballast:mat(0x8a8178), rail:mat(0x2b2b2b), lane:mat(0xf2efe6), steel:mat(0xb8bcc0), pad:mat(0xa6b69a), drive:mat(0x8e8b85), joal:mat(0x55595c),
-  slab:mat(0xd9d6cf), part:mat(0xf4f2ee), oak:mat(0xb08a5e), sofa:mat(0xa3a19d), bed:mat(0xe9e6df), quilt:mat(0xcbc2b2), pillow:mat(0x8c8a86), bench:mat(0xdcdad5), car:mat(0xe6e6e3), gunmetal:mat(0x55585b),
+  slab:mat(0xd9d6cf), part:mat(0xebe9e5), oak:mat(0xb08a5e), sofa:mat(0xa3a19d), bed:mat(0xe9e6df), quilt:mat(0xcbc2b2), pillow:mat(0x8c8a86), bench:mat(0xdcdad5), car:mat(0xe6e6e3), gunmetal:mat(0x55585b),
   bamboo:new THREE.MeshLambertMaterial({color:0xc9a46a,emissive:0x000000}), coral:new THREE.MeshLambertMaterial({color:0x1d1d1d,emissive:0x000000})
 };
 const ROOM={garage:0x8f9295,entry:0xd8d2c6,stair:0x9b8b78,bed:0xd6d0c3,bath:0xb9c9cf,kitchen:0xc2a77f,dining:0xc2a77f,living:0xbf9f72,wc:0xb9c9cf,hall:0xd6d0c3,deck:0x6d5a48};
@@ -1002,7 +1002,7 @@ function interior(i,y0,L,x,mir,P,FU,endHome){
     if(h>CUT-0.05) return;   // above the cutaway: left open, like a real section
     bx(X0,X1,y0+0.12,y0+0.12+h,Z0,Z1,carpetM,L.cut);   // Feltex carpet on the stairs
   }));
-  if(f.well){ const w=f.well, n=w.steps, rise=FH/16, D=w.depth||1.6, base=y0+0.15-D, treadM=new THREE.MeshLambertMaterial({map:carpetTex,emissive:0x2e2a25}), wellWallM=new THREE.MeshLambertMaterial({color:0xf4f2ee,emissive:0x3a3936});   // slight warm fill so shaded treads stay carpet-coloured
+  if(f.well){ const w=f.well, n=w.steps, rise=FH/16, D=w.depth||1.6, base=y0+0.15-D, treadM=new THREE.MeshLambertMaterial({map:carpetTex,emissive:0x2e2a25}), wellWallM=new THREE.MeshLambertMaterial({color:0xebe9e5,emissive:0x3a3936});   // slight warm fill so shaded treads stay carpet-coloured
     if(w.u){   // 16A: 16 risers = 4 straight + 8 winders + 4 straight
       const T0=y0+0.15, PY=130, P=[521.5,PY], BX=[405,637,35,PY], hit=a=>{const dx=Math.cos(a),dy=Math.sin(a); let t=1e9;
         if(dx>1e-6)t=Math.min(t,(BX[1]-P[0])/dx); if(dx<-1e-6)t=Math.min(t,(BX[0]-P[0])/dx); if(dy<-1e-6)t=Math.min(t,(BX[2]-P[1])/dy); return [P[0]+dx*t,P[1]+dy*t];};
