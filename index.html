@@ -421,7 +421,7 @@ const oakTex=floorTex('#c3a17a',x=>{for(let r=0;r<5;r++){const y=r*51.2, off=(r*
     x.fillStyle='#8f7254'; x.fillRect(0,y+50,256,1.4); x.fillRect(off%256,y,1.4,51);}});
 const carpetTex=floorTex('#8a8680',x=>speck(x,'rgba(255,255,255,.22)','rgba(60,58,54,.25)',2600));   // Feltex Okiwi Bay 'Stone': mid warm grey
 const tileTex=floorTex('#a9acaa',x=>{speck(x,'rgba(255,255,255,.18)','rgba(60,62,64,.15)',900); x.fillStyle='#8c8f8e'; [0,154].forEach(v=>{x.fillRect(v,0,2,256); x.fillRect(0,v,256,2);});});
-const garageTex=floorTex('#5d6064',x=>speck(x,'rgba(255,255,255,.12)','rgba(0,0,0,.25)',2400));
+const garageTex=floorTex('#46494c',x=>speck(x,'rgba(255,255,255,.12)','rgba(0,0,0,.25)',2400));
 const floorMat={...roomMat};
 const oakM=new THREE.MeshLambertMaterial({map:oakTex}), carpetM=new THREE.MeshLambertMaterial({map:carpetTex}), tileM=new THREE.MeshLambertMaterial({map:tileTex});
 ['living','kitchen','dining','entry'].forEach(k=>floorMat[k]=oakM);            // foyer matches the living areas
@@ -725,7 +725,7 @@ const PLANS=[
       ['w',52,41,500,41],['w',500,41,575,150],['w',648,272,715,390],
       ['gd',715,390,1399,390],['w',1399,390,1399,1800],
       ['w',52,1800,160,1800],['sl',160,1800,600,1800],['w',600,1800,1029,1800],['w',1197,1800,1399,1800],
-      ['i',290,235,290,600],['i',52,600,450,600],['i',450,600,450,870],['i',450,1025,450,1205],
+      ['i',290,235,290,600],['sdoor',303,300,303,420],   // storage door under the stairs, off the foyer['i',52,600,450,600],['i',450,600,450,870],['i',450,1025,450,1205],
       ['i',450,710,508,710],['i',652,710,710,710],['i',52,1062,450,1062],
       ['i',52,1205,110,1205],['robe',110,1205,385,1205],['i',385,1205,450,1205],
       ['i',710,390,710,435],['i',710,585,710,1800]
@@ -931,6 +931,7 @@ FURN1[2].push(['ceramic',563.5,525.9,620.9,566.9,0.7,0.75]);
 FURN1[2].push(['mirror',550.6,570.8,630.0,573.0,0.95,1.15]);
 FURN1[2].push(['gunmetal',508.1,569.8,547.0,573.0,0.55,1.05]);
 PLANS1[2].walls.push(['scr',440.0,464.5,522.2,464.5]);
+FURN[0].push(['black',305,398,309,410,0.32,0.42]);   // storage door handle
 function interior(i,y0,L,x,mir,P,FU){
   const f=P[i], CUT=1.2, sx=6/(f.R-f.L), sz=(f.zr+4.5)/(f.B-f.T);
   const m=(a,b)=>[f.flip?3-(a-f.L)*sx:-3+(a-f.L)*sx,-4.5+(b-f.T)*sz];
@@ -952,6 +953,7 @@ function interior(i,y0,L,x,mir,P,FU){
     else if(t==='robe') ws(y0+0.12,CUT-0.12,0.04,M.gunmetal);
     else if(t==='rail'){ ws(y0+0.12,0.9,0.03,balGlass); ws(y0+1.0,0.04,0.05,M.black); }
     else if(t==='scr') ws(y0+0.15,1.0,0.02,balGlass);   // shower screen
+    else if(t==='sdoor') ws(y0+0.12,0.95,0.02,M.oak);   // under-stair storage door
   });
   const ext=(a,b,c,d)=>{const [x0,z0]=m(a,b),[x1,z1]=m(c,d);return [Math.min(x0,x1),Math.max(x0,x1),Math.min(z0,z1),Math.max(z0,z1)];};
   (f.fix||[]).forEach(([t,a,b,c,d])=>{
