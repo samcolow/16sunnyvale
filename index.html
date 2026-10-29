@@ -775,7 +775,7 @@ const PLANS=[
       ['hall',[[18,1043],[433,1043],[433,1218],[18,1218]],''],
       ['bed',[[18,1218],[700,1218],[700,1975],[18,1975]],'Bedroom',[360,1600]]
     ],
-    well:{x0:28,x1:266,y0:380,y1:1025,steps:8},
+    well:{x0:28,x1:266,y0:100,y1:1025,land:760,steps:8},   // landing spans the opening to the hall (760–1025); the flight runs to the front wall
     walls:[
       ['w',18,92,18,120],['win',18,120,18,378],['w',18,378,18,850],['win',18,850,18,1015],['w',18,1015,18,1460],['win',18,1460,18,1940],['w',18,1940,18,1975],
       ['w',18,92,92,92],['win',92,92,212,92],['w',212,92,518,92],['w',518,92,518,18],
@@ -851,7 +851,7 @@ const PLANS1=[
   },
   { // Level 2
     flip:true,L:5,R:640,T:0,B:880,zr:3.8,
-    well:{x0:522,x1:633,y0:45,y1:300,steps:8},   // top flight of 16A's U-stair, arriving at the rear
+    well:{x0:522,x1:633,y0:45,y1:365,land:290,steps:8},   // top flight of 16A's U-stair, arriving at the rear
     slab:[[5,0],[405,0],[405,35],[640,35],[640,880],[5,880]],
     rooms:[
       ['bed',[[5,0],[405,0],[405,220],[320,220],[320,325],[5,325]],'Bedroom · 10.1 m²',[170,170]],
@@ -1001,7 +1001,7 @@ function interior(i,y0,L,x,mir,P,FU){
     bx(X0,X1,y0+0.12,y0+0.12+h,Z0,Z1,carpetM,L.cut);   // Feltex carpet on the stairs
   }));
   if(f.well){ const w=f.well, n=w.steps, rise=FH/16, floorBelow=y0-FH+0.15, treadM=new THREE.MeshLambertMaterial({map:carpetTex,emissive:0x2e2a25}), wellWallM=new THREE.MeshLambertMaterial({color:0xf4f2ee,emissive:0x3a3936});   // slight warm fill so shaded treads stay carpet-coloured
-    const LP=Math.min(0.9/sz,(w.y1-w.y0)*0.3), ys=w.y1-LP;   // flat landing at the top (about 0.9 m) before the first step down
+    const ys=w.land??(w.y1-Math.min(0.9/sz,(w.y1-w.y0)*0.3));   // flat landing at the top (about 0.9 m) before the first step down
     { const [X0r,X1r,Z0,Z1]=ext(w.x0,ys,w.x1,w.y1), X0=Math.max(X0r,-2.91), X1=Math.min(X1r,2.91); bx(X0+0.03,X1-0.03,y0+0.15-1.6,y0+0.15,Z0,Z1,treadM,L.cut); bx(X0+0.03,X1-0.03,y0+0.145,y0+0.155,Z0,Z0+0.025,M.gunmetal,L.cut); }
     for(let j=0;j<n;j++){   // real treads below the landing, each 1/16 of the floor height lower, down towards the floor below
       const a=ys-(j+1)*(ys-w.y0)/n, b=ys-j*(ys-w.y0)/n, [X0r,X1r,Z0,Z1]=ext(w.x0,a,w.x1,b), X0=Math.max(X0r,-2.91), X1=Math.min(X1r,2.91), top=y0+0.15-(j+1)*rise;
