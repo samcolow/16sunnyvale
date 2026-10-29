@@ -851,7 +851,7 @@ const PLANS1=[
   },
   { // Level 2
     flip:true,L:5,R:640,T:0,B:880,zr:3.8,
-    well:{u:1,depth:3.0,hole:[405,99,637,275]},   // 16A U-stair from the Lot 1 plan: down the right flight, winders at the rear (half a floor down), back down the left flight to Level 1   // top flight of 16A's U-stair, arriving at the rear
+    well:{u:1,depth:1.8,hole:[405,35,637,275]},   // 16A U-stair from the Lot 1 plan: down the right flight, winders at the rear (half a floor down), back down the left flight to Level 1   // top flight of 16A's U-stair, arriving at the rear
     slab:[[5,0],[405,0],[405,35],[640,35],[640,880],[5,880]],
     rooms:[
       ['bed',[[5,0],[405,0],[405,220],[320,220],[320,325],[5,325]],'Bedroom · 10.1 m²',[170,170]],
@@ -1003,19 +1003,21 @@ function interior(i,y0,L,x,mir,P,FU){
   }));
   if(f.well){ const w=f.well, n=w.steps, rise=FH/16, D=w.depth||1.6, base=y0+0.15-D, treadM=new THREE.MeshLambertMaterial({map:carpetTex,emissive:0x2e2a25}), wellWallM=new THREE.MeshLambertMaterial({color:0xf4f2ee,emissive:0x3a3936});   // slight warm fill so shaded treads stay carpet-coloured
     if(w.u){   // 16A: 16 risers = 4 straight + 8 winders + 4 straight
-      const T0=y0+0.15, P=[521.5,202], BX=[405,637,99,202], hit=a=>{const dx=Math.cos(a),dy=Math.sin(a); let t=1e9;
+      const T0=y0+0.15, P=[521.5,170], BX=[405,637,35,170], hit=a=>{const dx=Math.cos(a),dy=Math.sin(a); let t=1e9;
         if(dx>1e-6)t=Math.min(t,(BX[1]-P[0])/dx); if(dx<-1e-6)t=Math.min(t,(BX[0]-P[0])/dx); if(dy<-1e-6)t=Math.min(t,(BX[2]-P[1])/dy); return [P[0]+dx*t,P[1]+dy*t];};
-      const C=[[637,99,Math.atan2(99-202,637-521.5)],[405,99,Math.atan2(99-202,405-521.5)]];
-      const tread=(pts,top)=>prism(pts.map(p=>m(...p)),base,top-base,treadM,L.cut);
-      const sd=(275-202)/4;
+      const C=[[637,35,Math.atan2(35-170,637-521.5)],[405,35,Math.atan2(35-170,405-521.5)]];
+      const shade=top=>{const k=Math.min(1,Math.max(0,(T0-top)/D)); return new THREE.MeshLambertMaterial({map:carpetTex,color:new THREE.Color(1,1,1).lerp(new THREE.Color(0x3a3530),k*0.75),emissive:0x2e2a25});};
+      const tread=(pts,top)=>{ if(top>base+0.01) prism(pts.map(p=>m(...p)),base,top-base,shade(top),L.cut); };   // steps fade into shadow as they go down
+      { const [X0,X1,Z0,Z1]=ext(405,35,637,275); bx(X0+0.03,X1-0.03,base-0.02,base,Z0,Z1,new THREE.MeshLambertMaterial({map:carpetTex,color:0x8a827a,emissive:0x1e1b18}),L.cut);   /* lower flight continues out of view */ }
+      const sd=(275-170)/4;
       for(let j=1;j<=4;j++){ const a=275-sd*j, b=a+sd; tread([[528,a],[637,a],[637,b],[528,b]],T0-j*rise);   // right flight, from the hall down towards the rear
         const [X0,X1,Z0,Z1]=ext(528,b-3,637,b); bx(X0,X1,T0-j*rise-0.006,T0-j*rise+0.004,Z0,Z1,M.gunmetal,L.cut); }
       for(let k=0;k<8;k++){ const a0=-k*Math.PI/8, a1=-(k+1)*Math.PI/8, pts=[P,hit(a0)];   // winders turning round at the rear
         C.forEach(([x,y,ca])=>{ if(ca<a0&&ca>a1) pts.push([x,y]); }); pts.push(hit(a1)); tread(pts,T0-(5+k)*rise); }
-      for(let i2=1;i2<=4;i2++){ const a=202+sd*(i2-1), b=a+sd, top=T0-(12+i2)*rise; tread([[405,a],[515,a],[515,b],[405,b]],top);   // left flight back down to Level 1
+      for(let i2=1;i2<=4;i2++){ const a=170+sd*(i2-1), b=a+sd, top=T0-(12+i2)*rise; if(top<=base+0.01) continue; tread([[405,a],[515,a],[515,b],[405,b]],top);   // left flight back down to Level 1
         const [X0,X1,Z0,Z1]=ext(405,a,515,a+3); bx(X0,X1,top-0.006,top+0.004,Z0,Z1,M.gunmetal,L.cut); }
-      { const [X0,X1,Z0,Z1]=ext(515,202,528,275); bx(X0,X1,base,T0-4*rise,Z0,Z1,wellWallM,L.cut); }   // stringer wall between the two straight flights
-      [[405,271,528,279],[516,238,527,279]].forEach(([a,b,c,d])=>{const [X0,X1,Z0,Z1]=ext(a,b,c,d); bx(X0,X1,base,T0+1.0,Z0,Z1,wellWallM,L.cut);});   // ~1.5 m white safety wall at the top, guarding the drop
+      { const [X0,X1,Z0,Z1]=ext(515,170,528,275); bx(X0,X1,base,T0-4*rise,Z0,Z1,wellWallM,L.cut); }   // stringer wall between the two straight flights
+      [[405,271,528,279],[516,238,527,279]].forEach(([a,b,c,d])=>{const [X0,X1,Z0,Z1]=ext(a,b,c,d); bx(X0,X1,base,T0+0.5,Z0,Z1,wellWallM,L.cut);});   // ~1.5 m white safety wall at the top, guarding the drop
     }else{
     const ys=w.land??(w.y1-Math.min(0.9/sz,(w.y1-w.y0)*0.3));   // flat landing at the top (about 0.9 m) before the first step down
     { const [X0r,X1r,Z0,Z1]=ext(w.x0,ys,w.x1,w.y1), X0=Math.max(X0r,-2.91), X1=Math.min(X1r,2.91); bx(X0+0.03,X1-0.03,base,y0+0.15,Z0,Z1,treadM,L.cut); bx(X0+0.03,X1-0.03,y0+0.145,y0+0.155,Z0,Z0+0.025,M.gunmetal,L.cut); }
