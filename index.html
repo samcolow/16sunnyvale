@@ -1166,15 +1166,15 @@ const train=(()=>{ const g=new THREE.Group(), CL=23.5, cars=[], white=mat(0xf1f2
     for(let d=-1;d<=1;d+=2) box(0.9,1.9,2.86,band,d*CL/4,1.9,0,c);   // doors
     if(k===1) box(1.6,0.5,0.2,band,0,3.85,0,c);   // pantograph
     if(k!==1){ const e=k===0?-1:1; box(0.25,2.7,2.82,nose,e*(CL/2+0.1),2.05,0,c); box(0.27,0.8,2.2,band,e*(CL/2+0.12),2.65,0,c); }   // driving cab, yellow front
-    c.traverse(o=>{if(o.isMesh)o.castShadow=true;}); g.add(c); cars.push(c); }
-  life.add(g); return {g,cars,CL,x:-60,dir:1,wait:0,stopped:true}; })();   // starts in view, heading past the site
+    c.scale.setScalar(0.85); c.traverse(o=>{if(o.isMesh)o.castShadow=true;}); g.add(c); cars.push(c); }   // drawn slightly under size so it doesn't dominate
+  life.add(g); g.visible=false; return {g,cars,CL:CL*0.85,x:-235,dir:1,wait:40,stopped:false}; })();   // first appears about 40 s in, after the opening views
 function updateTrain(dt){ const t=train, STN=-150, V=14;
   if(t.wait>0){ t.wait-=dt; if(t.wait<=0){ if(t.x>=235){t.dir=-1;t.x=234;} else if(t.x<=-235){t.dir=1;t.x=-234;} } }
   else{ const toStn=(STN-t.x)*t.dir, v=(!t.stopped&&toStn>0&&toStn<40)?Math.max(1.2,V*toStn/40):V;
     t.x+=t.dir*v*dt;
     if(!t.stopped&&toStn>0&&(STN-t.x)*t.dir<=0){ t.x=STN; t.stopped=true; t.wait=12; }   // dwell at Greenlane station
-    if(t.x>=235||t.x<=-235){ t.x=Math.max(-235,Math.min(235,t.x)); t.wait=10; t.stopped=false; t.g.visible=false; } else t.g.visible=true; }
-  t.cars.forEach((c,k)=>{ const cx=t.x-t.dir*(k-1)*(t.CL+0.6), y0=hAt(cx-t.CL/2), y1=hAt(cx+t.CL/2);
+    if(t.x>=235||t.x<=-235){ t.x=Math.max(-235,Math.min(235,t.x)); t.wait=35; t.stopped=false; t.g.visible=false; } /* long gap between services */ else t.g.visible=true; }
+  t.cars.forEach((c,k)=>{ const cx=t.x-t.dir*(k-1)*(t.CL+0.5), y0=hAt(cx-t.CL/2), y1=hAt(cx+t.CL/2);
     c.position.set(cx,(y0+y1)/2+0.32,-33); c.rotation.z=Math.atan2(y1-y0,t.CL); });
 }
 const LM_={skin:mat(0xd9b48f),skin2:mat(0x8d5a3b),dark:mat(0x2b2f36),denim:mat(0x3f5873),parcel:mat(0xb0864f),tyre:mat(0x1b1c1e),cab:mat(0x2f3a44)};
