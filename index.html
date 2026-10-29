@@ -407,7 +407,7 @@ const M={
   roof:mat(0x1d1e20), black:mat(0x151617), garage:mat(0x2c2e30), door:mat(0x2c2e30), deck:mat(0x6d5a48), concrete:mat(0xbfbdb7), asphalt:mat(0x4a4f52),
   grass:mat(0xa3b39b), chips:mat(0xf0efe8), turf:mat(0x7f9b6c), maple:mat(0xa3382a), trunk:mat(0x4a3a2c), tree:mat(0x6a8a5c),
   nb:mat(0xd8d6d0), nbRoof:mat(0x8b8e90), ballast:mat(0x8a8178), rail:mat(0x2b2b2b), lane:mat(0xf2efe6), steel:mat(0xb8bcc0), pad:mat(0xa6b69a), drive:mat(0x8e8b85), joal:mat(0x55595c),
-  slab:mat(0xd9d6cf), part:mat(0xf4f2ee), oak:mat(0xb08a5e), sofa:mat(0xa3a19d), bed:mat(0xe9e6df), quilt:mat(0xcbc2b2), pillow:mat(0xa3815f), bench:mat(0xdcdad5), car:mat(0xe6e6e3), gunmetal:mat(0x55585b),
+  slab:mat(0xd9d6cf), part:mat(0xf4f2ee), oak:mat(0xb08a5e), sofa:mat(0xa3a19d), bed:mat(0xe9e6df), quilt:mat(0xcbc2b2), pillow:mat(0x8c8a86), bench:mat(0xdcdad5), car:mat(0xe6e6e3), gunmetal:mat(0x55585b),
   bamboo:new THREE.MeshLambertMaterial({color:0xc9a46a,emissive:0x000000}), coral:new THREE.MeshLambertMaterial({color:0x1d1d1d,emissive:0x000000})
 };
 const ROOM={garage:0x8f9295,entry:0xd8d2c6,stair:0x9b8b78,bed:0xd6d0c3,bath:0xb9c9cf,kitchen:0xc2a77f,dining:0xc2a77f,living:0xbf9f72,wc:0xb9c9cf,hall:0xd6d0c3,deck:0x6d5a48};
@@ -576,8 +576,9 @@ const ENV1=[
 /* ground-floor stair/foyer block: brick wall runs on a diagonal from the front face to the garage door line */
 const CH=[[-3,-4.5],[-1.0,-4.5],[-0.06,-2.9],[-0.06,3.6],[-3,3.6]];
 brickTex.wrapS=brickTex.wrapT=THREE.RepeatWrapping;
-function prism(pts,y0,h,m,parent,body){
+function prism(pts,y0,h,m,parent,body,holes){
   const sh=new THREE.Shape(); pts.forEach(([x,z],k)=>k?sh.lineTo(x,-z):sh.moveTo(x,-z));
+  (holes||[]).forEach(hp=>{const p=new THREE.Path(); hp.forEach(([x,z],k)=>k?p.lineTo(x,-z):p.moveTo(x,-z)); sh.holes.push(p);});
   const g=new THREE.ExtrudeGeometry(sh,{depth:h,bevelEnabled:false}); g.rotateX(-Math.PI/2);
   const me=new THREE.Mesh(g,m); me.position.y=y0; me.castShadow=true; me.receiveShadow=true;
   if(body){me.userData.body=true;me.userData.orig=m;} parent.add(me); return me;
@@ -597,9 +598,15 @@ function unit(n,x){
     const L={shell:new THREE.Group(),cut:new THREE.Group(),ext:new THREE.Group(),rooms:[]};
     g.add(L.shell,L.cut,L.ext); lv.push(L);
     const y0=i*FH;
+    const P=n===1?PLANS1:PLANS, wf=P[2].well, WD=1.6;   // the Level 1 block is hollowed under the top-floor stairwell so the stairs can drop into it
+    let wr=null; if(i===1&&wf){ const f=P[2], sx=6/(f.R-f.L), sz=(f.zr+4.5)/(f.B-f.T), mx=a=>f.flip?3-(a-f.L)*sx:-3+(a-f.L)*sx, mz=b=>-4.5+(b-f.T)*sz;
+      wr=[Math.min(mx(wf.x0),mx(wf.x1)),Math.max(mx(wf.x0),mx(wf.x1)),mz(wf.y0),mz(wf.y1)]; }
     (n===1?ENV1:ENV)[i].forEach(([x0,x1,z0,z1,sk,ch])=>{
       if(ch){ prism(CH,y0,FH,M.brick,L.shell,true); return; }
-      bx(x0,x1,y0,y0+FH,z0,z1,SKIN[sk],L.shell,true);
+      const ix0=wr&&Math.max(x0,wr[0]), ix1=wr&&Math.min(x1,wr[1]), iz0=wr&&Math.max(z0,wr[2]), iz1=wr&&Math.min(z1,wr[3]);
+      if(!wr||ix0>=ix1||iz0>=iz1){ bx(x0,x1,y0,y0+FH,z0,z1,SKIN[sk],L.shell,true); return; }
+      const yc=y0+FH-WD; bx(x0,x1,y0,yc,z0,z1,SKIN[sk],L.shell,true);   // solid below the void
+      [[x0,ix0,z0,z1],[ix1,x1,z0,z1],[ix0,ix1,z0,iz0],[ix0,ix1,iz1,z1]].forEach(([a,b,c,d])=>{ if(b-a>1e-3&&d-c>1e-3) bx(a,b,yc,y0+FH,c,d,SKIN[sk],L.shell,true); });
     });
     interior(i,y0,L,x,mir,n===1?PLANS1:PLANS,n===1?FURN1:FURN);
     L.cut.visible=false;
@@ -962,10 +969,11 @@ function interior(i,y0,L,x,mir,P,FU){
   const f=P[i], CUT=1.2, sx=6/(f.R-f.L), sz=(f.zr+4.5)/(f.B-f.T);
   const m=(a,b)=>[f.flip?3-(a-f.L)*sx:-3+(a-f.L)*sx,-4.5+(b-f.T)*sz];
   const lab=(t,c)=>L.rooms.push({lab:t.replace(/ · [\d.]+ m²$/,''),pos:new THREE.Vector3(x+mir*c[0],y0+0.7,c[1])});
-  prism(f.slab.map(p=>m(...p)),y0,0.12,i===2?carpetM:M.slab,L.cut);   // top floor: carpet runs through the landing too
+  const wellHole=f.well?[[f.well.x0,f.well.y0],[f.well.x1,f.well.y0],[f.well.x1,f.well.y1],[f.well.x0,f.well.y1]].map(p=>m(...p)):null;   // open stairwell down to the floor below
+  prism(f.slab.map(p=>m(...p)),y0,0.12,i===2?carpetM:M.slab,L.cut,false,wellHole&&[wellHole]);   // top floor: carpet runs through the landing too
   f.rooms.forEach(([k,poly,t,lp])=>{
     let pts=null;
-    if(k){ pts=poly.map(p=>m(...p)); prism(pts,y0+0.12,0.03,floorMat[k],L.cut); }
+    if(k){ pts=poly.map(p=>m(...p)); prism(pts,y0+0.12,0.03,floorMat[k],L.cut,false,k==='stair'&&wellHole?[wellHole]:null); }
     if(t) lab(t,lp?m(...lp):[pts.reduce((s,p)=>s+p[0],0)/pts.length,pts.reduce((s,p)=>s+p[1],0)/pts.length]);
   });
   (f.extra||[]).forEach(([t,ex,ez])=>lab(t,[ex,ez]));
@@ -992,13 +1000,15 @@ function interior(i,y0,L,x,mir,P,FU){
     if(h>CUT-0.05) return;   // above the cutaway: left open, like a real section
     bx(X0,X1,y0+0.12,y0+0.12+h,Z0,Z1,carpetM,L.cut);   // Feltex carpet on the stairs
   }));
-  if(f.well){ const w=f.well, n=w.steps, base=new THREE.Color(0x8a8680), dark=new THREE.Color(0x2b2622);
-    for(let j=0;j<n;j++){   // top tread at the rear, stepping down towards the front
-      const a=w.y1-(j+1)*(w.y1-w.y0)/n, b=w.y1-j*(w.y1-w.y0)/n, [X0,X1,Z0,Z1]=ext(w.x0,a,w.x1,b);
-      const c=base.clone().lerp(dark,Math.min(1,j/(n-1)*0.85));
-      bx(X0,X1,y0+0.13,y0+0.155,Z0,Z1,new THREE.MeshLambertMaterial({color:c}),L.cut);
-      bx(X0,X1,y0+0.155,y0+0.16,Z0,Z0+0.03,M.black,L.cut);   // nosing line
-    }}
+  if(f.well){ const w=f.well, n=w.steps, rise=FH/16, floorBelow=y0-FH+0.15, treadM=new THREE.MeshLambertMaterial({map:carpetTex,emissive:0x2e2a25});   // slight warm fill so shaded treads stay carpet-coloured
+    for(let j=0;j<n;j++){   // real treads: the top one just below the landing, each 1/16 of the floor height lower, down towards the floor below
+      const a=w.y1-(j+1)*(w.y1-w.y0)/n, b=w.y1-j*(w.y1-w.y0)/n, [X0,X1,Z0,Z1]=ext(w.x0,a,w.x1,b), top=y0+0.15-(j+1)*rise;
+      bx(X0,X1,y0+0.15-1.6,top,Z0,Z1,treadM,L.cut);                       // carpeted step, solid down to the base of the void
+      bx(X0,X1,top-0.006,top+0.004,Z0,Z0+0.025,M.gunmetal,L.cut);          // nosing line on the front edge
+    }
+    const [X0,X1,Z0,Z1]=ext(w.x0,w.y0,w.x1,w.y1);                           // well lining so the opening reads as a void, not a hole in the model
+    [[X0,X0+0.02,Z0,Z1],[X1-0.02,X1,Z0,Z1],[X0,X1,Z0,Z0+0.02],[X0,X1,Z1-0.02,Z1]].forEach(([a,b,c,d])=>bx(a,b,y0-1.6,y0+0.12,c,d,M.part,L.cut));   // plastered well lining
+  }
   FU[i].forEach(([mt,a,b,c,d,h0,h1])=>{const [X0,X1,Z0,Z1]=ext(a,b,c,d); bx(X0,X1,y0+0.15+h0,y0+0.15+h1,Z0,Z1,M[mt],L.cut);});
 }
 // Lot 1 on the Sunnyvale Rd frontage, Lot 6 at the far end
