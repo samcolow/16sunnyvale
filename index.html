@@ -1446,12 +1446,12 @@ function goStep(i,now){
 const ICON_PLAY='<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg>', ICON_PAUSE='<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z" fill="currentColor"/></svg>';
 function startTour(){touring=true;$('#bTour').setAttribute('aria-pressed','true');$('#bTour').innerHTML=ICON_PAUSE;$('#bTour').setAttribute('aria-label','Pause tour');$('#bTour').title='Pause tour';$('#tourcap').hidden=false;goStep(step<0?0:step,performance.now());}
 let touched=false;
-let walkTok=0;
+let walkTok=0, walking=false;
 function walkThrough(n){   // the selected home floor by floor: GF, L1, L2
-  stopTour(); const tok=++walkTok; render('lot'+n); sceneEl.scrollIntoView({behavior:reduce?'auto':'smooth',block:'center'});
+  stopTour(); const tok=++walkTok; walking=true; render('lot'+n); sceneEl.scrollIntoView({behavior:reduce?'auto':'smooth',block:'center'});
   [1,2,3].forEach((c,k)=>setTimeout(()=>{ if(tok!==walkTok) return; setCut(c); render('lot'+n); fly(lotView(n,c),k?1800:1400); },k*5200));
 }
-function stopTour(){touched=true;walkTok++;if(!touring)return;touring=false;controls.autoRotate=false;$('#bTour').setAttribute('aria-pressed','false');$('#bTour').innerHTML=ICON_PLAY;$('#bTour').setAttribute('aria-label','Play tour');$('#bTour').title='Play tour';$('#tourcap').hidden=true;}
+function stopTour(){touched=true;walkTok++;walking=false;if(!touring)return;touring=false;controls.autoRotate=false;$('#bTour').setAttribute('aria-pressed','false');$('#bTour').innerHTML=ICON_PLAY;$('#bTour').setAttribute('aria-label','Play tour');$('#bTour').title='Play tour';$('#tourcap').hidden=true;}
 $('#bTour').onclick=()=>{if(touring)stopTour();else{if(sunOn)setSun(false);startTour();}};
 
 /* compass: needle shows where north is on screen; tap to turn the view north-up like a map */
@@ -1568,7 +1568,8 @@ function loop(now){
   const dist=camera.position.distanceTo(controls.target), fl=focusLot(), top=cut-1;
   labels.forEach(l=>{
     let ok=true;
-    if(l.room) ok=cut!==0&&l.level===top&&l.lot===fl&&(KEYROOM.test(l.el.textContent)||dist<(narrow()?17:12));   // key rooms of the selected home always; the rest when zoomed in
+    if(l.room){ const near=narrow()?17:12; ok=cut!==0&&l.level===top&&l.lot===fl&&(dist<near||((touring||walking)&&KEYROOM.test(l.el.textContent)));   // only when zoomed in close, or for the key rooms during the tour / walk-through
+      if(ok) l.el.style.transform='translate(-50%,-50%) scale('+Math.max(0.75,Math.min(1.1,near/dist)).toFixed(2)+')'; }   // shrink as the view pulls back
     if(l.lotTag) ok=dist<120&&!(cut&&l.lotTag===fl);   // the outlined home doesn't need its tag over its room names
     v.copy(l.pos).project(camera);
     const vis=ok&&v.z<1&&v.x>-1.1&&v.x<1.1&&v.y>-1.1&&v.y<1.1;
