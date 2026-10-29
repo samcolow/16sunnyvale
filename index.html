@@ -608,7 +608,7 @@ function unit(n,x){
       const yc=y0+FH-WD; if(yc>y0+1e-3) bx(x0,x1,y0,yc,z0,z1,SKIN[sk],L.shell,true);   // solid below the void
       [[x0,ix0,z0,z1],[ix1,x1,z0,z1],[ix0,ix1,z0,iz0],[ix0,ix1,iz1,z1]].forEach(([a,b,c,d])=>{ if(b-a>1e-3&&d-c>1e-3) bx(a,b,yc,y0+FH,c,d,SKIN[sk],L.shell,true); });
     });
-    interior(i,y0,L,x,mir,n===1?PLANS1:PLANS,n===1?FURN1:FURN);
+    interior(i,y0,L,x,mir,n===1?PLANS1:PLANS,n===1?FURN1:FURN,n===6);
     L.cut.visible=false;
   }
   const [G,L1,L2]=lv;
@@ -965,7 +965,7 @@ FURN1[2].push(['gunmetal',508.1,569.8,547.0,573.0,0.7,0.72]);
 PLANS1[2].walls.push(['scr',440.0,464.5,522.2,464.5]);
 FURN[0].push(['black',305,468,309,480,0.3,0.38]);   // storage door handle
 FURN1[0].push(['black',522,612,530,615,0.32,0.42]);   // 16A storage door handle
-function interior(i,y0,L,x,mir,P,FU){
+function interior(i,y0,L,x,mir,P,FU,endHome){
   const f=P[i], CUT=1.2, sx=6/(f.R-f.L), sz=(f.zr+4.5)/(f.B-f.T);
   const m=(a,b)=>[f.flip?3-(a-f.L)*sx:-3+(a-f.L)*sx,-4.5+(b-f.T)*sz];
   const lab=(t,c)=>L.rooms.push({lab:t.replace(/ · [\d.]+ m²$/,''),pos:new THREE.Vector3(x+mir*c[0],y0+0.7,c[1])});
@@ -979,6 +979,7 @@ function interior(i,y0,L,x,mir,P,FU){
   });
   (f.extra||[]).forEach(([t,ex,ez])=>lab(t,[ex,ez]));
   f.walls.forEach(([t,a,b,c,d,e])=>{
+    if(t==='win'&&!endHome&&!f.flip&&a===f.L&&c===f.L) t='w';   // side windows only on the end home (16F); 16B|16C and 16D|16E share intertenancy walls
     const [x0,z0]=m(a,b),[x1,z1]=m(c,d), ws=(yy,h,th,mm)=>wallSeg(x0,z0,x1,z1,yy,h,th,mm,L.cut);
     if(t==='w') ws(y0,CUT,0.18,M.part);
     else if(t==='i') ws(y0,CUT,0.1,M.part);
