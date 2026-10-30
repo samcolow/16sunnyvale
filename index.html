@@ -68,6 +68,7 @@ h1{font:700 clamp(28px,5vw,44px)/1.02 var(--f-display);letter-spacing:-.02em;mar
 @keyframes spotBlink{50%{opacity:.35}}
 @media (prefers-reduced-motion:reduce){.lbl.spot{animation:none}}
 .lbl.spot:hover,.lbl.spot:focus-visible{animation:none;opacity:1;outline:2px solid var(--ink);outline-offset:1px}
+.scene.standing .ctrls,.scene.standing .skey,.scene.standing .jump,.scene.standing .tourbar,.scene.standing .sunbar{display:none!important}   /* eye level: just the room and the Back bar */
 .spotbar{position:absolute;left:10px;right:10px;bottom:52px;display:flex;justify-content:center;pointer-events:none}
 .spotbar>div{pointer-events:auto;display:flex;align-items:center;gap:10px;background:var(--chip-bg);color:var(--chip-fg);border-radius:999px;padding:6px 6px 6px 14px;box-shadow:0 1px 3px rgba(0,0,0,.15);font:600 13px/1 var(--f-body)}
 .spotbar .sb-hint{font:400 12px/1 var(--f-body);color:var(--muted)}
@@ -861,10 +862,10 @@ const PLANS=[
 ];
 /* standing spots per floor, in plan pixels [slug, label, camera x, y, look-at x, y, optional marker x, y] */
 const SPOTS=[ [['guest','Guest suite',700,1790,200,1300]],
-  [['living','Living',1235,1820,600,700,850,820],['dining','Dining and kitchen',1235,560,300,1500,1120,1640]],
+  [['dining','Dining and kitchen',1235,1820,600,700,1120,1640],['living','Living',1235,560,300,1500,850,820]],   /* named for where you stand; you look across to the other end */
   [['primary','Primary bedroom',710,1965,1250,1350],['bedroom','Front bedroom',1400,640,900,150]] ];
 const SPOTS1=[ [['bedroom','Bedroom',600,1040,350,800]],
-  [['living','Living',700,1100,190,700,230,820],['dining','Dining and kitchen',150,1100,650,600,690,610]],
+  [['dining','Dining and kitchen',700,1100,190,700,645,900],['living','Living',150,1100,650,600,230,820]],
   [['primary','Primary bedroom',315,875,100,560],['bedroom','Front bedroom',400,215,60,40]] ];
 /* furniture in plan pixels: [material,x0,y0,x1,y1,bottom,top] (heights in metres). Level 1 follows the sales plan; beds and garage are indicative */
 const FURN=[
@@ -1250,8 +1251,8 @@ function enterSpot(n,i,sp){ stopTour(); if(sunOn&&dayPlay) stopDay();
   const p=new THREE.Vector3(...toW(sp.p)), l=new THREE.Vector3(...toW(sp.l)), t=p.clone().add(l.sub(p).normalize().multiplyScalar(0.6));
   controls.minDistance=0.3; controls.enableZoom=false; controls.enablePan=false; controls.rotateSpeed=0.45;
   tween={p0:camera.position.clone(),t0:controls.target.clone(),p1:p,t1:t,s:performance.now(),d:reduce?1:1400};
-  $('#spotBar').hidden=false; $('#spotName').textContent=sp.label; syncHash(); track('stand-here',{unit:unitName('lot'+n),spot:sp.slug}); }
-function leaveSpot(back){ if(!inSpot) return; const pv=inSpot.prev; roomMode(inSpot.L,false); inSpot=null; $('#spotBar').hidden=true;
+  $('#spotBar').hidden=false; sceneEl.classList.add('standing'); $('#spotName').textContent=sp.label; syncHash(); track('stand-here',{unit:unitName('lot'+n),spot:sp.slug}); }
+function leaveSpot(back){ if(!inSpot) return; const pv=inSpot.prev; roomMode(inSpot.L,false); inSpot=null; $('#spotBar').hidden=true; sceneEl.classList.remove('standing');
   controls.minDistance=6; controls.enableZoom=true; controls.enablePan=true; controls.rotateSpeed=1;
   if(back) tween={p0:camera.position.clone(),t0:controls.target.clone(),p1:new THREE.Vector3(...pv[0]),t1:new THREE.Vector3(...pv[1]),s:performance.now(),d:reduce?1:1200};
   syncHash(); }
