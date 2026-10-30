@@ -64,7 +64,7 @@ h1{font:700 clamp(28px,5vw,44px)/1.02 var(--f-display);letter-spacing:-.02em;mar
 .lbl.lot{font:500 11px/1 var(--f-mono);padding:3px 6px}
 .lbl.lot.sale{background:var(--sale);color:var(--on-sale)}
 .lbl.lot:not(.sale){background:var(--lease);color:var(--on-lease)}
-.lbl.spot{pointer-events:auto;cursor:pointer;padding:2px;background:none;box-shadow:none;border-radius:50%;font:700 17px/1 var(--f-body);color:var(--ink);text-shadow:0 0 2px #fff,0 0 5px #fff,0 0 8px #fff;transform:translate(-50%,-50%);animation:spotBlink 1.6s ease-in-out infinite}
+.lbl.spot{pointer-events:auto;cursor:pointer;padding:2px;background:none;box-shadow:none;border-radius:50%;font:700 17px/1 var(--f-body);color:var(--ink);text-shadow:0 0 2px #fff,0 0 5px #fff,0 0 8px #fff;transform:translate(-50%,-50%);animation:spotBlink 1.4s ease-in-out 3}   /* pulses three times to be noticed, then rests */
 @keyframes spotBlink{50%{opacity:.35}}
 @media (prefers-reduced-motion:reduce){.lbl.spot{animation:none}}
 .lbl.spot:hover,.lbl.spot:focus-visible{animation:none;opacity:1;outline:2px solid var(--ink);outline-offset:1px}
@@ -1044,7 +1044,8 @@ function interior(i,y0,L,x,mir,P,FU,endHome){
   const f=P[i], CUT=1.2, sx=6/(f.R-f.L), sz=(f.zr+4.5)/(f.B-f.T);
   const m=(a,b)=>[f.flip?3-(a-f.L)*sx:-3+(a-f.L)*sx,-4.5+(b-f.T)*sz];
   ((P===PLANS1?SPOTS1:SPOTS)[i]||[]).forEach(([slug,label,a,b,c,d])=>{ const [px,pz]=m(a,b),[lx,lz]=m(c,d);
-    L.spots.push({slug,label,p:[x+mir*px,y0+1.75,pz],l:[x+mir*lx,y0+1.05,lz]}); });   /* eye level, looking slightly down across the room */
+    const fx=px+(lx-px)*0.45, fz=pz+(lz-pz)*0.45;   /* marker sits on the floor inside the room, between the viewpoint and what it looks at */
+    L.spots.push({slug,label,p:[x+mir*px,y0+1.75,pz],l:[x+mir*lx,y0+1.05,lz],f:[x+mir*fx,y0+0.25,fz]}); });   /* eye level, looking slightly down across the room */
   const lab=(t,c)=>L.rooms.push({lab:t.replace(/ · [\d.]+ m²$/,''),area:(t.match(/ · ([\d.]+ m²)$/)||[])[1],pos:new THREE.Vector3(x+mir*c[0],y0+0.7,c[1])});
   const hr=f.well&&(f.well.hole||[f.well.x0,f.well.y0,f.well.x1,f.well.y1]);
   const wellHole=hr?(f.well.poly||[[hr[0],hr[1]],[hr[2],hr[1]],[hr[2],hr[3]],[hr[0],hr[3]]]).map(p=>m(...p)):null;   // open stairwell down to the floor below
@@ -1219,7 +1220,7 @@ addLabel('Dead end','geo',new THREE.Vector3(-25.9,1.2,-30.3),{local:true});
 addLabel('N','geo',new THREE.Vector3(40+2.6*NORTH_L[0],1.4,-20+2.6*NORTH_L[2]),{local:true});
 LM.forEach(([t,x,z])=>addLabel(t,'',new THREE.Vector3(x,t.includes('station')?0:7,z),{local:true}));
 for(const n in units) units[n].lv.forEach((L,i)=>L.rooms.forEach(r=>addLabel(r.lab,'room',r.pos,{room:true,lot:+n,level:i,local:true,name:r.lab,area:r.area})));
-for(const n in units) units[n].lv.forEach((L,i)=>L.spots.forEach(sp=>{ const lb=addLabel('','spot',new THREE.Vector3(...sp.p),{spot:sp,lot:+n,level:i,local:true});
+for(const n in units) units[n].lv.forEach((L,i)=>L.spots.forEach(sp=>{ const lb=addLabel('','spot',new THREE.Vector3(...sp.f),{spot:sp,lot:+n,level:i,local:true});
   lb.el.textContent='◉';
   lb.el.setAttribute('role','button'); lb.el.tabIndex=0; lb.el.title='Stand in the '+sp.label.toLowerCase(); lb.el.setAttribute('aria-label','Stand in the '+sp.label.toLowerCase());
   const go=()=>enterSpot(+n,i,sp); lb.el.onclick=go; lb.el.onkeydown=e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); go(); } }; }));
