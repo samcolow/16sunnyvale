@@ -365,6 +365,8 @@ const LOW=matchMedia('(max-width: 760px), (pointer: coarse)').matches;
 /* listing status: change here when a home is leased or sold ('sale', 'lease', 'leased', 'sold') */
 const STATUS={1:'lease',2:'lease',3:'sale',4:'sale',5:'lease',6:'lease'};
 const AVAILABLE={lease:'From Monday 9 November 2026'};
+const AVAIL_NOW=Date.now()>=Date.parse('2026-11-09T00:00:00+13:00');   /* from 9 November the rentals read "Available now" */
+if(AVAIL_NOW){ AVAILABLE.lease='Now'; const rb=document.querySelector('.ribbon.rent span'); if(rb) rb.textContent='Available now'; }
 const OPEN_HOME={sale:'To be confirmed'};   // update with day and time once set (also the sale banner below the model)
 const CAT={sale:['For sale','--sale'],lease:['For rent','--lease'],sold:['Sold','--dev'],leased:['Rented','--dev'],dev:['Overview','--dev']};
 const lot=n=>{
@@ -1031,8 +1033,13 @@ function interior(i,y0,L,x,mir,P,FU,endHome){
     else if(t==='gd') ws(y0,0.3,0.06,M.garage);
     else if(t==='robe'){   /* white sliding wardrobe doors (6th value = number of doors; the primary bedrooms have 2): panels with visible joins, a slim handle each and a top track, set just below the wall line so they read as doors */
       const Ln=Math.hypot(x1-x0,z1-z0), np=e||Math.max(2,Math.round(Ln/0.9)), dh=1.0, g=0.03, P=u=>[x0+(x1-x0)*u,z0+(z1-z0)*u];
+      const nx=(z1-z0)/Ln, nz=-(x1-x0)/Ln, cx0=(x0+x1)/2, cz0=(z0+z1)/2, pip=(pts,px,pz)=>{let c=false; for(let a=0,b=pts.length-1;a<pts.length;b=a++){const [xa,za]=pts[a],[xb,zb]=pts[b]; if((za>pz)!==(zb>pz)&&px<(xb-xa)*(pz-za)/(zb-za)+xa) c=!c;} return c;};
+      const score=sd=>{ const px=cx0+nx*0.3*sd, pz=cz0+nz*0.3*sd; let best=-1;   /* inside a bedroom, and nearer its middle (a robe can sit inside the bedroom outline) */
+        f.rooms.forEach(([k,poly])=>{ if(k!=='bed'||!poly) return; const pts=poly.map(q=>m(...q)); if(!pip(pts,px,pz)) return;
+          const mx=pts.reduce((t,q)=>t+q[0],0)/pts.length, mz=pts.reduce((t,q)=>t+q[1],0)/pts.length; best=Math.max(best,10-Math.hypot(px-mx,pz-mz)); }); return best; };
+      const side=score(1)>=score(-1)?1:-1;   /* handles only on the bedroom face */
       for(let k=0;k<np;k++){ const u0=(k*Ln/np+g/2)/Ln, u1=((k+1)*Ln/np-g/2)/Ln; wallSeg(...P(u0),...P(u1),y0+0.12,dh,0.04,M.robe,L.cut);
-        const uh=k%2?u0+0.07/Ln:u1-0.07/Ln; wallSeg(...P(uh-0.012/Ln),...P(uh+0.012/Ln),y0+0.45,0.34,0.07,M.gunmetal,L.cut); }
+        const uh=k%2?u0+0.07/Ln:u1-0.07/Ln; wallSeg(...P(uh-0.012/Ln),...P(uh+0.012/Ln),y0+0.45,0.34,0.025,M.gunmetal,L.cut,false,side*0.032); }
       ws(y0+0.12+dh,0.03,0.06,M.gunmetal); }
     else if(t==='rail'){ ws(y0+0.12,0.9,0.03,balGlass); ws(y0+1.0,0.04,0.05,M.black); }
     else if(t==='scr') ws(y0+0.15,1.0,0.02,balGlass);   // shower screen
