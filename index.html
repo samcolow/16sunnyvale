@@ -64,7 +64,7 @@ h1{font:700 clamp(28px,5vw,44px)/1.02 var(--f-display);letter-spacing:-.02em;mar
 .lbl.lot{font:500 11px/1 var(--f-mono);padding:3px 6px}
 .lbl.lot.sale{background:var(--sale);color:var(--on-sale)}
 .lbl.lot:not(.sale){background:var(--lease);color:var(--on-lease)}
-.lbl.spot{pointer-events:auto;cursor:pointer;background:var(--ink);color:#fff;border-radius:999px;font:600 11px/1 var(--f-body);padding:6px 10px;box-shadow:0 2px 6px rgba(0,0,0,.25)}
+.lbl.spot{pointer-events:auto;cursor:pointer;width:28px;height:28px;padding:0;display:grid;place-items:center;border-radius:50%;background:var(--ink);color:#fff;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.3);transform:translate(-50%,-50%)}
 .lbl.spot:hover,.lbl.spot:focus-visible{background:#2c3d63;outline:2px solid #fff;outline-offset:1px}
 .spotbar{position:absolute;left:10px;right:10px;bottom:52px;display:flex;justify-content:center;pointer-events:none}
 .spotbar>div{pointer-events:auto;display:flex;align-items:center;gap:10px;background:var(--chip-bg);color:var(--chip-fg);border-radius:999px;padding:6px 6px 6px 14px;box-shadow:0 1px 3px rgba(0,0,0,.15);font:600 13px/1 var(--f-body)}
@@ -478,7 +478,7 @@ const oakM=new THREE.MeshLambertMaterial({map:oakTex}), carpetM=new THREE.MeshLa
 const glass=new THREE.MeshLambertMaterial({color:0x8fa6b2,emissive:0x000000});
 const voidGlass=new THREE.MeshLambertMaterial({color:0x9db0b9,emissive:0x000000,transparent:true,opacity:0.45});
 const balGlass=new THREE.MeshLambertMaterial({color:0xa9c0c9,transparent:true,opacity:0.35});
-M.ceramic=mat(0xf6f6f3); M.mirror=new THREE.MeshLambertMaterial({color:0xd3dce0,emissive:0x1b2328}); M.robe=mat(0xe7e4de); M.chair=mat(0x7a5638);
+M.ceramic=mat(0xf6f6f3); M.mirror=new THREE.MeshLambertMaterial({color:0xd3dce0,emissive:0x1b2328}); M.robe=mat(0xe7e4de); M.ceil=mat(0xf3f2ef); M.chair=mat(0x7a5638);
 const lamp=new THREE.MeshBasicMaterial({color:0x5a5f62});
 
 const pickables=[];
@@ -657,7 +657,7 @@ function unit(n,x){
   const mir=(n%2===0)?-1:1; g.scale.x=mir;   // garages paired 1|2, 3|4, 5|6: even lots are mirrored
   const lv=[];
   for(let i=0;i<3;i++){
-    const L={shell:new THREE.Group(),cut:new THREE.Group(),ext:new THREE.Group(),rooms:[],spots:[]};
+    const L={shell:new THREE.Group(),cut:new THREE.Group(),ext:new THREE.Group(),rooms:[],spots:[],tall:[]};
     g.add(L.shell,L.cut,L.ext); lv.push(L);
     const y0=i*FH;
     const P=n===1?PLANS1:PLANS, wf0=P[2].well, wf=wf0&&(wf0.hole?{x0:wf0.hole[0],y0:wf0.hole[1],x1:wf0.hole[2],y1:wf0.hole[3]}:wf0), WD=(wf0&&wf0.depth)||1.6;   // the Level 1 block is hollowed under the top-floor stairwell so the stairs can drop into it
@@ -857,9 +857,9 @@ const PLANS=[
   }
 ];
 /* standing spots: high corner viewpoints per floor, in plan pixels [slug, label, camera x, y, look-at x, y] */
-const SPOTS=[ [['guest','Guest suite',700,725,200,1500]],
+const SPOTS=[ [['guest','Guest suite',700,1790,200,1300]],
   [['living','Living and dining',1235,1820,600,700],['kitchen','Kitchen',1235,560,300,1500]],
-  [['primary','Primary bedroom',710,1965,1250,1350],['bedroom','Front bedroom',1410,820,1000,250]] ];
+  [['primary','Primary bedroom',710,1965,1250,1350],['bedroom','Front bedroom',1400,640,900,150]] ];
 const SPOTS1=[ [['bedroom','Bedroom',600,1040,350,800]],
   [['living','Living and dining',120,445,600,900],['kitchen','Kitchen',760,530,300,1050]],
   [['primary','Primary bedroom',315,875,100,560],['bedroom','Front bedroom',400,215,60,40]] ];
@@ -1045,7 +1045,8 @@ function interior(i,y0,L,x,mir,P,FU,endHome){
   const lab=(t,c)=>L.rooms.push({lab:t.replace(/ · [\d.]+ m²$/,''),area:(t.match(/ · ([\d.]+ m²)$/)||[])[1],pos:new THREE.Vector3(x+mir*c[0],y0+0.7,c[1])});
   const hr=f.well&&(f.well.hole||[f.well.x0,f.well.y0,f.well.x1,f.well.y1]);
   const wellHole=hr?(f.well.poly||[[hr[0],hr[1]],[hr[2],hr[1]],[hr[2],hr[3]],[hr[0],hr[3]]]).map(p=>m(...p)):null;   // open stairwell down to the floor below
-  prism(f.slab.map(p=>m(...p)),y0,0.12,i===2?carpetM:M.slab,L.cut,false,wellHole&&[wellHole]);   // top floor: carpet runs through the landing too
+  prism(f.slab.map(p=>m(...p)),y0,0.12,i===2?carpetM:M.slab,L.cut,false,wellHole&&[wellHole]);
+  L.ceil=prism(f.slab.map(p=>m(...p)),y0+FH-0.05,0.04,M.ceil,L.cut); L.ceil.castShadow=false; L.ceil.visible=false; L.y0=y0;   /* ceiling, only when standing in a room */   // top floor: carpet runs through the landing too
   f.rooms.forEach(([k,poly,t,lp])=>{
     let pts=null;
     if(k){ pts=poly.map(p=>m(...p)); prism(pts,y0+0.12,0.03,floorMat[k],L.cut,false,k==='stair'&&wellHole?[wellHole]:null); }
@@ -1055,10 +1056,11 @@ function interior(i,y0,L,x,mir,P,FU,endHome){
   f.walls.forEach(([t,a,b,c,d,e])=>{
     if(t==='win'&&!f.flip&&((!endHome&&a===f.L&&c===f.L)||(a===f.R&&c===f.R))) t='w';   // no windows on intertenancy walls; only 16F's outer end wall keeps its side windows
     const [x0,z0]=m(a,b),[x1,z1]=m(c,d), ws=(yy,h,th,mm)=>wallSeg(x0,z0,x1,z1,yy,h,th,mm,L.cut);
-    if(t==='w') ws(y0,CUT,0.18,M.part);
-    else if(t==='i') ws(y0,CUT,0.1,M.part);
-    else if(t==='win'){ ws(y0,0.9,0.18,M.part); ws(y0+0.9,CUT-0.9,0.05,glass); }
-    else if(t==='sl'){ ws(y0+0.12,CUT-0.12,0.05,glass); ws(y0+CUT-0.04,0.04,0.08,M.black); }
+    const tall=(me,yb)=>{ L.tall.push({me,yb,h:me.geometry.parameters.height}); return me; };   /* walls that rise to the ceiling when standing in a room */
+    if(t==='w') tall(ws(y0,CUT,0.18,M.part),y0);
+    else if(t==='i') tall(ws(y0,CUT,0.1,M.part),y0);
+    else if(t==='win'){ ws(y0,0.9,0.18,M.part); tall(ws(y0+0.9,CUT-0.9,0.05,glass),y0+0.9); }
+    else if(t==='sl'){ tall(ws(y0+0.12,CUT-0.12,0.05,glass),y0+0.12); ws(y0+CUT-0.04,0.04,0.08,M.black); }
     else if(t==='gd') ws(y0,0.3,0.06,M.garage);
     else if(t==='robe'){   /* white sliding wardrobe doors (6th value = number of doors; the primary bedrooms have 2): panels with visible joins, a slim handle each and a top track, set just below the wall line so they read as doors */
       const Ln=Math.hypot(x1-x0,z1-z0), np=e||Math.max(2,Math.round(Ln/0.9)), dh=1.0, g=0.03, P=u=>[x0+(x1-x0)*u,z0+(z1-z0)*u];
@@ -1214,18 +1216,24 @@ addLabel('Dead end','geo',new THREE.Vector3(-25.9,1.2,-30.3),{local:true});
 addLabel('N','geo',new THREE.Vector3(40+2.6*NORTH_L[0],1.4,-20+2.6*NORTH_L[2]),{local:true});
 LM.forEach(([t,x,z])=>addLabel(t,'',new THREE.Vector3(x,t.includes('station')?0:7,z),{local:true}));
 for(const n in units) units[n].lv.forEach((L,i)=>L.rooms.forEach(r=>addLabel(r.lab,'room',r.pos,{room:true,lot:+n,level:i,local:true,name:r.lab,area:r.area})));
-for(const n in units) units[n].lv.forEach((L,i)=>L.spots.forEach(sp=>{ const lb=addLabel('◉ '+sp.label,'spot',new THREE.Vector3(...sp.p),{spot:sp,lot:+n,level:i,local:true});
-  lb.el.setAttribute('role','button'); lb.el.tabIndex=0; lb.el.title='Stand here';
+for(const n in units) units[n].lv.forEach((L,i)=>L.spots.forEach(sp=>{ const lb=addLabel('','spot',new THREE.Vector3(...sp.p),{spot:sp,lot:+n,level:i,local:true});
+  lb.el.innerHTML='<svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true"><path d="M12 5C6.5 5 2.7 9.4 1.5 12c1.2 2.6 5 7 10.5 7s9.3-4.4 10.5-7C21.3 9.4 17.5 5 12 5zm0 11a4 4 0 1 1 0-8 4 4 0 0 1 0 8z" fill="currentColor"/></svg>';
+  lb.el.setAttribute('role','button'); lb.el.tabIndex=0; lb.el.title='Stand in the '+sp.label.toLowerCase(); lb.el.setAttribute('aria-label','Stand in the '+sp.label.toLowerCase());
   const go=()=>enterSpot(+n,i,sp); lb.el.onclick=go; lb.el.onkeydown=e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); go(); } }; }));
 let inSpot=null;   /* standing at a spot: the camera stays put and dragging looks around */
+const roomFill=new THREE.AmbientLight(0xfff4e6,0); scene.add(roomFill);   /* soft daylight bounce inside, since the tall walls shade the room */
+function roomMode(L,on){ if(!L) return; L.ceil.visible=on; roomFill.intensity=on?0.42:0;   /* full-height walls and a ceiling, so you see the room rather than the floors next door */
+  L.tall.forEach(({me,yb,h})=>{ const H=on?L.y0+FH-0.05-yb:h; me.scale.y=H/h; me.position.y=yb+H/2; });
+  if(on){ for(const n in units) units[n].outline.visible=false; } else highlight(selected); }
 function enterSpot(n,i,sp){ stopTour(); if(sunOn&&dayPlay) stopDay();
+  if(inSpot&&inSpot.L) roomMode(inSpot.L,false);
   if(!inSpot) inSpot={prev:[camera.position.toArray(),controls.target.toArray()]};
-  Object.assign(inSpot,{n,i,sp}); if(cut!==i+1) setCut(i+1); if(selected!=='lot'+n) render('lot'+n);
+  if(cut!==i+1) setCut(i+1); if(selected!=='lot'+n) render('lot'+n); Object.assign(inSpot,{n,i,sp,L:units[n].lv[i]}); roomMode(inSpot.L,true);
   const p=new THREE.Vector3(...toW(sp.p)), l=new THREE.Vector3(...toW(sp.l)), t=p.clone().add(l.sub(p).normalize().multiplyScalar(0.6));
   controls.minDistance=0.3; controls.enableZoom=false; controls.enablePan=false; controls.rotateSpeed=0.45;
   tween={p0:camera.position.clone(),t0:controls.target.clone(),p1:p,t1:t,s:performance.now(),d:reduce?1:1400};
   $('#spotBar').hidden=false; $('#spotName').textContent=sp.label; syncHash(); track('stand-here',{unit:unitName('lot'+n),spot:sp.slug}); }
-function leaveSpot(back){ if(!inSpot) return; const pv=inSpot.prev; inSpot=null; $('#spotBar').hidden=true;
+function leaveSpot(back){ if(!inSpot) return; const pv=inSpot.prev; roomMode(inSpot.L,false); inSpot=null; $('#spotBar').hidden=true;
   controls.minDistance=6; controls.enableZoom=true; controls.enablePan=true; controls.rotateSpeed=1;
   if(back) tween={p0:camera.position.clone(),t0:controls.target.clone(),p1:new THREE.Vector3(...pv[0]),t1:new THREE.Vector3(...pv[1]),s:performance.now(),d:reduce?1:1200};
   syncHash(); }
@@ -1737,8 +1745,9 @@ function loop(now){
     let ok=true;
     if(l.room){ const near=narrow()?17:12; ok=cut!==0&&l.level===top&&l.lot===fl&&(dist<near||((touring||walking)&&KEYROOM.test(l.el.textContent)));   // only when zoomed in close, or for the key rooms during the tour / walk-through
       if(ok) l.el.style.transform='translate(-50%,-50%) scale('+Math.max(0.75,Math.min(1.1,near/dist)).toFixed(2)+')'; }   // shrink as the view pulls back
-    if(l.lotTag) ok=dist<120&&!(cut&&l.lotTag===fl);
-    if(l.spot) ok=!inSpot&&!touring&&!walking&&cut!==0&&l.level===top&&l.lot===fl;   // the outlined home doesn't need its tag over its room names
+    if(l.lotTag) ok=dist<120&&!(cut&&l.lotTag===fl)&&!inSpot;
+    if(l.spot) ok=!inSpot&&!touring&&!walking&&cut!==0&&l.level===top&&l.lot===fl;
+    if(inSpot&&!l.room) ok=false;   /* standing in a room: only its own room names */   // the outlined home doesn't need its tag over its room names
     v.copy(l.pos).project(camera);
     const vis=ok&&v.z<1&&v.x>-1.1&&v.x<1.1&&v.y>-1.1&&v.y<1.1;
     l.el.hidden=!vis;
