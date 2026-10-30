@@ -661,7 +661,7 @@ function unit(n,x){
   const mir=(n%2===0)?-1:1; g.scale.x=mir;   // garages paired 1|2, 3|4, 5|6: even lots are mirrored
   const lv=[];
   for(let i=0;i<3;i++){
-    const L={shell:new THREE.Group(),cut:new THREE.Group(),ext:new THREE.Group(),rooms:[],spots:[],tall:[],lift:[],handles:[],doors:new THREE.Group()};
+    const L={shell:new THREE.Group(),cut:new THREE.Group(),ext:new THREE.Group(),rooms:[],spots:[],tall:[],lift:[],handles:[],wins:[],doors:new THREE.Group()};
     g.add(L.shell,L.cut,L.ext); lv.push(L);
     const y0=i*FH;
     const P=n===1?PLANS1:PLANS, wf0=P[2].well, wf=wf0&&(wf0.hole?{x0:wf0.hole[0],y0:wf0.hole[1],x1:wf0.hole[2],y1:wf0.hole[3]}:wf0), WD=(wf0&&wf0.depth)||1.6;   // the Level 1 block is hollowed under the top-floor stairwell so the stairs can drop into it
@@ -824,7 +824,7 @@ const PLANS=[
       ['w',36,196,36,275],['win',36,275,36,445],['w',36,445,36,1055],['win',36,1055,36,1185],['w',36,1185,36,1375],['win',36,1375,36,1730],['w',36,1730,36,1835],
       ['w',36,196,105,196],['win',105,196,225,196],['w',225,196,470,196],['w',470,196,470,500],
       ['w',470,500,555,500],['sl',555,500,1130,500],['w',1130,500,1248,500],['w',1248,500,1248,1835],
-      ['w',36,1835,149,1835],['win',149,1835,516,1835],['w',516,1835,741,1835],['sl',741,1835,1144,1835],['w',1144,1835,1248,1835],
+      ['w',36,1835,149,1835],['win',149,1835,516,1835,[1.06,1.67]],['w',516,1835,741,1835],['sl',741,1835,1144,1835],['w',1144,1835,1248,1835],
       ['i',254,440,254,815],
       ['i',36,1003,375,1003],['i',368,1003,368,1040],['i',368,1188,368,1215],['i',36,1215,375,1215]
     ],
@@ -847,10 +847,10 @@ const PLANS=[
     well:{x0:28,x1:266,y0:100,y1:1025,land:760,steps:8},   // landing spans the opening to the hall (760–1025); the flight runs to the front wall
     walls:[
       ['w',18,92,18,120],['win',18,120,18,378],['w',18,378,18,850],['win',18,850,18,1015],['w',18,1015,18,1460],['win',18,1460,18,1940],['w',18,1940,18,1975],
-      ['w',18,92,92,92],['win',92,92,212,92],['w',212,92,518,92],['w',518,92,518,18],
-      ['w',518,18,573,18],['win',573,18,700,18],['w',700,18,850,18],['win',850,18,960,18],['w',960,18,1295,18],['win',1295,18,1395,18],['w',1395,18,1417,18],
+      ['w',18,92,55,92],['win',55,92,263,92,[0.15,1.25]],['w',263,92,518,92],['w',518,92,518,18],   /* front windows as on the north elevation: stair-void glazing, the bay */
+      ['w',518,18,822,18],['win',822,18,1277,18,[1.0,2.3]],['w',1277,18,1417,18],
       ['w',1417,18,1417,130],['win',1417,130,1417,550],['w',1417,550,1417,1975],
-      ['w',18,1975,111,1975],['win',111,1975,601,1975],['w',601,1975,820,1975],['win',820,1975,1305,1975],['w',1305,1975,1417,1975],
+      ['w',18,1975,111,1975],['win',111,1975,601,1975,[0.73,1.82]],['w',601,1975,820,1975],['win',820,1975,1305,1975,[0.73,1.82]],['w',1305,1975,1417,1975],
       ['i',276,92,276,760],
       ['i',276,597,545,597],['i',712,597,757,597],['i',757,18,757,612],
       ['i',508,597,508,745],['i',472,740,515,740],['i',276,740,300,740],
@@ -1064,7 +1064,8 @@ function interior(i,y0,L,x,mir,P,FU,endHome){
     const tall=(me,yb,gap)=>{ L.tall.push({me,yb,h:me.geometry.parameters.height,gap:gap||0}); return me; };   /* walls that rise to the ceiling when standing in a room */
     if(t==='w') tall(ws(y0,CUT,0.18,M.part),y0);
     else if(t==='i') tall(ws(y0,CUT,0.1,M.part),y0);
-    else if(t==='win'){ ws(y0,0.9,0.18,M.part); tall(ws(y0+0.9,CUT-0.9,0.05,glass),y0+0.9); }
+    else if(t==='win'){ const [sl,hd]=e||[0.9,2.1], lo=ws(y0,0.9,0.18,M.part), gl=ws(y0+0.9,CUT-0.9,0.05,glass), up=ws(y0+hd,0.12+RH-hd,0.18,M.part); up.visible=false;
+      L.wins.push({lo,gl,up,y0,sl,hd}); }   /* eye level: sill and head heights as on the elevations */
     else if(t==='sl'){ tall(ws(y0+0.12,CUT-0.12,0.05,glass),y0+0.12); ws(y0+CUT-0.04,0.04,0.08,M.black); }
     else if(t==='gd') ws(y0,0.3,0.06,M.garage);
     else if(t==='robe'){   /* white sliding wardrobe doors (6th value = number of doors; the primary bedrooms have 2): panels with visible joins, a slim handle each and a top track, set just below the wall line so they read as doors */
@@ -1243,6 +1244,9 @@ function roomMode(L,on){ if(!L) return; L.ceil.visible=on; roomFill.intensity=on
   L.lift.forEach(me=>{ if(me.userData.y==null) me.userData.y=me.position.y; me.position.y=on?L.y0+0.12+RH-0.06:me.userData.y; });
   L.handles.forEach(me=>{ if(me.userData.y==null) me.userData.y=me.position.y; me.position.y=on?L.y0+0.12+1.05:me.userData.y; });   /* handles at hand height on full-height doors */
   L.doors.visible=on;
+  const setH=(me,yb,H)=>{ const h=me.geometry.parameters.height; me.visible=H>0.01; me.scale.y=Math.max(H,0.001)/h; me.position.y=yb+H/2; };
+  L.wins.forEach(w=>{ if(on){ setH(w.lo,w.y0,w.sl); setH(w.gl,w.y0+w.sl,w.hd-w.sl); w.gl.castShadow=false; w.up.visible=true; }
+    else{ setH(w.lo,w.y0,0.9); setH(w.gl,w.y0+0.9,1.2-0.9); w.gl.castShadow=true; w.up.visible=false; } });
   if(on){ for(const n in units) units[n].outline.visible=false; } else highlight(selected); }
 function enterSpot(n,i,sp){ stopTour(); if(sunOn&&dayPlay) stopDay();
   if(inSpot&&inSpot.L) roomMode(inSpot.L,false);
