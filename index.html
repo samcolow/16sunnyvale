@@ -1411,14 +1411,20 @@ function centreOn(n){   /* outside view: slide the camera across so the picked h
   tween={p0:camera.position.clone(),t0:controls.target.clone(),p1:t.clone().add(off),t1:t,s:performance.now(),d:900};
 }
 function lotView(n,c){const xc=-15+(n-1)*W, y=(c-1)*FH; return [[xc+3,y+13,-11],[xc,y,-0.3]];}
-function fly(key,ms,keepAz,turn){
-  if((key==='driveway'||key==='landmarks')&&narrow()) key+='M';   // phones: centred on the middle homes
+function poseFor(key){
+  if((key==='driveway'||key==='landmarks')&&narrow()) key+='M';   /* phones: centred on the middle homes */
   const [p0,t0]=Array.isArray(key)?key:V[key]; let p=toW(p0), t=toW(t0);
-  if(narrow()&&!/M$/.test(key)) p=p.map((v,i)=>t[i]+(v-t[i])*1.4);   // phones sit further back, except the driveway view which is already wide
+  if(narrow()&&!/M$/.test(key)) p=p.map((v,i)=>t[i]+(v-t[i])*1.4);   /* phones sit further back, except the driveway view which is already wide */
+  return [p,t];
+}
+let panT0=0;   /* when the camera last came to rest: the tour's pan and push-in ease in from here */
+function fly(key,ms,keepAz,turn){
+  let [p,t]=poseFor(key);
   if(keepAz){ const cx=camera.position.x-controls.target.x, cz=camera.position.z-controls.target.z, cl=Math.hypot(cx,cz), hz=Math.hypot(p[0]-t[0],p[2]-t[2]);
     if(cl>1e-3) p=[t[0]+cx/cl*hz,p[1],t[2]+cz/cl*hz]; }   // tour: keep the current viewing direction and carry on panning
   if(turn){ const dx=p[0]-t[0], dz=p[2]-t[2], c=Math.cos(turn), sn=Math.sin(turn); p=[t[0]+dx*c+dz*sn,p[1],t[2]-dx*sn+dz*c]; }   // start the view turned round by this angle
   if(reduce){camera.position.set(...p);controls.target.set(...t);return;}
+  if(camera.position.distanceTo(new THREE.Vector3(...p))<0.5&&controls.target.distanceTo(new THREE.Vector3(...t))<0.5){tween=null;panT0=performance.now();return;}   /* already there (first stop on load): start panning straight away */
   tween={p0:camera.position.clone(),t0:controls.target.clone(),p1:new THREE.Vector3(...p),t1:new THREE.Vector3(...t),s:performance.now(),d:ms||900};
 }
 [['Overview','overview','site'],['Street entrance','entrance','entry'],['Driveway','driveway','joal'],['Backyards','yards','site'],['Landmarks','landmarks','site']]
@@ -1531,7 +1537,7 @@ function resize(){
   camera.fov=w<520?52:40; camera.updateProjectionMatrix();
 }
 new ResizeObserver(resize).observe(sceneEl);
-{const [p,t]=V.overview; camera.position.set(...toW(narrow()?[30,40,-62]:p)); controls.target.set(...toW(t));}
+{const [p,t]=poseFor('overview'); camera.position.set(...p); controls.target.set(...t);}   /* open exactly where the tour's first stop starts, so it pans straight away */
 resize();
 
 const v=new THREE.Vector3();
@@ -1545,17 +1551,15 @@ function loop(now){
   if(tween){
     const k=Math.min(1,(now-tween.s)/tween.d), e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;
     camera.position.lerpVectors(tween.p0,tween.p1,e); controls.target.lerpVectors(tween.t0,tween.t1,e);
-    if(k>=1)tween=null;
+    if(k>=1){tween=null;panT0=now;}
   }
   if(touring){
     const el=now-stepStart;
+    const r=Math.min(1,(now-panT0)/1500), ramp=r*r*(3-2*r);   /* pan and push-in ease in once the camera settles, so there is no lurch */
+    controls.autoRotateSpeed=(TOUR[step].rot??0.5)*ramp;
     controls.autoRotate=!tween&&!reduce&&controls.autoRotateSpeed!==0;
-    if(TOUR[step].follow&&tourCar&&tourCar.obj.visible&&!tween){   // camera tracks the car as it drives in
-      const v=new THREE.Vector3(); tourCar.obj.getWorldPosition(v); v.y+=1.6;
-      controls.target.lerp(v,1-Math.pow(0.15,dt));
-    }
     const zs=TOUR[step].zoom;   // slow push-in while the camera circles (distance shrinks to zs over the stop)
-    if(zs&&!tween&&!reduce){const off=camera.position.clone().sub(controls.target), k=Math.pow(zs,dt/(((TOUR[step].d||DWELL)-FLY)/1000));
+    if(zs&&!tween&&!reduce){const off=camera.position.clone().sub(controls.target), k=Math.pow(zs,ramp*dt/(((TOUR[step].d||DWELL)-FLY)/1000));
       if(off.length()*k>controls.minDistance+2) camera.position.copy(controls.target).add(off.multiplyScalar(k));}
     const dw=TOUR[step].d||DWELL;
     $('#tourp').style.width=Math.min(100,el/dw*100)+'%';
@@ -1584,7 +1588,7 @@ function loop(now){
 let loopStarted=false;
 setNight(false); setCut(0); setLife(lifeOn); render('site'); requestAnimationFrame(loop);
 const deep=openDeepLink(INIT_HASH); addEventListener('hashchange',()=>{stopTour();openDeepLink(location.hash);});
-if(!reduce&&!deep) setTimeout(()=>{if(!touched)startTour();},1200);
+if(!reduce&&!deep) setTimeout(()=>{if(!touched)startTour();},400);
 })();
 </script>
 
