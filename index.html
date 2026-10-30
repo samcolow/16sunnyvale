@@ -64,8 +64,10 @@ h1{font:700 clamp(28px,5vw,44px)/1.02 var(--f-display);letter-spacing:-.02em;mar
 .lbl.lot{font:500 11px/1 var(--f-mono);padding:3px 6px}
 .lbl.lot.sale{background:var(--sale);color:var(--on-sale)}
 .lbl.lot:not(.sale){background:var(--lease);color:var(--on-lease)}
-.lbl.spot{pointer-events:auto;cursor:pointer;width:28px;height:28px;padding:0;display:grid;place-items:center;border-radius:50%;background:var(--ink);color:#fff;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.3);transform:translate(-50%,-50%)}
-.lbl.spot:hover,.lbl.spot:focus-visible{background:#2c3d63;outline:2px solid #fff;outline-offset:1px}
+.lbl.spot{pointer-events:auto;cursor:pointer;padding:2px;background:none;box-shadow:none;border-radius:50%;font:700 17px/1 var(--f-body);color:var(--ink);text-shadow:0 0 2px #fff,0 0 5px #fff,0 0 8px #fff;transform:translate(-50%,-50%);animation:spotBlink 1.6s ease-in-out infinite}
+@keyframes spotBlink{50%{opacity:.35}}
+@media (prefers-reduced-motion:reduce){.lbl.spot{animation:none}}
+.lbl.spot:hover,.lbl.spot:focus-visible{animation:none;opacity:1;outline:2px solid var(--ink);outline-offset:1px}
 .spotbar{position:absolute;left:10px;right:10px;bottom:52px;display:flex;justify-content:center;pointer-events:none}
 .spotbar>div{pointer-events:auto;display:flex;align-items:center;gap:10px;background:var(--chip-bg);color:var(--chip-fg);border-radius:999px;padding:6px 6px 6px 14px;box-shadow:0 1px 3px rgba(0,0,0,.15);font:600 13px/1 var(--f-body)}
 .spotbar .sb-hint{font:400 12px/1 var(--f-body);color:var(--muted)}
@@ -364,6 +366,7 @@ const trackQ=[]; const track=(n,d)=>{try{if(window.umami&&umami.track)umami.trac
 const umEl=document.getElementById('umami-tracker'); if(umEl) umEl.addEventListener('load',()=>{trackQ.splice(0).forEach(([n,d])=>track(n,d));});
 const unitName=id=>'16'+'ABCDEF'[+id[3]-1], viewed=new Set();
 const trackFloor=()=>{try{ if(touring||!cut||!/^lot\d$/.test(selected)) return; const k=selected+'-'+cut; if(viewed.has(k)) return; viewed.add(k); track('floor-view',{unit:unitName(selected),floor:['','GF','L1','L2'][cut]}); }catch(e){}};
+var SPOT_FOV=0;   /* wide lens while standing in a room, like a property photographer's */
 const sceneEl=$('#scene'), labelsEl=$('#labels');
 const labels=[];
 const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -478,7 +481,7 @@ const oakM=new THREE.MeshLambertMaterial({map:oakTex}), carpetM=new THREE.MeshLa
 const glass=new THREE.MeshLambertMaterial({color:0x8fa6b2,emissive:0x000000});
 const voidGlass=new THREE.MeshLambertMaterial({color:0x9db0b9,emissive:0x000000,transparent:true,opacity:0.45});
 const balGlass=new THREE.MeshLambertMaterial({color:0xa9c0c9,transparent:true,opacity:0.35});
-M.ceramic=mat(0xf6f6f3); M.mirror=new THREE.MeshLambertMaterial({color:0xd3dce0,emissive:0x1b2328}); M.robe=mat(0xe7e4de); M.ceil=mat(0xf3f2ef); M.chair=mat(0x7a5638);
+M.ceramic=mat(0xf6f6f3); M.mirror=new THREE.MeshLambertMaterial({color:0xd3dce0,emissive:0x1b2328}); M.robe=mat(0xe7e4de); M.ceil=new THREE.MeshBasicMaterial({color:0xe9e7e2});   /* lit-looking white ceiling (it is only ever seen from below) */ M.stone=mat(0xd9d6d0); M.chair=mat(0x7a5638);
 const lamp=new THREE.MeshBasicMaterial({color:0x5a5f62});
 
 const pickables=[];
@@ -1041,7 +1044,7 @@ function interior(i,y0,L,x,mir,P,FU,endHome){
   const f=P[i], CUT=1.2, sx=6/(f.R-f.L), sz=(f.zr+4.5)/(f.B-f.T);
   const m=(a,b)=>[f.flip?3-(a-f.L)*sx:-3+(a-f.L)*sx,-4.5+(b-f.T)*sz];
   ((P===PLANS1?SPOTS1:SPOTS)[i]||[]).forEach(([slug,label,a,b,c,d])=>{ const [px,pz]=m(a,b),[lx,lz]=m(c,d);
-    L.spots.push({slug,label,p:[x+mir*px,y0+2.7,pz],l:[x+mir*lx,y0+0.45,lz]}); });
+    L.spots.push({slug,label,p:[x+mir*px,y0+1.75,pz],l:[x+mir*lx,y0+1.05,lz]}); });   /* eye level, looking slightly down across the room */
   const lab=(t,c)=>L.rooms.push({lab:t.replace(/ · [\d.]+ m²$/,''),area:(t.match(/ · ([\d.]+ m²)$/)||[])[1],pos:new THREE.Vector3(x+mir*c[0],y0+0.7,c[1])});
   const hr=f.well&&(f.well.hole||[f.well.x0,f.well.y0,f.well.x1,f.well.y1]);
   const wellHole=hr?(f.well.poly||[[hr[0],hr[1]],[hr[2],hr[1]],[hr[2],hr[3]],[hr[0],hr[3]]]).map(p=>m(...p)):null;   // open stairwell down to the floor below
@@ -1079,7 +1082,7 @@ function interior(i,y0,L,x,mir,P,FU,endHome){
   const ext=(a,b,c,d)=>{const [x0,z0]=m(a,b),[x1,z1]=m(c,d);return [Math.min(x0,x1),Math.max(x0,x1),Math.min(z0,z1),Math.max(z0,z1)];};
   (f.fix||[]).forEach(([t,a,b,c,d])=>{
     const [X0,X1,Z0,Z1]=ext(a,b,c,d);
-    if(t==='bench') bx(X0,X1,y0+0.15,y0+1.05,Z0,Z1,M.bench,L.cut);
+    if(t==='bench'){ bx(X0+0.03,X1-0.03,y0+0.15,y0+0.27,Z0+0.03,Z1-0.03,M.black,L.cut); bx(X0,X1,y0+0.27,y0+1.02,Z0,Z1,M.bench,L.cut); bx(X0-0.015,X1+0.015,y0+1.02,y0+1.05,Z0-0.015,Z1+0.015,M.stone,L.cut); }   /* kick, cabinets, 30 mm engineered stone top */
     else bx(X0,X1,y0+1.05,y0+1.07,Z0,Z1,t==='hob'?M.black:M.gunmetal,L.cut);
   });
   (f.stairs||[]).forEach(st=>st.steps.forEach(([a,b,k,xa,xb])=>{
@@ -1217,13 +1220,14 @@ addLabel('N','geo',new THREE.Vector3(40+2.6*NORTH_L[0],1.4,-20+2.6*NORTH_L[2]),{
 LM.forEach(([t,x,z])=>addLabel(t,'',new THREE.Vector3(x,t.includes('station')?0:7,z),{local:true}));
 for(const n in units) units[n].lv.forEach((L,i)=>L.rooms.forEach(r=>addLabel(r.lab,'room',r.pos,{room:true,lot:+n,level:i,local:true,name:r.lab,area:r.area})));
 for(const n in units) units[n].lv.forEach((L,i)=>L.spots.forEach(sp=>{ const lb=addLabel('','spot',new THREE.Vector3(...sp.p),{spot:sp,lot:+n,level:i,local:true});
-  lb.el.innerHTML='<svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true"><path d="M12 5C6.5 5 2.7 9.4 1.5 12c1.2 2.6 5 7 10.5 7s9.3-4.4 10.5-7C21.3 9.4 17.5 5 12 5zm0 11a4 4 0 1 1 0-8 4 4 0 0 1 0 8z" fill="currentColor"/></svg>';
+  lb.el.textContent='◉';
   lb.el.setAttribute('role','button'); lb.el.tabIndex=0; lb.el.title='Stand in the '+sp.label.toLowerCase(); lb.el.setAttribute('aria-label','Stand in the '+sp.label.toLowerCase());
   const go=()=>enterSpot(+n,i,sp); lb.el.onclick=go; lb.el.onkeydown=e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); go(); } }; }));
 let inSpot=null;   /* standing at a spot: the camera stays put and dragging looks around */
 const roomFill=new THREE.AmbientLight(0xfff4e6,0); scene.add(roomFill);   /* soft daylight bounce inside, since the tall walls shade the room */
-function roomMode(L,on){ if(!L) return; L.ceil.visible=on; roomFill.intensity=on?0.42:0;   /* full-height walls and a ceiling, so you see the room rather than the floors next door */
-  L.tall.forEach(({me,yb,h})=>{ const H=on?L.y0+FH-0.05-yb:h; me.scale.y=H/h; me.position.y=yb+H/2; });
+function roomMode(L,on){ if(!L) return; L.ceil.visible=on; roomFill.intensity=on?0.18:0; SPOT_FOV=on?68:0; resize();
+  glass.transparent=on; glass.opacity=on?0.22:1; glass.depthWrite=!on; glass.color.set(on?0xd8e7ee:0x8fa6b2); glass.needsUpdate=true;   /* from inside, windows are clear panes onto the daylight */   /* full-height walls and a ceiling, so you see the room rather than the floors next door */
+  L.tall.forEach(({me,yb,h})=>{ const H=on?L.y0+FH-0.05-yb:h; me.scale.y=H/h; me.position.y=yb+H/2; if(me.material===glass) me.castShadow=!on; });
   if(on){ for(const n in units) units[n].outline.visible=false; } else highlight(selected); }
 function enterSpot(n,i,sp){ stopTour(); if(sunOn&&dayPlay) stopDay();
   if(inSpot&&inSpot.L) roomMode(inSpot.L,false);
@@ -1701,7 +1705,7 @@ $('#bMore').onclick=()=>{const o=sceneEl.classList.toggle('open'); $('#bMore').s
 function resize(){
   const w=sceneEl.clientWidth,h=sceneEl.clientHeight;
   renderer.setSize(w,h,false); camera.aspect=w/h;
-  camera.fov=w<520?52:40; camera.updateProjectionMatrix();
+  camera.fov=SPOT_FOV?(w<520?SPOT_FOV+8:SPOT_FOV):(w<520?52:40); camera.updateProjectionMatrix();
 }
 new ResizeObserver(resize).observe(sceneEl);
 {const [p,t]=poseFor('overview'); camera.position.set(...p.map((v,i)=>t[i]+(v-t[i])*SETTLE_K)); controls.target.set(...t);}   /* open a touch pulled back from the first stop; the tour settles in from here */
