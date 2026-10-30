@@ -1,4 +1,4 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:only light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style><script>/* owner opt-out: ?notrack stops Umami counting this browser, ?track turns it back on */
+<!doctype html><html lang="en-NZ"><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:only light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style><script>/* owner opt-out: ?notrack stops Umami counting this browser, ?track turns it back on */
 (function(){try{var q=new URLSearchParams(location.search),m='';
 if(q.has('notrack')){localStorage.setItem('umami.disabled','1');q.delete('notrack');m='Analytics off for this browser';}
 else if(q.has('track')){localStorage.removeItem('umami.disabled');q.delete('track');m='Analytics on for this browser';}
@@ -6,7 +6,10 @@ if(!m)return; var u=location.pathname+(q.toString()?'?'+q:'')+location.hash; his
 addEventListener('DOMContentLoaded',function(){var d=document.createElement('div');d.textContent=m;d.style.cssText='position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#222;color:#fff;padding:8px 14px;border-radius:8px;font:13px sans-serif;z-index:9999';document.body.appendChild(d);setTimeout(function(){d.remove();},2500);});}catch(e){}})();</script>
 <script defer id="umami-tracker" src="https://cloud.umami.is/script.js" data-website-id="a1380e31-5647-4dc0-a598-c6579a6b227d" data-domains="16sunnyvale.sasu.co.nz" data-exclude-hash="true"></script>
 </head><body>
-<title>16 Sunnyvale Road</title>
+<title>16 Sunnyvale Road, Greenlane · Terrace homes for sale and rent</title>
+<link rel="canonical" href="https://16sunnyvale.sasu.co.nz/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231d2a44'/%3E%3Ctext x='32' y='43' font-family='Helvetica,Arial,sans-serif' font-size='30' font-weight='700' text-anchor='middle' fill='%23b9b6f7'%3E16%3C/text%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="description" content="Explore 16 Sunnyvale Road, Greenlane: six new freehold 4-bedroom terrace homes in the Double Grammar Zone. Walk the site, look inside each floor and see the sun on the decks through the day.">
 <meta property="og:title" content="16 Sunnyvale Road, Greenlane · 3D site and floor tour">
 <meta property="og:description" content="Explore 16 Sunnyvale Road, Greenlane: six new freehold 4-bedroom terrace homes in the Double Grammar Zone. Walk the site, look inside each floor and see the sun on the decks through the day.">
@@ -1246,7 +1249,6 @@ function there(pts,stay,inside,sp){const s=[]; pts.forEach(p=>s.push({to:p,sp}))
 const doorRoute=n=>[[FP,0,-6.9],[-20,0,-5.3],[...at(n,-0.15,0,-5.3)],at(n,-0.2,0,-4.3),at(n,-0.53,0,-3.7),at(n,-1.2,0,-3.0)];
 // residents walking home from Great South Rd and going inside
 actor(personMesh(mat(0x7a8f6a),LM_.denim,LM_.skin),[{tp:[FP,0,55]},{show:1},{to:[FP,0,-6.9],sp:WALK},...there(doorRoute(3).slice(1),9,true,WALK),{to:[FP,0,-6.9],sp:WALK},{to:[FP,0,55],sp:WALK},{hide:1},{wait:6}],'p');
-actor(personMesh(mat(0xb5524a),LM_.dark,LM_.skin2),[{wait:14},{tp:[FP,0,55]},{show:1},{to:[FP,0,-6.9],sp:WALK},...there(doorRoute(5).slice(1),12,true,WALK),{to:[FP,0,-6.9],sp:WALK},{to:[FP,0,55],sp:WALK},{hide:1},{wait:4}],'p');
 // 16A: in through the street gate to its own front door
 actor(personMesh(mat(0x4f6d8f),LM_.dark,LM_.skin),[{wait:5},{tp:[FP,0,-24]},{show:1},{to:[FP,0,-2.0],sp:WALK},...there([[-20.5,0,-2.0],[-18.4,0,-2.0],[-17.3,0,-2.0]],10,true,WALK),{to:[FP,0,-2.0],sp:WALK},{to:[FP,0,-24],sp:WALK},{hide:1},{wait:7}],'p');
 // courier drops a parcel into the hub and leaves empty-handed; a 16B resident then comes out to collect it
@@ -1256,13 +1258,11 @@ actor(personMesh(mat(0xe0a020),LM_.dark,LM_.skin2,'parcel'),[{wait:9},{parcel:1}
 // out the GF sliders into the 16E backyard, and onto the 16D Level 1 deck
 actor(personMesh(mat(0xd8d2c4),LM_.denim,LM_.skin),[{tp:at(5,-1.5,0,2.8)},{wait:4},{show:1},{to:at(5,-1.5,0.18,4.3),sp:0.9},{wait:4},{to:at(5,-0.9,0.07,5.5),sp:0.9},{wait:5},{to:at(5,-1.5,0.18,4.3),sp:0.9},{to:at(5,-1.5,0,2.8),sp:0.9},{hide:1},{wait:12}],'p');
 actor(personMesh(mat(0x5c4a6e),LM_.dark,LM_.skin2),[{tp:at(4,1.0,3.22,-2.4)},{wait:8},{show:1},{to:at(4,1.1,3.22,-4.0),sp:0.8},{wait:6},{to:at(4,2.2,3.22,-3.9),sp:0.8},{wait:3},{to:at(4,1.0,3.22,-2.4),sp:0.8},{hide:1},{wait:14}],'p');
-actor(personMesh(mat(0x9a6b3f),LM_.denim,LM_.skin),[{tp:at(2,-1.5,0,2.8)},{wait:20},{show:1},{to:at(2,-1.6,0.18,4.4),sp:0.9},{wait:7},{to:at(2,-1.5,0,2.8),sp:0.9},{hide:1},{wait:9}],'p');
 // pedestrians on the footpaths
 actor(personMesh(mat(0x3c6e71),LM_.dark,LM_.skin),[{tp:[-110,0,60.4]},{show:1},{to:[60,0,60.4],sp:1.2},{to:[-110,0,60.4],sp:1.2}],'p');
-actor(personMesh(mat(0xa33b3b),LM_.denim,LM_.skin2),[{tp:[-30.3,0,57]},{show:1},{to:[-30.3,0,-24],sp:1.1},{wait:2},{to:[-30.3,0,57],sp:1.1},{wait:2}],'p');
 // traffic on Great South Rd
-[[0x9aa5b1,0],[0xb03a2e,7],[0xe8e6e0,15]].forEach(([c,w])=>actor(carMesh(c),[{wait:w},{tp:[-195,0,65.0]},{show:1},{to:[135,0,65.0],sp:11},{hide:1},{wait:4}],'c'));
-[[0x2e4a6b,3],[0x55595c,12]].forEach(([c,w])=>actor(carMesh(c),[{wait:w},{tp:[135,0,67.0]},{show:1},{to:[-195,0,67.0],sp:11},{hide:1},{wait:5}],'c'));
+[[0x9aa5b1,0],[0xb03a2e,11]].forEach(([c,w])=>actor(carMesh(c),[{wait:w},{tp:[-195,0,65.0]},{show:1},{to:[135,0,65.0],sp:11},{hide:1},{wait:4}],'c'));
+[[0x2e4a6b,5]].forEach(([c,w])=>actor(carMesh(c),[{wait:w},{tp:[135,0,67.0]},{show:1},{to:[-195,0,67.0],sp:11},{hide:1},{wait:5}],'c'));
 /* buses: one each way pulls in at its stop, dwells, pulls out; passengers get on and off while it waits */
 function busMesh(){const g=new THREE.Group(), L=10.5, Wd=2.4, white=mat(0xf1f2f0), dark=mat(0x22272e), blue=mat(0x1f5fa8);
   const add=(w,h,d,m,x,y,z)=>{const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m); o.position.set(x,y,z); g.add(o);};
@@ -1273,9 +1273,8 @@ function busMesh(){const g=new THREE.Group(), L=10.5, Wd=2.4, white=mat(0xf1f2f0
   g.traverse(o=>{if(o.isMesh)o.castShadow=true;}); return g;}
 actor(busMesh(),[{wait:22},{tp:[-195,0,62.85]},{show:1},{to:[-128,0,62.85],sp:11},{to:[-109,0,62.85],sp:3.5},{to:[-107,0,62.85],sp:1.2},{flag:'busN',v:1},{wait:9},{flag:'busN',v:0},{to:[135,0,62.85],sp:10},{hide:1},{wait:38}],'c');
 actor(busMesh(),[{wait:50},{tp:[135,0,69.15]},{show:1},{to:[-70,0,69.15],sp:11},{to:[-90,0,69.15],sp:3.5},{to:[-92,0,69.15],sp:1.2},{flag:'busS',v:1},{wait:9},{flag:'busS',v:0},{to:[-195,0,69.15],sp:10},{hide:1},{wait:40}],'c');
-/* outside McDonald's: one already waiting gets on, one walks up to catch it, one gets off and walks home towards Sunnyvale Rd */
+/* outside McDonald's: one waiting gets on, one gets off and walks home towards Sunnyvale Rd */
 actor(personMesh(mat(0x8a6a9c),LM_.dark,LM_.skin),[{tp:[-104,0,59.95]},{show:1},{until:'busN'},{wait:0.8},{to:[-103.1,0,61.3],sp:WALK},{hide:1},{wait:30},{tp:[-85,0,60.4]},{show:1},{to:[-104,0,59.95],sp:WALK}],'p');
-actor(personMesh(mat(0xc9a227),LM_.denim,LM_.skin2),[{wait:10},{tp:[-70,0,60.4]},{show:1},{to:[-101.8,0,60.4],sp:WALK},{to:[-102.3,0,60.05],sp:WALK},{until:'busN'},{wait:1.8},{to:[-103,0,61.3],sp:WALK},{hide:1},{wait:24}],'p');
 actor(personMesh(mat(0x4a7c6b),LM_.denim,LM_.skin),[{until:'busN'},{wait:2.6},{tp:[-103,0,61.3]},{show:1},{to:[-103,0,60.4],sp:WALK},{to:[-31.6,0,60.4],sp:WALK},{to:[-30.3,0,56],sp:WALK},{hide:1},{wait:5}],'p');
 /* across the road */
 actor(personMesh(mat(0x9c4a4a),LM_.dark,LM_.skin2),[{tp:[-95.3,0,71.7]},{show:1},{until:'busS'},{wait:0.9},{to:[-96,0,70.6],sp:WALK},{hide:1},{wait:35},{tp:[-60,0,71.6]},{show:1},{to:[-95.3,0,71.7],sp:WALK}],'p');
