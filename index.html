@@ -366,7 +366,7 @@ const trackQ=[]; const track=(n,d)=>{try{if(window.umami&&umami.track)umami.trac
 const umEl=document.getElementById('umami-tracker'); if(umEl) umEl.addEventListener('load',()=>{trackQ.splice(0).forEach(([n,d])=>track(n,d));});
 const unitName=id=>'16'+'ABCDEF'[+id[3]-1], viewed=new Set();
 const trackFloor=()=>{try{ if(touring||!cut||!/^lot\d$/.test(selected)) return; const k=selected+'-'+cut; if(viewed.has(k)) return; viewed.add(k); track('floor-view',{unit:unitName(selected),floor:['','GF','L1','L2'][cut]}); }catch(e){}};
-var SPOT_FOV=0;   /* wide lens while standing in a room, like a property photographer's */
+var SPOT_FOV=0; const RH=2.55;   /* stud height used when standing in a room */   /* wide lens while standing in a room, like a property photographer's */
 const sceneEl=$('#scene'), labelsEl=$('#labels');
 const labels=[];
 const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -660,7 +660,7 @@ function unit(n,x){
   const mir=(n%2===0)?-1:1; g.scale.x=mir;   // garages paired 1|2, 3|4, 5|6: even lots are mirrored
   const lv=[];
   for(let i=0;i<3;i++){
-    const L={shell:new THREE.Group(),cut:new THREE.Group(),ext:new THREE.Group(),rooms:[],spots:[],tall:[],lift:[],doors:new THREE.Group()};
+    const L={shell:new THREE.Group(),cut:new THREE.Group(),ext:new THREE.Group(),rooms:[],spots:[],tall:[],lift:[],handles:[],doors:new THREE.Group()};
     g.add(L.shell,L.cut,L.ext); lv.push(L);
     const y0=i*FH;
     const P=n===1?PLANS1:PLANS, wf0=P[2].well, wf=wf0&&(wf0.hole?{x0:wf0.hole[0],y0:wf0.hole[1],x1:wf0.hole[2],y1:wf0.hole[3]}:wf0), WD=(wf0&&wf0.depth)||1.6;   // the Level 1 block is hollowed under the top-floor stairwell so the stairs can drop into it
@@ -859,19 +859,19 @@ const PLANS=[
     ]
   }
 ];
-/* standing spots: high corner viewpoints per floor, in plan pixels [slug, label, camera x, y, look-at x, y] */
+/* standing spots per floor, in plan pixels [slug, label, camera x, y, look-at x, y, optional marker x, y] */
 const SPOTS=[ [['guest','Guest suite',700,1790,200,1300]],
-  [['living','Living and dining',1235,1820,600,700],['kitchen','Kitchen',1235,560,300,1500]],
+  [['living','Living',1235,1820,600,700,850,820],['dining','Dining and kitchen',1235,560,300,1500,1120,1640]],
   [['primary','Primary bedroom',710,1965,1250,1350],['bedroom','Front bedroom',1400,640,900,150]] ];
 const SPOTS1=[ [['bedroom','Bedroom',600,1040,350,800]],
-  [['living','Living and dining',120,445,600,900],['kitchen','Kitchen',760,530,300,1050]],
+  [['living','Living',700,1100,190,700,230,820],['dining','Dining and kitchen',150,1100,650,600,690,610]],
   [['primary','Primary bedroom',315,875,100,560],['bedroom','Front bedroom',400,215,60,40]] ];
 /* furniture in plan pixels: [material,x0,y0,x1,y1,bottom,top] (heights in metres). Level 1 follows the sales plan; beds and garage are indicative */
 const FURN=[
   [ ['bed',62,1400,468,1693,0,0.3],['quilt',162,1400,468,1693,0.3,0.36],['pillow',72,1415,147,1540,0.3,0.4],['pillow',72,1553,147,1678,0.3,0.4],['oak',52,1395,62,1698,0,0.8],['oak',57,1310,122,1380,0,0.45],
     ['car',898,720,1213,1460,0.16,0.62],['gunmetal',913,920,1198,1290,0.62,1.02],
     ['black',885,790,913,890,0,0.34],['black',1198,790,1226,890,0,0.34],['black',885,1290,913,1390,0,0.34],['black',1198,1290,1226,1390,0,0.34],
-    ['bench',725,1712,860,1792,-0.15,0.7],['bench',866,1712,1022,1792,-0.15,0.75],['gunmetal',900,1730,990,1775,0.75,0.78],['black',760,1714,825,1716,0.15,0.55] ],
+    ['bench',725,1712,860,1792,0,0.55],['bench',866,1712,1022,1792,0,0.6],['gunmetal',900,1730,990,1775,0.6,0.63],['black',760,1714,825,1716,0.12,0.45] ],
   [ ['sofa',685,682,852,1052,0,0.42],['sofa',665,682,700,1052,0,0.8],
     ['sofa',1000,615,1130,740,0,0.42],['sofa',1000,585,1130,615,0,0.75],
     ['oak',905,785,1097,895,0,0.4],['oak',1185,760,1240,1000,0,0.45],['black',1222,745,1236,1015,0.6,1.15],
@@ -953,7 +953,7 @@ const FURN1=[
   [ ['bed',320,815,505,945,0,0.3],['quilt',385,815,505,945,0.3,0.36],['pillow',325,822,365,878,0.3,0.4],['pillow',325,885,365,940,0.3,0.4],
     ['car',83,724,222,1056,0.16,0.62],['gunmetal',90,815,215,980,0.62,1.02],
     ['black',76,755,90,805,0,0.34],['black',215,755,229,805,0,0.34],['black',76,975,90,1025,0,0.34],['black',215,975,229,1025,0,0.34],
-    ['bench',178,1170,240,1214,-0.15,0.7],['bench',242,1170,294,1214,-0.15,0.75],['gunmetal',252,1180,284,1204,0.75,0.78] ],
+    ['bench',178,1170,240,1214,0,0.55],['bench',242,1170,294,1214,0,0.6],['gunmetal',252,1180,284,1204,0.6,0.63] ],
   [ ['sofa',152,480,214,540,0,0.4],['sofa',152,466,214,480,0,0.7],
     ['oak',203,618,243,668,0,0.38],['black',117,575,125,705,0.6,1.1],
     ['sofa',355,560,410,750,0,0.4],['sofa',410,560,428,750,0,0.72],['sofa',290,695,355,735,0,0.4],['sofa',290,735,355,750,0,0.72],
@@ -1043,14 +1043,14 @@ FURN1[0].push(['black',522,612,530,615,0.32,0.42]);   // 16A storage door handle
 function interior(i,y0,L,x,mir,P,FU,endHome){
   const f=P[i], CUT=1.2, sx=6/(f.R-f.L), sz=(f.zr+4.5)/(f.B-f.T);
   const m=(a,b)=>[f.flip?3-(a-f.L)*sx:-3+(a-f.L)*sx,-4.5+(b-f.T)*sz];
-  ((P===PLANS1?SPOTS1:SPOTS)[i]||[]).forEach(([slug,label,a,b,c,d])=>{ const [px,pz]=m(a,b),[lx,lz]=m(c,d);
-    const fx=px+(lx-px)*0.45, fz=pz+(lz-pz)*0.45;   /* marker sits on the floor inside the room, between the viewpoint and what it looks at */
+  ((P===PLANS1?SPOTS1:SPOTS)[i]||[]).forEach(([slug,label,a,b,c,d,ma,mb])=>{ const [px,pz]=m(a,b),[lx,lz]=m(c,d), mk=ma!=null?m(ma,mb):null;
+    const fx=mk?mk[0]:px+(lx-px)*0.45, fz=mk?mk[1]:pz+(lz-pz)*0.45;   /* marker sits on the floor inside the room, between the viewpoint and what it looks at */
     L.spots.push({slug,label,p:[x+mir*px,y0+1.75,pz],l:[x+mir*lx,y0+1.05,lz],f:[x+mir*fx,y0+0.25,fz]}); });   /* eye level, looking slightly down across the room */
   const lab=(t,c)=>L.rooms.push({lab:t.replace(/ · [\d.]+ m²$/,''),area:(t.match(/ · ([\d.]+ m²)$/)||[])[1],pos:new THREE.Vector3(x+mir*c[0],y0+0.7,c[1])});
   const hr=f.well&&(f.well.hole||[f.well.x0,f.well.y0,f.well.x1,f.well.y1]);
   const wellHole=hr?(f.well.poly||[[hr[0],hr[1]],[hr[2],hr[1]],[hr[2],hr[3]],[hr[0],hr[3]]]).map(p=>m(...p)):null;   // open stairwell down to the floor below
   prism(f.slab.map(p=>m(...p)),y0,0.12,i===2?carpetM:M.slab,L.cut,false,wellHole&&[wellHole]);
-  L.ceil=prism(f.slab.map(p=>m(...p)),y0+FH-0.05,0.04,M.ceil,L.cut); L.ceil.castShadow=false; L.ceil.visible=false; L.y0=y0;   /* ceiling, only when standing in a room */   // top floor: carpet runs through the landing too
+  L.ceil=prism(f.slab.map(p=>m(...p)),y0+0.12+RH,0.04,M.ceil,L.cut); L.ceil.castShadow=false; L.ceil.visible=false; L.y0=y0;   /* ceiling, only when standing in a room */   // top floor: carpet runs through the landing too
   f.rooms.forEach(([k,poly,t,lp])=>{
     let pts=null;
     if(k){ pts=poly.map(p=>m(...p)); prism(pts,y0+0.12,0.03,floorMat[k],L.cut,false,k==='stair'&&wellHole?[wellHole]:null); }
@@ -1074,7 +1074,7 @@ function interior(i,y0,L,x,mir,P,FU,endHome){
           const mx=pts.reduce((t,q)=>t+q[0],0)/pts.length, mz=pts.reduce((t,q)=>t+q[1],0)/pts.length; best=Math.max(best,10-Math.hypot(px-mx,pz-mz)); }); return best; };
       const side=score(1)>=score(-1)?1:-1;   /* handles only on the bedroom face */
       for(let k=0;k<np;k++){ const u0=(k*Ln/np+g/2)/Ln, u1=((k+1)*Ln/np-g/2)/Ln; tall(wallSeg(...P(u0),...P(u1),y0+0.12,dh,0.04,M.robe,L.cut),y0+0.12,0.08);
-        const uh=k%2?u0+0.07/Ln:u1-0.07/Ln; wallSeg(...P(uh-0.012/Ln),...P(uh+0.012/Ln),y0+0.45,0.34,0.025,M.gunmetal,L.cut,false,side*0.032); }
+        const uh=k%2?u0+0.07/Ln:u1-0.07/Ln; L.handles.push(wallSeg(...P(uh-0.012/Ln),...P(uh+0.012/Ln),y0+0.6,0.34,0.025,M.gunmetal,L.cut,false,side*0.032)); }
       L.lift.push(ws(y0+0.12+dh,0.03,0.06,M.gunmetal)); }
     else if(t==='rail'){ ws(y0+0.12,0.9,0.03,balGlass); ws(y0+1.0,0.04,0.05,M.black); }
     else if(t==='scr') ws(y0+0.15,1.0,0.02,balGlass);   // shower screen
@@ -1086,7 +1086,7 @@ function interior(i,y0,L,x,mir,P,FU,endHome){
       const hz=Math.abs(A.z0-A.z1)<0.02&&Math.abs(B.z0-B.z1)<0.02&&Math.abs(A.z0-B.z0)<0.06, vt=Math.abs(A.x0-A.x1)<0.02&&Math.abs(B.x0-B.x1)<0.02&&Math.abs(A.x0-B.x0)<0.06;
       if(!hz&&!vt) return; const a1=hz?Math.max(A.x0,A.x1):Math.max(A.z0,A.z1), b0=hz?Math.min(B.x0,B.x1):Math.min(B.z0,B.z1), gap=b0-a1;
       if(gap<0.55||gap>1.1) return; const key=(hz?'h':'v')+(hz?A.z0:A.x0).toFixed(2)+':'+a1.toFixed(2); if(seen.has(key)) return; seen.add(key);
-      const c=hz?A.z0:A.x0, th=Math.min(A.th,B.th), H=FH-0.05-2.05;
+      const c=hz?A.z0:A.x0, th=Math.min(A.th,B.th), H=0.12+RH-2.05;
       if(hz){ bx(a1,b0,y0+2.05,y0+2.05+H,c-th/2,c+th/2,M.part,L.doors); bx(a1,a1+0.04,y0+0.12,y0+2.04,c,c+gap-0.05,M.door,L.doors); }   /* head over the opening; leaf swung open against the wall */
       else{ bx(c-th/2,c+th/2,y0+2.05,y0+2.05+H,a1,b0,M.part,L.doors); bx(c,c+gap-0.05,y0+0.12,y0+2.04,a1,a1+0.04,M.door,L.doors); }
     })); }
@@ -1238,8 +1238,9 @@ let inSpot=null;   /* standing at a spot: the camera stays put and dragging look
 const roomFill=new THREE.AmbientLight(0xfff4e6,0); scene.add(roomFill);   /* soft daylight bounce inside, since the tall walls shade the room */
 function roomMode(L,on){ if(!L) return; L.ceil.visible=on; roomFill.intensity=on?0.18:0; SPOT_FOV=on?68:0; resize();
   glass.transparent=on; glass.opacity=on?0.22:1; glass.depthWrite=!on; glass.color.set(on?0xd8e7ee:0x8fa6b2); glass.needsUpdate=true;   /* from inside, windows are clear panes onto the daylight */   /* full-height walls and a ceiling, so you see the room rather than the floors next door */
-  L.tall.forEach(({me,yb,h,gap})=>{ const H=on?L.y0+FH-0.05-yb-gap:h; me.scale.y=H/h; me.position.y=yb+H/2; if(me.material===glass) me.castShadow=!on; });
-  L.lift.forEach(me=>{ if(me.userData.y==null) me.userData.y=me.position.y; me.position.y=on?L.y0+FH-0.08:me.userData.y; });
+  L.tall.forEach(({me,yb,h,gap})=>{ const H=on?L.y0+0.12+RH-yb-gap:h; me.scale.y=H/h; me.position.y=yb+H/2; if(me.material===glass) me.castShadow=!on; });
+  L.lift.forEach(me=>{ if(me.userData.y==null) me.userData.y=me.position.y; me.position.y=on?L.y0+0.12+RH-0.06:me.userData.y; });
+  L.handles.forEach(me=>{ if(me.userData.y==null) me.userData.y=me.position.y; me.position.y=on?L.y0+0.12+1.05:me.userData.y; });   /* handles at hand height on full-height doors */
   L.doors.visible=on;
   if(on){ for(const n in units) units[n].outline.visible=false; } else highlight(selected); }
 function enterSpot(n,i,sp){ stopTour(); if(sunOn&&dayPlay) stopDay();
