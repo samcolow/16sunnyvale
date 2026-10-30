@@ -12,7 +12,7 @@ addEventListener('DOMContentLoaded',function(){var d=document.createElement('div
 <meta property="og:description" content="Explore 16 Sunnyvale Road, Greenlane: six new freehold 4-bedroom terrace homes in the Double Grammar Zone. Walk the site, look inside each floor and see the sun on the decks through the day.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://16sunnyvale.sasu.co.nz/">
-<meta property="og:image" content="https://16sunnyvale.sasu.co.nz/og.jpg">
+<meta property="og:image" content="https://16sunnyvale.sasu.co.nz/og.jpg?v=20261031">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="3D model of the six terrace homes at 16 Sunnyvale Road, Greenlane">
@@ -360,7 +360,7 @@ const CAT={sale:['For sale','--sale'],lease:['For rent','--lease'],sold:['Sold',
 const lot=n=>{
   const st=STATUS[n], sale=st==='sale';
   const b={t:'16'+'ABCDEF'[n-1],s:'16'+'ABCDEF'[n-1]+' Sunnyvale Road, Greenlane',cat:st};
-  b.rows=[['Status',CAT[st][0]],
+  b.rows=[
     ...(AVAILABLE[st]?[['Available',AVAILABLE[st]]]:[]),
     ...(OPEN_HOME[st]?[['Open home',OPEN_HOME[st]]]:[]),
     ['Layout','4 bed · 2.5 bath · single internal garage'],
@@ -1364,13 +1364,13 @@ function shareLink(){ const base=SHARE_URL||location.href.split('#')[0]; return 
 function openDeepLink(hash){ const m=/^#?16([a-f])(?:[-/](gf|l1|l2))?$/i.exec(decodeURIComponent(hash||'')); if(!m) return false;
   const n='abcdef'.indexOf(m[1].toLowerCase())+1, c=m[2]?{gf:1,l1:2,l2:3}[m[2].toLowerCase()]:0, xc=-15+(n-1)*W;
   touched=true; selected='lot'+n; setCut(c); render('lot'+n); fly(c?lotView(n,c):[[xc+9,17,-25],[xc,4.5,-1]],1600); return true; }
-function render(id){
+function render(id,pid){   /* pid: show this panel instead (the tour keeps the summary up while it highlights the driveway or entrance) */
   selected=id; placeRing(id); highlight(id);
   // popularity: once per home per visit, only when the viewer picked it (not the auto tour)
   if(/^lot\d$/.test(id)&&!viewed.has(id)&&!touring){viewed.add(id); track('unit-view',{unit:unitName(id),type:STATUS[+id[3]]==='sale'?'sale':'rent'});}
   trackFloor();
-  const d=INFO[id], c=CAT[d.cat];
-  const el=$('#info'); el.innerHTML=''; el.classList.toggle('is-site',id==='site');
+  const d=INFO[pid||id], c=CAT[d.cat];
+  const el=$('#info'); el.innerHTML=''; el.classList.toggle('is-site',(pid||id)==='site');
   if(d.cat!=='dev'){const pill=document.createElement('span'); pill.className='pill'; pill.style.background='var('+c[1]+')'; pill.style.color=d.cat==='sale'?'var(--on-sale)':d.cat==='lease'?'var(--on-lease)':'var(--surface)'; pill.textContent=c[0]; el.append(pill);}
   const h=document.createElement('h2'); h.textContent=d.t;
   const s=document.createElement('p'); s.className='sub'; s.textContent=d.s;
@@ -1380,8 +1380,8 @@ function render(id){
   if(d.note){const n=document.createElement('p');n.className='note';n.textContent=d.note;el.append(n);}
   if(/^lot\d$/.test(id)){ const n=+id[3], row=document.createElement('div'); row.className='cta home-acts';
     const wt=document.createElement('button'); wt.type='button'; wt.className='primary'; wt.textContent='Walk through '+d.t; wt.onclick=()=>{track('walk-through',{unit:unitName('lot'+n)}); walkThrough(n);};
-    const fp=document.createElement('a'); fp.className='soon'; fp.setAttribute('aria-disabled','true'); fp.textContent='Floor plan (PDF) · coming soon'; fp.title='Floor plan download coming soon';
-    row.append(wt,fp); el.append(row); }   // no listing links: the portal listings link to this page instead
+    const FLOORPLAN_PDF=null;   /* set to the PDF path (e.g. 'plans/16C.pdf') to show the download button */
+    row.append(wt); if(FLOORPLAN_PDF){ const fp=document.createElement('a'); fp.href=FLOORPLAN_PDF; fp.target='_blank'; fp.rel='noopener'; fp.textContent='Floor plan (PDF)'; row.append(fp); } el.append(row); }   // no listing links: the portal listings link to this page instead
   // contact panel follows the selection: the right person for a home, both for the overview
   const ct=$('#contact'); ct.innerHTML='';
   const ch=document.createElement('h3'); ch.className='contact-h'; ch.textContent='Get in touch'; ct.append(ch);
@@ -1453,7 +1453,7 @@ $('#bLife').onclick=()=>setLife(!lifeOn);
 const narrow=()=>sceneEl.clientWidth<520;
 const V={
   overview:[[22,30,-46],[-3,3,-2]],
-  entrance:[[-40,6,-14],[-20,2,-5]],
+  entrance:[[-34,7,-10],[-18,3.5,-4]], entranceM:[[-37,8,-8],[-18,4.6,-4]],
   driveway:[[-36,9,-23],[8,4.5,-3]],
   drivewayM:[[-40,9.5,-24],[1,4.5,-3.5]],
   lot3:[[-3,9,-20],[-3,4.5,-2]],
@@ -1470,7 +1470,7 @@ function centreOn(n){   /* outside view: slide the camera across so the picked h
 }
 function lotView(n,c){const xc=-15+(n-1)*W, y=(c-1)*FH; return [[xc+3,y+13,-11],[xc,y,-0.3]];}
 function poseFor(key){
-  if((key==='driveway'||key==='landmarks')&&narrow()) key+='M';   /* phones: centred on the middle homes */
+  if((key==='driveway'||key==='landmarks'||key==='entrance')&&narrow()) key+='M';   /* phones: centred on the middle homes */
   const [p0,t0]=Array.isArray(key)?key:V[key]; let p=toW(p0), t=toW(t0);
   if(narrow()&&!/M$/.test(key)) p=p.map((v,i)=>t[i]+(v-t[i])*1.4);   /* phones sit further back, except the driveway view which is already wide */
   return [p,t];
@@ -1506,7 +1506,7 @@ const DWELL=10000, FLY=2400;
 let touring=false, step=-1, stepStart=0;
 function goStep(i,now){
   step=i%TOUR.length; stepStart=now; const s=TOUR[step];
-  setCut(s.cut); render(s.sel); setNight(!!s.night); controls.autoRotateSpeed=s.rot??0.5; if(firstFly&&step===0&&!reduce){ firstFly=false; const [p,t]=poseFor(s.v); settle={s:now,base:Math.hypot(p[0]-t[0],p[1]-t[1],p[2]-t[2])}; tween=null; panT0=now; } else fly(s.cut?lotView(3,s.cut):s.v,FLY,!!s.cut&&step>0,s.flipPan?(s.rot??0.5)*Math.PI/30*(s.d-FLY)/1000:0);   /* flipPan: begin where the pan would have ended and pan back to the usual view */ if(s.car&&lifeOn) carToDriveway();
+  setCut(s.cut); render(s.sel,/^lot\d$/.test(s.sel)?null:'site'); setNight(!!s.night); controls.autoRotateSpeed=s.rot??0.5; if(firstFly&&step===0&&!reduce){ firstFly=false; const [p,t]=poseFor(s.v); settle={s:now,base:Math.hypot(p[0]-t[0],p[1]-t[1],p[2]-t[2])}; tween=null; panT0=now; } else fly(s.cut?lotView(3,s.cut):s.v,FLY,!!s.cut&&step>0,s.flipPan?(s.rot??0.5)*Math.PI/30*(s.d-FLY)/1000:0);   /* flipPan: begin where the pan would have ended and pan back to the usual view */ if(s.car&&lifeOn) carToDriveway();
   $('#tourn').textContent=(step+1)+'/'+TOUR.length; $('#tourt').textContent=s.t;
 }
 const ICON_PLAY='<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg>', ICON_PAUSE='<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z" fill="currentColor"/></svg>';
@@ -1631,7 +1631,7 @@ function loop(now){
   if(!loopStarted){loopStarted=true; const ld=$('#loading'); if(ld){ld.classList.add('done'); setTimeout(()=>ld.remove(),500);}}
   updateCompass();
   const w=sceneEl.clientWidth,h=sceneEl.clientHeight;
-  const dist=camera.position.distanceTo(controls.target), fl=focusLot(), top=cut-1;
+  const dist=camera.position.distanceTo(controls.target), fl=focusLot(), top=cut-1, ctrlB=$('.ctrls').offsetTop+$('.ctrls').offsetHeight+6;   /* unit tags stay below the top controls */
   labels.forEach(l=>{
     let ok=true;
     if(l.room){ const near=narrow()?17:12; ok=cut!==0&&l.level===top&&l.lot===fl&&(dist<near||((touring||walking)&&KEYROOM.test(l.el.textContent)));   // only when zoomed in close, or for the key rooms during the tour / walk-through
@@ -1641,7 +1641,8 @@ function loop(now){
     const vis=ok&&v.z<1&&v.x>-1.1&&v.x<1.1&&v.y>-1.1&&v.y<1.1;
     l.el.hidden=!vis;
     if(vis){const px=(v.x+1)/2*w, py=(1-v.y)/2*h;
-      if(!l.room&&!l.lotTag&&(py<64||py>h-56||px<44||px>w-44)){l.el.hidden=true;return;}   // keep place names clear of the controls and edges
+      if(!l.room&&!l.lotTag&&(py<64||py>h-56||px<44||px>w-44)){l.el.hidden=true;return;}
+      if(l.lotTag&&py<ctrlB){l.el.hidden=true;return;}   // keep place names clear of the controls and edges
       l.el.style.left=px+'px';l.el.style.top=py+'px';}
   });
   requestAnimationFrame(loop);
