@@ -117,7 +117,7 @@ main.wrap{padding-block:24px 40px;display:grid;grid-template-columns:minmax(0,1.
 .panel h2{font:700 24px/1.1 var(--f-display);margin:8px 0 2px;letter-spacing:-.01em}
 .panel .sub{color:var(--muted);font-size:13px;margin:0 0 12px}
 .pill{display:inline-flex;align-items:center;gap:6px;font:500 11px/1 var(--f-mono);letter-spacing:.06em;text-transform:uppercase;padding:5px 9px;border-radius:999px}
-.pill::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--aqua)}
+.pill::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor;opacity:.75}   /* dot takes the pill's own ink, so sale stays purple-family and rent green-family */
 
 #info{align-self:start}
 .contact{position:sticky;top:16px;align-self:start}
