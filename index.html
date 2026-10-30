@@ -47,6 +47,7 @@ body{background:var(--bg);color:var(--fg);font-family:var(--f-body);line-height:
 header.wrap{padding-block:22px 14px;display:flex;flex-wrap:wrap;gap:10px 28px;align-items:flex-end;justify-content:space-between}
 .eyebrow{font:500 11px/1.2 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
 h1{font:700 clamp(28px,5vw,44px)/1.02 var(--f-display);letter-spacing:-.02em;margin:6px 0 0;text-wrap:balance}
+.tagline{margin:6px 0 0;font:400 15px/1.35 var(--f-body);color:var(--muted)}
 .stats{display:flex;flex-wrap:wrap;gap:6px 22px}
 .stat{display:flex;flex-direction:column}
 .stat b{font:500 18px/1.2 var(--f-mono);font-variant-numeric:tabular-nums}
@@ -236,6 +237,8 @@ dd{font:400 13.5px/1.5 var(--f-body);min-width:0}
 /* sun-path bar */
 .sunbar{position:absolute;left:10px;right:10px;bottom:52px;display:flex;justify-content:center;pointer-events:none}
 .sunbar>div{pointer-events:auto;display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;background:var(--chip-bg);color:var(--chip-fg);border-radius:14px;padding:8px 12px;box-shadow:0 1px 3px rgba(0,0,0,.15);max-width:100%}
+.sunbar .sunmoment{font:500 12.5px/1.3 var(--f-body);flex:1 1 200px}
+.sunbar #sunPlay{width:28px;height:28px;padding:0;display:inline-grid;place-items:center;box-shadow:none;border:1px solid var(--line)}
 .sunbar output{font:500 12px/1 var(--f-mono);min-width:12ch}
 .sunbar .sunnote{font-size:11.5px;color:var(--muted)}
 .sunbar input[type=range]{width:min(260px,52vw);accent-color:#e0a020}
@@ -259,6 +262,7 @@ dialog.share p{font-size:13px;color:var(--muted);margin:0 0 12px}
   <div>
     <div class="eyebrow">Greenlane · Auckland · Double Grammar Zone</div>
     <h1>16 Sunnyvale Road</h1>
+    <p class="tagline">Brand new, freehold and ready to move into.</p>
   </div>
   <div class="stats" aria-label="Summary">
     <div class="stat"><b>6 homes</b><span>3-storey terraces</span></div>
@@ -275,9 +279,8 @@ dialog.share p{font-size:13px;color:var(--muted);margin:0 0 12px}
     <div class="labels" id="labels"></div>
     <div class="ctrls">
       <button id="bTour" class="icon" aria-pressed="false" aria-label="Play tour" title="Play tour"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg></button>
-      <button id="bNight" class="opt" aria-pressed="false">Night</button>
       <button id="bLife" class="opt" aria-pressed="true">People &amp; cars</button>
-      <button id="bSun" class="opt" aria-pressed="false">Sun</button>
+      <button id="bSun" class="opt" aria-pressed="false">A day here</button>
       <div class="seg" id="seg" role="group" aria-label="Floor"><button data-cut="0" aria-pressed="true">Outside</button><button data-cut="1">GF</button><button data-cut="2">L1</button><button data-cut="3">L2</button></div>
       <button id="bArea" class="opt" aria-pressed="true" hidden title="Show or hide room sizes">Room sizes</button>
       <span class="spacer"></span>
@@ -288,7 +291,7 @@ dialog.share p{font-size:13px;color:var(--muted);margin:0 0 12px}
     <div class="skey" aria-label="Key"><span><i style="background:var(--sale)"></i>For sale</span><span><i style="background:var(--lease)"></i>For rent</span></div>
     <div class="tourbar"><div class="tourcap" id="tourcap" hidden><i id="tourn"></i><span id="tourt"></span><span class="prog"><b id="tourp"></b></span></div></div>
     <div class="sunbar" id="sunbar" hidden><div>
-      <span aria-hidden="true">☀</span><output id="sunlbl" for="sunT">1:00 pm</output><span class="sunnote">Decks face north-east</span>
+      <button id="sunPlay" class="icon" aria-label="Play the day" title="Play the day"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg></button><output id="sunlbl" for="sunT">1:00 pm</output><span class="sunmoment" id="sunMoment"></span>
       <input type="range" id="sunT" min="0" max="1000" value="500" aria-label="Time of day">
       <div class="seg" id="season" role="group" aria-label="Season"><button data-s="sum" aria-pressed="true">Summer</button><button data-s="eq" aria-pressed="false">Spring/Autumn</button><button data-s="win" aria-pressed="false">Winter</button></div>
     </div></div>
@@ -1467,13 +1470,15 @@ function setNight(on){
   scene.background=new THREE.Color(p.bg); scene.fog.color.set(p.bg);
   sceneEl.style.background='#'+p.bg.toString(16).padStart(6,'0');
   hemi.intensity=p.hemi; sun.intensity=p.sun; sun.color.set(on?0x8fa8d8:0xfff1dc);
+  lightsOn(on);
+}
+function lightsOn(on){   /* windows glow, stair pendants and street lamps on: used by evening in the tour and after sunset in A day here */
   glass.emissive.set(on?0x8a5a22:0x000000); voidGlass.emissive.set(on?0xffb35c:0x000000);
   M.bamboo.emissive.set(on?0xffa040:0x000000); M.coral.emissive.set(on?0x5a3010:0x000000);
   lamp.color.set(on?0xffd28a:0x5a5f62);
   if(typeof selected!=='undefined') highlight(selected);
-  sceneEl.classList.toggle('night',on); $('#bNight').setAttribute('aria-pressed',String(on)); $('#bNight').textContent=on?'Day':'Night';
+  sceneEl.classList.toggle('night',on);
 }
-$('#bNight').onclick=()=>{stopTour();if(sunOn)setSun(false);setNight(!night);};
 $('#bLife').onclick=()=>setLife(!lifeOn);
 
 /* ---------- camera (positions in the site frame) ---------- */
@@ -1519,15 +1524,15 @@ $('#bReset').onclick=()=>{stopTour();fly('overview');render('site');setCut(0);};
 
 /* ---------- automatic tour ---------- */
 const TOUR=[
-  {t:'The terrace from the driveway side',v:'overview',sel:'site',cut:0,d:7000},
-  {t:'Street entrance on Sunnyvale Rd',v:'entrance',sel:'entry',cut:0,d:6000,car:1},
-  {t:'Shared driveway: garages, entries, Level 1 decks',v:'driveway',sel:'joal',cut:0,rot:-0.9,zoom:0.75,d:12000},
-  {t:'Ground floor: guest suite with ensuite, internal garage',sel:'lot3',cut:1,d:9000,rot:-0.5},
-  {t:'Level 1: open-plan living onto the deck',sel:'lot3',cut:2,d:9000,rot:-0.5},
-  {t:'Level 2: three bedrooms and the bathroom',sel:'lot3',cut:3,d:9000,rot:-0.5},
-  {t:'Fenced backyards',v:'yards',sel:'site',cut:0,d:6000},
-  {t:'Greenlane train station and shops',v:'landmarks',sel:'site',cut:0,d:7000},
-  {t:'Evening: stairwell pendants lit',v:'overview',sel:'site',cut:0,night:true,d:6000,rot:-0.5,flipPan:1}
+  {t:'Six new terrace homes on a dead-end street',v:'overview',sel:'site',cut:0,d:7000},
+  {t:'Arriving home: the street entrance and parcel lockers',v:'entrance',sel:'entry',cut:0,d:6000,car:1},
+  {t:'Drive in: internal garage, front door, deck above',v:'driveway',sel:'joal',cut:0,rot:-0.9,zoom:0.75,d:12000},
+  {t:'Ground floor: a suite with its own ensuite, for guests, grandparents or a home office',sel:'lot3',cut:1,d:9000,rot:-0.5},
+  {t:'Level 1: cook, eat and relax, opening onto the deck',sel:'lot3',cut:2,d:9000,rot:-0.5},
+  {t:'Level 2: three bedrooms, away from the living',sel:'lot3',cut:3,d:9000,rot:-0.5},
+  {t:'A fenced backyard for each home',v:'yards',sel:'site',cut:0,d:6000},
+  {t:'Train, bus and Woolworths, all close by',v:'landmarks',sel:'site',cut:0,d:7000},
+  {t:'Evening: home, lights on',v:'overview',sel:'site',cut:0,night:true,d:6000,rot:-0.5,flipPan:1}
 ];
 const DWELL=10000, FLY=2400;
 let touring=false, step=-1, stepStart=0;
@@ -1574,7 +1579,7 @@ $('#bNorth').onclick=()=>{stopTour();orientNorth();};
 
 /* sun path: real sun angles for Greenlane (36.89°S) on the solstices and equinox, clock time in NZ time */
 const EAST=new THREE.Vector3(-NORTH.z,0,NORTH.x), SUN0=sun.position.clone(), LAT=-36.89*Math.PI/180;
-const SEASON={sum:{doy:355,dst:1,t0:5.5,t1:21},eq:{doy:80,dst:1,t0:6.5,t1:20},win:{doy:172,dst:0,t0:7,t1:18}};
+const SEASON={sum:{doy:355,dst:1,t0:6,t1:22},eq:{doy:80,dst:1,t0:6.5,t1:22},win:{doy:172,dst:0,t0:7,t1:21.5}};   /* runs on into the evening so the lights come on */
 let sunOn=false, season='sum';
 function sunAt(clock){const S=SEASON[season], dec=-23.44*Math.PI/180*Math.cos(2*Math.PI*(S.doy+10)/365);
   const H=(clock-(12+S.dst+0.34))*15*Math.PI/180;   // solar noon about 12:20 NZST, 1:20 pm in daylight time
@@ -1591,15 +1596,25 @@ function applySun(){
   sun.color.setRGB(1,0.78+0.2*warm,0.6+0.36*warm);
   const bg=new THREE.Color(0x18222b).lerp(new THREE.Color(0xcfdde4),Math.min(1,0.15+up*3));
   scene.background=bg; scene.fog.color.copy(bg); sceneEl.style.background='#'+bg.getHexString();
-  $('#sunlbl').textContent=fmt(t)+(el<=0?' · sun down':'');
+  const dark=el<-0.02; if(dark!==applySun.dark){ applySun.dark=dark; lightsOn(dark); }
+  const sunset=(()=>{ let a=12, b=S.t1; for(let k=0;k<24;k++){ const mid=(a+b)/2; if(sunAt(mid).el>0) a=mid; else b=mid; } return a; })();
+  $('#sunlbl').textContent=fmt(t);
+  $('#sunMoment').textContent= dark ? 'Evening: home, lights on' : t>sunset-1 ? 'Golden hour' : t<9.5 ? 'Morning sun on the north-east deck' : t<12 ? 'Late morning: Cornwall Park is 13 min away' : t<15 ? 'Midday: light through the open-plan living' : 'Afternoon: Westfield Newmarket is 7 min away';
 }
+let dayPlay=null;   /* plays the day through in about 30 s */
+function stopDay(){ if(dayPlay){ cancelAnimationFrame(dayPlay.raf); dayPlay=null; } $('#sunPlay').setAttribute('aria-label','Play the day'); $('#sunPlay').innerHTML=ICON_PLAY; }
+function playDay(){ if(dayPlay){ stopDay(); return; } const el=$('#sunT'); if(+el.value>=995) el.value=0;
+  dayPlay={last:performance.now()}; $('#sunPlay').setAttribute('aria-label','Pause the day'); $('#sunPlay').innerHTML=ICON_PAUSE;
+  const step=now=>{ if(!dayPlay) return; const dt=Math.min(0.1,(now-dayPlay.last)/1000); dayPlay.last=now; el.value=Math.min(1000,+el.value+dt*1000/30); applySun(); if(+el.value>=1000){ stopDay(); return; } dayPlay.raf=requestAnimationFrame(step); };
+  dayPlay.raf=requestAnimationFrame(step); }
 function setSun(on){
   sunOn=on; $('#bSun').setAttribute('aria-pressed',String(on)); $('#sunbar').hidden=!on;
   if(on){stopTour(); if(night) setNight(false); applySun();}
-  else{sun.position.copy(SUN0); setNight(night);}
+  else{stopDay(); applySun.dark=undefined; sun.position.copy(SUN0); setNight(night);}
 }
 $('#bSun').onclick=()=>setSun(!sunOn);
-$('#sunT').oninput=applySun;
+$('#sunT').oninput=()=>{stopDay(); applySun();};
+$('#sunPlay').onclick=playDay;
 document.querySelectorAll('#season button').forEach(b=>b.onclick=()=>{season=b.dataset.s;document.querySelectorAll('#season button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));applySun();});
 
 /* share: copy link */
@@ -1677,8 +1692,8 @@ function loop(now){
 let loopStarted=false;
 setNight(false); setCut(0); setLife(lifeOn); render('site'); requestAnimationFrame(loop);
 const deep=openDeepLink(INIT_HASH); const curUnit=()=>/^lot\d$/.test(selected)?unitName(selected):'any';
-$('#bSun').addEventListener('click',()=>{ if(sunOn) track('sun-study',{unit:curUnit()}); });
-$('#bNight').addEventListener('click',()=>{ if(night) track('night-mode',{unit:curUnit()}); });
+$('#bSun').addEventListener('click',()=>{ if(sunOn) track('day-here',{unit:curUnit()}); });
+$('#sunPlay').addEventListener('click',()=>{ if(dayPlay) track('day-play',{unit:curUnit()}); });
 $('#bShare').addEventListener('click',()=>track('share',{action:'open',unit:curUnit()}));
 $('#bCopy').addEventListener('click',()=>track('share',{action:'copy',unit:curUnit()}));
 const spec=document.querySelector('details'); if(spec) spec.addEventListener('toggle',()=>{ if(spec.open&&!viewed.has('spec')){viewed.add('spec'); track('spec-open',{unit:curUnit()});} });
