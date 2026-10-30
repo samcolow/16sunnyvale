@@ -1242,7 +1242,7 @@ function updateLife(dt){
 let tourCar=null;
 function carToDriveway(){
   const a=actors.find(x=>x.script.some(st=>st.mark==='drv')); if(!a) return;
-  a.i=a.script.findIndex(st=>st.mark==='tour'); a.t=0; a.pos.set(-24.2,0,12); a.head=Math.PI; a.obj.visible=true;   // coming down Sunnyvale Rd (it was parked out of sight, so no visible jump)
+  a.i=a.script.findIndex(st=>st.mark==='drv'); a.t=0; a.pos.set(-19,0,-6.1); a.head=Math.PI/2; a.obj.visible=true;   // already turned into the driveway, so it is in shot as the stop begins
   tourCar=a;
   units[5].gdoor.userData.target=0;
 }
@@ -1346,7 +1346,7 @@ renderer.domElement.addEventListener('pointerup',e=>{
     if(!vis)continue;
     if(o.userData.pick){render(o.userData.pick);return;}
     while(o&&!o.userData.id)o=o.parent;
-    if(o&&o.userData.id){render(o.userData.id); if(cut&&/^lot\d$/.test(o.userData.id)) fly(lotView(+o.userData.id[3],cut)); return;}
+    if(o&&o.userData.id){render(o.userData.id); if(/^lot\d$/.test(o.userData.id)) cut?fly(lotView(+o.userData.id[3],cut)):centreOn(+o.userData.id[3]); return;}
   }
 });
 
@@ -1401,6 +1401,11 @@ const V={
   landmarks:[[-104,92,-64],[-120,0,8]], landmarksM:[[-100,175,-112],[-120,0,8]]   // closer and lower so the station, Woolworths and McDonald's read clearly
 };
 let tween=null;
+function centreOn(n){   /* outside view: slide the camera across so the picked home sits mid-frame, same distance and angle */
+  const t=new THREE.Vector3(...toW([-15+(n-1)*W,4.5,-0.4])), off=camera.position.clone().sub(controls.target);
+  if(reduce){controls.target.copy(t);camera.position.copy(t).add(off);return;}
+  tween={p0:camera.position.clone(),t0:controls.target.clone(),p1:t.clone().add(off),t1:t,s:performance.now(),d:900};
+}
 function lotView(n,c){const xc=-15+(n-1)*W, y=(c-1)*FH; return [[xc+3,y+13,-11],[xc,y,-0.3]];}
 function fly(key,ms,keepAz,turn){
   if((key==='driveway'||key==='landmarks')&&narrow()) key+='M';   // phones: centred on the middle homes
@@ -1432,7 +1437,7 @@ const DWELL=10000, FLY=2400;
 let touring=false, step=-1, stepStart=0;
 function goStep(i,now){
   step=i%TOUR.length; stepStart=now; const s=TOUR[step];
-  setCut(s.cut); render(s.sel); setNight(!!s.night); controls.autoRotateSpeed=s.rot??0.5; fly(s.cut?lotView(3,s.cut):s.v,FLY,!!s.cut&&step>0,s.flipPan?(s.rot??0.5)*Math.PI/30*(s.d-FLY)/1000:0);   // flipPan: begin where the pan would have ended and pan back to the usual view if(s.car&&lifeOn) carToDriveway();
+  setCut(s.cut); render(s.sel); setNight(!!s.night); controls.autoRotateSpeed=s.rot??0.5; fly(s.cut?lotView(3,s.cut):s.v,FLY,!!s.cut&&step>0,s.flipPan?(s.rot??0.5)*Math.PI/30*(s.d-FLY)/1000:0);   /* flipPan: begin where the pan would have ended and pan back to the usual view */ if(s.car&&lifeOn) carToDriveway();
   $('#tourn').textContent=(step+1)+'/'+TOUR.length; $('#tourt').textContent=s.t;
 }
 const ICON_PLAY='<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg>', ICON_PAUSE='<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z" fill="currentColor"/></svg>';
