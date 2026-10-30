@@ -124,6 +124,16 @@ main.wrap{padding-block:24px 40px;display:grid;grid-template-columns:minmax(0,1.
 .contact-h{font:700 20px/1.1 var(--f-display);margin:2px 0 0}
 .contact .cta-box:first-of-type{margin-top:12px}
 .ctrls .opt[hidden]{display:none!important}
+.homes{list-style:none;margin:6px 0 0;padding:0}
+.homes button{display:grid;grid-template-columns:44px 1fr auto auto;gap:12px;align-items:center;width:100%;padding:11px 0;border:0;border-top:1px solid var(--line);border-radius:0;box-shadow:none;background:none;color:var(--fg);font:inherit;text-align:left;cursor:pointer}
+.homes li:last-child button{border-bottom:1px solid var(--line)}
+.homes b{font:700 16px/1 var(--f-display)}
+.homes .st{display:inline-flex;align-items:center;gap:7px;font-size:13px;color:var(--muted)}
+.homes .st i{width:9px;height:9px;border-radius:50%;flex:none}
+.homes .fa{font:500 12.5px/1 var(--f-mono);color:var(--muted)}
+.homes .go{font:600 13px/1 var(--f-body);color:var(--ink)}
+.homes button:hover .go,.homes button:focus-visible .go{text-decoration:underline}
+.homes button:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .site-foot{padding-block:0 32px}.site-foot .fine{margin:0}
 .skey{position:absolute;right:10px;top:54px;display:flex;gap:10px;padding:6px 10px;border-radius:999px;background:var(--chip-bg);color:var(--chip-fg);font:500 11px/1 var(--f-body);box-shadow:0 1px 3px rgba(0,0,0,.15);pointer-events:none}
 .skey span{display:inline-flex;align-items:center;gap:5px}.skey i{width:9px;height:9px;border-radius:2px;display:inline-block}
@@ -380,7 +390,7 @@ const lot=n=>{
   return b;
 };
 const INFO={
-  site:{t:'About the development',s:'Six freehold terrace homes · Greenlane',cat:'dev',rows:[['School zones','Auckland Grammar, Epsom Girls Grammar, Remuera Intermediate, Cornwall Park District School'],['Getting around','Woolworths, bus and train close by · SH1 2 min · Westfield Newmarket 7 min · Cornwall Park 13 min']],note:'Tap a home, then use GF, L1 or L2 to look inside.'},
+  site:{t:'The homes',s:'Six freehold terrace homes · Greenlane',cat:'dev',rows:[],homes:true,note:'Pick a home to see it in the model, then use GF, L1 or L2 to look inside.'},
   lot1:lot(1),lot2:lot(2),lot3:lot(3),lot4:lot(4),lot5:lot(5),lot6:lot(6),
   entry:{t:'Street entrance',s:'Sign on the front fence · mail and parcel hub at the driveway',cat:'dev',rows:[['Sign','Brushed stainless steel with laser-cut lettering'],['Parcels','Shared secure parcel lockers'],['Letters','Six individual letterboxes'],['Fencing','Horizontal timber slats, matt black'],['Backyards','Fully fenced, artificial turf']]},
   stn:{t:'Greenlane train station',s:'Southern and Onehunga lines',cat:'dev',rows:[['From the site','12 min walk']],note:'Position in the model is indicative.'},
@@ -1377,6 +1387,15 @@ function render(id,pid){   /* pid: show this panel instead (the tour keeps the s
   const dl=document.createElement('dl');
   d.rows.forEach(([k,v])=>{const dt=document.createElement('dt');dt.textContent=k;const dd=document.createElement('dd');dd.textContent=v;dl.append(dt,dd);});
   el.append(h,s,dl);
+  if(d.homes){ const ul=document.createElement('ul'); ul.className='homes';   /* one row per home: tap to select it in the model */
+    [1,2,3,4,5,6].forEach(n=>{ const L=INFO['lot'+n], st=STATUS[n], li=document.createElement('li'), b=document.createElement('button'); b.type='button';
+      const fa=(L.rows.find(r=>r[0]==='Floor area')||[])[1]||'';
+      b.innerHTML='<b></b><span class="st"><i></i></span><span class="fa"></span><span class="go">View</span>';
+      b.querySelector('b').textContent=L.t; b.querySelector('.st').append(CAT[st][0]); b.querySelector('.st i').style.background='var('+CAT[st][1]+')'; b.querySelector('.fa').textContent=fa;
+      b.setAttribute('aria-label','Show '+L.t+' in the model ('+CAT[st][0].toLowerCase()+')');
+      b.onclick=()=>{ stopTour(); setCut(0); render('lot'+n); const xc=-15+(n-1)*W; fly([[xc+9,17,-25],[xc,4.5,-1]],1600); sceneEl.scrollIntoView({behavior:reduce?'auto':'smooth',block:'center'}); };
+      li.append(b); ul.append(li); });
+    el.append(ul); }
   if(d.note){const n=document.createElement('p');n.className='note';n.textContent=d.note;el.append(n);}
   if(/^lot\d$/.test(id)){ const n=+id[3], row=document.createElement('div'); row.className='cta home-acts';
     const wt=document.createElement('button'); wt.type='button'; wt.className='primary'; wt.textContent='Walk through '+d.t; wt.onclick=()=>{track('walk-through',{unit:unitName('lot'+n)}); walkThrough(n);};
@@ -1632,6 +1651,7 @@ function loop(now){
   updateCompass();
   const w=sceneEl.clientWidth,h=sceneEl.clientHeight;
   const dist=camera.position.distanceTo(controls.target), fl=focusLot(), top=cut-1, ctrlB=$('.ctrls').offsetTop+$('.ctrls').offsetHeight+6;   /* unit tags stay below the top controls */
+  const tags=[];
   labels.forEach(l=>{
     let ok=true;
     if(l.room){ const near=narrow()?17:12; ok=cut!==0&&l.level===top&&l.lot===fl&&(dist<near||((touring||walking)&&KEYROOM.test(l.el.textContent)));   // only when zoomed in close, or for the key rooms during the tour / walk-through
@@ -1641,10 +1661,12 @@ function loop(now){
     const vis=ok&&v.z<1&&v.x>-1.1&&v.x<1.1&&v.y>-1.1&&v.y<1.1;
     l.el.hidden=!vis;
     if(vis){const px=(v.x+1)/2*w, py=(1-v.y)/2*h;
-      if(!l.room&&!l.lotTag&&(py<64||py>h-56||px<44||px>w-44)){l.el.hidden=true;return;}
-      if(l.lotTag&&py<ctrlB){l.el.hidden=true;return;}   // keep place names clear of the controls and edges
+      if(!l.room&&!l.lotTag&&(py<64||py>h-56||px<44||px>w-44)){l.el.hidden=true;return;}   // keep place names clear of the controls and edges
+      if(l.lotTag&&py<ctrlB){l.el.hidden=true;return;}
+      if(l.lotTag){ l._x=px; l._y=py; l._d=v.z; tags.push(l); }
       l.el.style.left=px+'px';l.el.style.top=py+'px';}
   });
+  tags.sort((a,b)=>(b.el.classList.contains('sale')-a.el.classList.contains('sale'))||a._d-b._d).forEach((l,k,arr)=>{ for(let q=0;q<k;q++){ const o=arr[q]; if(!o.el.hidden&&Math.abs(o._x-l._x)<36&&Math.abs(o._y-l._y)<20){ l.el.hidden=true; break; } } });   /* overlapping unit tags: homes for sale win, then the nearer one */
   requestAnimationFrame(loop);
 }
 let loopStarted=false;
