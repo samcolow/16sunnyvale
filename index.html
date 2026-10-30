@@ -456,7 +456,7 @@ const striaTex=tex('#34373a',x=>{for(let k=0;k<16;k++){x.fillStyle='#26282a';x.f
 const mat=c=>new THREE.MeshLambertMaterial({color:c});
 const M={
   brick:new THREE.MeshLambertMaterial({map:brickTex}), white:new THREE.MeshLambertMaterial({map:obliqueTex}), charcoal:new THREE.MeshLambertMaterial({map:striaTex}),
-  roof:mat(0x1d1e20), black:mat(0x151617), garage:mat(0x2c2e30), door:mat(0x2c2e30), deck:mat(0x6d5a48), concrete:mat(0xbfbdb7), asphalt:mat(0x4a4f52),
+  roof:mat(0x1d1e20), black:mat(0x151617), garage:mat(0x2c2e30), door:mat(0x2c2e30) /* front doors match the garage doors */, deck:mat(0x6d5a48), concrete:mat(0xbfbdb7), asphalt:mat(0x4a4f52),
   grass:mat(0xa3b39b), chips:mat(0xf0efe8), turf:mat(0x7f9b6c), maple:mat(0xa3382a), trunk:mat(0x4a3a2c), tree:mat(0x6a8a5c),
   nb:mat(0xd8d6d0), nbRoof:mat(0x8b8e90), ballast:mat(0x8a8178), rail:mat(0x2b2b2b), lane:mat(0xf2efe6), steel:mat(0xb8bcc0), pad:mat(0xa6b69a), drive:mat(0x8e8b85), joal:mat(0x55595c),
   slab:mat(0xd9d6cf), part:mat(0xebe9e5), oak:mat(0xb08a5e), sofa:mat(0xa3a19d), bed:mat(0xe9e6df), quilt:mat(0xc4c2bb), pillow:mat(0x8c8a86), bench:mat(0xdcdad5), car:mat(0xe6e6e3), gunmetal:mat(0x55585b),
@@ -482,7 +482,8 @@ const oakM=new THREE.MeshLambertMaterial({map:oakTex}), carpetM=new THREE.MeshLa
 const glass=new THREE.MeshLambertMaterial({color:0x8fa6b2,emissive:0x000000});
 const voidGlass=new THREE.MeshLambertMaterial({color:0x9db0b9,emissive:0x000000,transparent:true,opacity:0.45});
 const balGlass=new THREE.MeshLambertMaterial({color:0xa9c0c9,transparent:true,opacity:0.35});
-M.ceramic=mat(0xf6f6f3); M.mirror=new THREE.MeshLambertMaterial({color:0xd3dce0,emissive:0x1b2328}); M.robe=mat(0xe7e4de); M.door=mat(0xf1efea); M.ceil=new THREE.MeshBasicMaterial({color:0xe9e7e2});   /* lit-looking white ceiling (it is only ever seen from below) */ M.stone=mat(0xd9d6d0); M.chair=mat(0x7a5638);
+const tintGlass=new THREE.MeshLambertMaterial({color:0x2a3036,transparent:true,opacity:0.55});   /* dark-tinted Juliet balustrade at the kitchen/dining sliders */
+M.ceramic=mat(0xf6f6f3); M.mirror=new THREE.MeshLambertMaterial({color:0xd3dce0,emissive:0x1b2328}); M.robe=mat(0xe7e4de); M.idoor=mat(0xf1efea); M.ceil=new THREE.MeshBasicMaterial({color:0xe9e7e2});   /* lit-looking white ceiling (it is only ever seen from below) */ M.stone=mat(0xd9d6d0); M.chair=mat(0x7a5638);
 const lamp=new THREE.MeshBasicMaterial({color:0x5a5f62});
 
 const pickables=[];
@@ -735,7 +736,7 @@ function unit(n,x){
      clad(0,2.7,6,9,M.white,L2.shell,3.8); clad(2.7,6,6,9,M.charcoal,L2.shell,3.8);
      rw(0.48,2.44,0.05,2.4,G.shell,3.63); door(4.35,5.1,2.35);                         // W103 bedroom sliders, W104 garage door
      rw(0.56,2.38,3.98,4.75,L1.shell,3.83); rw(3.5,5.5,3.02,5.14,L1.shell,3.83);       // W203 kitchen, W204 dining sliders
-     bx(X(3.5),X(5.5),3.0,4.05,3.92,3.95,balGlass,L1.shell); bx(X(3.5),X(5.5),4.02,4.08,3.9,3.97,M.black,L1.shell);   // Juliet balustrade
+     bx(X(3.5),X(5.5),3.0,4.05,3.92,3.95,tintGlass,L1.shell); bx(X(3.5),X(5.5),4.02,4.08,3.9,3.97,M.black,L1.shell);   // Juliet balustrade
      rw(0.4,2.5,6.65,7.9,L2.shell,3.83,true); rw(3.44,5.52,6.65,7.9,L2.shell,3.83,true);                               // W303, W304 with louvres
    }}
   // backyard: artificial turf, slatted dividing fences
@@ -1089,8 +1090,8 @@ function interior(i,y0,L,x,mir,P,FU,endHome){
       if(!hz&&!vt) return; const a1=hz?Math.max(A.x0,A.x1):Math.max(A.z0,A.z1), b0=hz?Math.min(B.x0,B.x1):Math.min(B.z0,B.z1), gap=b0-a1;
       if(gap<0.55||gap>1.1) return; const key=(hz?'h':'v')+(hz?A.z0:A.x0).toFixed(2)+':'+a1.toFixed(2); if(seen.has(key)) return; seen.add(key);
       const c=hz?A.z0:A.x0, th=Math.min(A.th,B.th), H=0.12+RH-2.05;
-      if(hz){ bx(a1,b0,y0+2.05,y0+2.05+H,c-th/2,c+th/2,M.part,L.doors); bx(a1,a1+0.04,y0+0.12,y0+2.04,c,c+gap-0.05,M.door,L.doors); }   /* head over the opening; leaf swung open against the wall */
-      else{ bx(c-th/2,c+th/2,y0+2.05,y0+2.05+H,a1,b0,M.part,L.doors); bx(c,c+gap-0.05,y0+0.12,y0+2.04,a1,a1+0.04,M.door,L.doors); }
+      if(hz){ bx(a1,b0,y0+2.05,y0+2.05+H,c-th/2,c+th/2,M.part,L.doors); bx(a1,a1+0.04,y0+0.12,y0+2.04,c,c+gap-0.05,M.idoor,L.doors); }   /* head over the opening; leaf swung open against the wall */
+      else{ bx(c-th/2,c+th/2,y0+2.05,y0+2.05+H,a1,b0,M.part,L.doors); bx(c,c+gap-0.05,y0+0.12,y0+2.04,a1,a1+0.04,M.idoor,L.doors); }
     })); }
   const ext=(a,b,c,d)=>{const [x0,z0]=m(a,b),[x1,z1]=m(c,d);return [Math.min(x0,x1),Math.max(x0,x1),Math.min(z0,z1),Math.max(z0,z1)];};
   (f.fix||[]).forEach(([t,a,b,c,d])=>{
