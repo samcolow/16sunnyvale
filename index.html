@@ -411,6 +411,12 @@ const INFO={
 const renderer=new THREE.WebGLRenderer({antialias:true});
 renderer.setPixelRatio(Math.min(devicePixelRatio,LOW?1.5:2));
 renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+/* phones can drop GPU memory while the page sits in the background; when it comes back, re-send every texture and shader so brick, timber and carpet don't return black */
+function refreshGPU(){ try{ scene.traverse(o=>{ const ms=o.material?(Array.isArray(o.material)?o.material:[o.material]):[]; ms.forEach(m=>{ ['map','emissiveMap','alphaMap'].forEach(k=>{ if(m[k]) m[k].needsUpdate=true; }); m.needsUpdate=true; }); }); renderer.shadowMap.needsUpdate=true; }catch(e){} }
+renderer.domElement.addEventListener('webglcontextlost',e=>e.preventDefault(),false);
+renderer.domElement.addEventListener('webglcontextrestored',()=>refreshGPU(),false);
+document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible') refreshGPU(); });
+window.addEventListener('pageshow',e=>{ if(e.persisted) refreshGPU(); });
 sceneEl.prepend(renderer.domElement);
 const scene=new THREE.Scene();
 const camera=new THREE.PerspectiveCamera(40,1,0.3,800);
