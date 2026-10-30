@@ -1530,7 +1530,7 @@ $('#bReset').onclick=()=>{stopTour();fly('overview');render('site');setCut(0);};
 
 /* ---------- automatic tour ---------- */
 const TOUR=[
-  {t:'Six new terrace homes on a dead-end street',v:'overview',sel:'site',cut:0,d:7000},
+  {t:'Six new terrace homes on a no-exit road',v:'overview',sel:'site',cut:0,d:7000},
   {t:'Arriving home: the street entrance and parcel lockers',v:'entrance',sel:'entry',cut:0,d:6000,car:1},
   {t:'Drive in: internal garage, front door, deck above',v:'driveway',sel:'joal',cut:0,rot:-0.9,zoom:0.75,d:12000},
   {t:'Ground floor: a suite with its own ensuite, for guests, grandparents or a home office',sel:'lot3',cut:1,d:9000,rot:-0.5},
@@ -1538,13 +1538,13 @@ const TOUR=[
   {t:'Level 2: three bedrooms, away from the living',sel:'lot3',cut:3,d:9000,rot:-0.5},
   {t:'A fenced backyard for each home',v:'yards',sel:'site',cut:0,d:6000},
   {t:'Train, bus and Woolworths, all close by',v:'landmarks',sel:'site',cut:0,d:7000},
-  {t:'Evening: home, lights on',v:'overview',sel:'site',cut:0,night:true,d:6000,rot:-0.5,flipPan:1}
+  {t:'Evening: home, lights on',v:'overview',sel:'site',cut:0,dusk:1,d:9000,rot:-0.5,flipPan:1}
 ];
 const DWELL=10000, FLY=2400;
 let touring=false, step=-1, stepStart=0;
 function goStep(i,now){
   step=i%TOUR.length; stepStart=now; const s=TOUR[step];
-  setCut(s.cut); render(s.sel,/^lot\d$/.test(s.sel)?null:'site'); setNight(!!s.night); controls.autoRotateSpeed=s.rot??0.5; if(firstFly&&step===0&&!reduce){ firstFly=false; const [p,t]=poseFor(s.v); settle={s:now,base:Math.hypot(p[0]-t[0],p[1]-t[1],p[2]-t[2])}; tween=null; panT0=now; } else fly(s.cut?lotView(3,s.cut):s.v,FLY,!!s.cut&&step>0,s.flipPan?(s.rot??0.5)*Math.PI/30*(s.d-FLY)/1000:0);   /* flipPan: begin where the pan would have ended and pan back to the usual view */ if(s.car&&lifeOn) carToDriveway();
+  setCut(s.cut); render(s.sel,/^lot\d$/.test(s.sel)?null:'site'); resetSky(); setNight(!!s.night); controls.autoRotateSpeed=s.rot??0.5; if(firstFly&&step===0&&!reduce){ firstFly=false; const [p,t]=poseFor(s.v); settle={s:now,base:Math.hypot(p[0]-t[0],p[1]-t[1],p[2]-t[2])}; tween=null; panT0=now; } else fly(s.cut?lotView(3,s.cut):s.v,FLY,!!s.cut&&step>0,s.flipPan?(s.rot??0.5)*Math.PI/30*(s.d-FLY)/1000:0);   /* flipPan: begin where the pan would have ended and pan back to the usual view */ if(s.car&&lifeOn) carToDriveway();
   $('#tourn').textContent=(step+1)+'/'+TOUR.length; $('#tourt').textContent=s.t;
 }
 const ICON_PLAY='<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg>', ICON_PAUSE='<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z" fill="currentColor"/></svg>';
@@ -1593,19 +1593,33 @@ function sunAt(clock){const S=SEASON[season], dec=-23.44*Math.PI/180*Math.cos(2*
   const az=Math.atan2(-Math.cos(dec)*Math.sin(H),Math.sin(dec)*Math.cos(LAT)-Math.cos(dec)*Math.sin(LAT)*Math.cos(H));
   return {el,az};}
 function fmt(t){let h=Math.floor(t), m=Math.round((t-h)*60); if(m===60){h++;m=0;} const ap=h>=12?'pm':'am'; const h12=((h+11)%12)+1; return h12+':'+String(m).padStart(2,'0')+' '+ap;}
-function applySun(){
-  const S=SEASON[season], t=S.t0+(S.t1-S.t0)*(+$('#sunT').value/1000), {el,az}=sunAt(t);
+const DECK=(()=>{ const d=new THREE.Vector3(0,0,-1).transformDirection(site.matrixWorld).setY(0).normalize(); return Math.atan2(d.dot(EAST),d.dot(NORTH)); })();   /* the Level 1 decks face north-east; backyards the opposite way */
+const HEMI_SKY=hemi.color.clone(), HEMI_GND=hemi.groundColor.clone(), GOLD=new THREE.Color(0xffa13d), GOLD_SKY=new THREE.Color(0xf7b977), GOLD_HAZE=new THREE.Color(0xffd9a8);
+function sunsetOf(S){ let a=12, b=S.t1; for(let k=0;k<24;k++){ const mid=(a+b)/2; if(sunAt(mid).el>0) a=mid; else b=mid; } return a; }
+function applySunAt(t){   /* sun, sky and lights for a clock time in the current season */
+  const {el,az}=sunAt(t);
   const dir=NORTH.clone().multiplyScalar(Math.cos(az)).addScaledVector(EAST,Math.sin(az)).multiplyScalar(Math.cos(el)).setY(Math.sin(el));
   sun.position.copy(dir.multiplyScalar(140));
-  const up=Math.max(0,Math.sin(el)), warm=Math.min(1,up*3);
-  sun.intensity=el>0?0.22+0.6*Math.min(1,up*2.2):0.03; hemi.intensity=0.3+0.38*Math.min(1,up*3);
-  sun.color.setRGB(1,0.78+0.2*warm,0.6+0.36*warm);
-  const bg=new THREE.Color(0x18222b).lerp(new THREE.Color(0xcfdde4),Math.min(1,0.15+up*3));
+  const up=Math.max(0,Math.sin(el)), deg=el*180/Math.PI;
+  const gold=deg>-1.5&&deg<14?Math.min(1,(deg+1.5)/3.5)*Math.min(1,(14-deg)/9):0;   /* golden hour: strongest a few degrees above the horizon */
+  sun.intensity=el>0?0.22+0.6*Math.min(1,up*2.2)+0.75*gold:0.03; hemi.intensity=0.3+0.38*Math.min(1,up*3)+0.32*gold;
+  const warm=Math.min(1,up*3); sun.color.setRGB(1,0.78+0.2*warm,0.6+0.36*warm).lerp(GOLD,gold);
+  hemi.color.copy(HEMI_SKY).lerp(GOLD_HAZE,gold*0.85); hemi.groundColor.copy(HEMI_GND).lerp(new THREE.Color(0xd9955a),gold*0.5);
+  const bg=new THREE.Color(0x18222b).lerp(new THREE.Color(0xcfdde4),Math.min(1,0.15+up*3+gold*0.6)).lerp(GOLD_SKY,gold*0.9);
   scene.background=bg; scene.fog.color.copy(bg); sceneEl.style.background='#'+bg.getHexString();
   const dark=el<-0.02; if(dark!==applySun.dark){ applySun.dark=dark; lightsOn(dark); }
-  const sunset=(()=>{ let a=12, b=S.t1; for(let k=0;k<24;k++){ const mid=(a+b)/2; if(sunAt(mid).el>0) a=mid; else b=mid; } return a; })();
+  return {el,az,dark,gold};
+}
+function resetSky(){ hemi.color.copy(HEMI_SKY); hemi.groundColor.copy(HEMI_GND); sun.position.copy(SUN0); applySun.dark=undefined; }
+function applySun(){
+  const S=SEASON[season], t=S.t0+(S.t1-S.t0)*(+$('#sunT').value/1000), {el,az,dark}=applySunAt(t);
+  const onDeck=el>0&&Math.cos(az-DECK)>0.05, onYard=el>0&&Math.cos(az-DECK)<-0.05, sunset=sunsetOf(S);
   $('#sunlbl').textContent=fmt(t);
-  $('#sunMoment').textContent= dark ? 'Evening: home, lights on' : t>sunset-1 ? 'Golden hour' : t<9.5 ? 'Morning sun on the north-east deck' : t<12 ? 'Late morning: Cornwall Park is 13 min away' : t<15 ? 'Midday: light through the open-plan living' : 'Afternoon: Westfield Newmarket is 7 min away';
+  $('#sunMoment').textContent= dark ? (t<12?'Before sunrise':'Evening: home, lights on')
+    : t>sunset-1 ? (onYard?'Golden hour in the backyard':'Golden hour')
+    : el<=0 ? 'First light'
+    : onDeck ? (t<11?'Morning sun on the north-east deck':'Midday: sun on the deck and through the living')
+    : onYard ? 'Afternoon: the sun moves round to the backyard' : 'Light through the open-plan living';
 }
 let dayPlay=null;   /* plays the day through in about 30 s */
 function stopDay(){ if(dayPlay){ cancelAnimationFrame(dayPlay.raf); dayPlay=null; } $('#sunPlay').setAttribute('aria-label','Play the day'); $('#sunPlay').innerHTML=ICON_PLAY; }
@@ -1615,8 +1629,8 @@ function playDay(){ if(dayPlay){ stopDay(); return; } const el=$('#sunT'); if(+e
   dayPlay.raf=requestAnimationFrame(step); }
 function setSun(on){
   sunOn=on; $('#bSun').setAttribute('aria-pressed',String(on)); $('#sunbar').hidden=!on;
-  if(on){stopTour(); if(night) setNight(false); applySun();}
-  else{stopDay(); applySun.dark=undefined; sun.position.copy(SUN0); setNight(night);}
+  if(on){stopTour(); if(night) setNight(false); if(cut===0) fly('overview',1400); applySun();}
+  else{stopDay(); resetSky(); setNight(night);}
 }
 $('#bSun').onclick=()=>setSun(!sunOn);
 $('#sunT').oninput=()=>{stopDay(); applySun();};
@@ -1671,6 +1685,7 @@ function loop(now){
     if(settle){ const k=Math.min(1,(now-settle.s)/SETTLE_MS), e=1-Math.pow(1-k,3), off=camera.position.clone().sub(controls.target);   /* ease-out only: starts gently moving and comes to rest */
       off.setLength(settle.base*(SETTLE_K-(SETTLE_K-1)*e)); camera.position.copy(controls.target).add(off); if(k>=1) settle=null; }
     const dw=TOUR[step].d||DWELL;
+    if(TOUR[step].dusk&&!reduce){ const ss=sunsetOf(SEASON[season]), k=Math.min(1,el/dw); applySunAt(ss-0.9+1.5*k*k*(3-2*k)); }   /* sunset plays out over the last stop: golden light, then the windows come on */
     $('#tourp').style.width=Math.min(100,el/dw*100)+'%';
     if(el>dw) goStep(step+1,now);
   }
