@@ -1387,7 +1387,7 @@ function ctaHint(){const p=document.createElement('p'); p.className='cta-hint'; 
 /* deep links: #16c opens with 16C selected; #16c-l1 also opens that floor. The address follows what the viewer picks, so Share sends the same view */
 function deepHash(){ const m=/^lot(\d)$/.exec(selected); if(!m) return ''; return '#16'+'abcdef'[+m[1]-1]+(cut?'-'+['','gf','l1','l2'][cut]:''); }
 function syncHash(){ if(touring) return; const h=deepHash(); if(h!==location.hash) try{history.replaceState(null,'',h||location.pathname+location.search);}catch(e){} }
-function shareLink(){ const base=SHARE_URL||location.href.split('#')[0]; return base+deepHash(); }
+function shareLink(){ const base=SHARE_URL||location.origin+location.pathname; return base+timeQuery()+deepHash(); }
 function openDeepLink(hash){ const m=/^#?16([a-f])(?:[-/](gf|l1|l2))?$/i.exec(decodeURIComponent(hash||'')); if(!m) return false;
   const n='abcdef'.indexOf(m[1].toLowerCase())+1, c=m[2]?{gf:1,l1:2,l2:3}[m[2].toLowerCase()]:0, xc=-15+(n-1)*W;
   touched=true; selected='lot'+n; setCut(c); render('lot'+n); fly(c?lotView(n,c):[[xc+9,17,-25],[xc,4.5,-1]],1600); return true; }
@@ -1625,17 +1625,19 @@ let dayPlay=null;   /* plays the day through in about 30 s */
 function stopDay(){ if(dayPlay){ cancelAnimationFrame(dayPlay.raf); dayPlay=null; } $('#sunPlay').setAttribute('aria-label','Play the day'); $('#sunPlay').innerHTML=ICON_PLAY; }
 function playDay(){ if(dayPlay){ stopDay(); return; } const el=$('#sunT'); if(+el.value>=995) el.value=0;
   dayPlay={last:performance.now()}; $('#sunPlay').setAttribute('aria-label','Pause the day'); $('#sunPlay').innerHTML=ICON_PAUSE;
-  const step=now=>{ if(!dayPlay) return; const dt=Math.min(0.1,(now-dayPlay.last)/1000); dayPlay.last=now; el.value=Math.min(1000,+el.value+dt*1000/30); applySun(); if(+el.value>=1000){ stopDay(); return; } dayPlay.raf=requestAnimationFrame(step); };
+  const step=now=>{ if(!dayPlay) return; const dt=Math.min(0.1,(now-dayPlay.last)/1000); dayPlay.last=now; el.value=Math.min(1000,+el.value+dt*1000/30); applySun(); if(+el.value>=1000){ stopDay(); syncTime(); return; } dayPlay.raf=requestAnimationFrame(step); };
   dayPlay.raf=requestAnimationFrame(step); }
-function setSun(on){
+function setSun(on,keepView){
   sunOn=on; $('#bSun').setAttribute('aria-pressed',String(on)); $('#sunbar').hidden=!on;
-  if(on){stopTour(); if(night) setNight(false); if(cut===0) fly('overview',1400); applySun();}
+  if(on){stopTour(); if(night) setNight(false); if(cut===0&&!keepView) fly('overview',1400); applySun();}
   else{stopDay(); resetSky(); setNight(night);}
+  if(typeof syncTime==='function') syncTime();
 }
 $('#bSun').onclick=()=>setSun(!sunOn);
 $('#sunT').oninput=()=>{stopDay(); applySun();};
+$('#sunT').onchange=()=>syncTime();
 $('#sunPlay').onclick=playDay;
-document.querySelectorAll('#season button').forEach(b=>b.onclick=()=>{season=b.dataset.s;document.querySelectorAll('#season button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));applySun();});
+document.querySelectorAll('#season button').forEach(b=>b.onclick=()=>{season=b.dataset.s;document.querySelectorAll('#season button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));applySun();syncTime();});
 
 /* share: copy link */
 const dlg=$('#shareDlg');
@@ -1712,14 +1714,30 @@ function loop(now){
 }
 let loopStarted=false;
 setNight(false); setCut(0); setLife(lifeOn); render('site'); requestAnimationFrame(loop);
-const deep=openDeepLink(INIT_HASH); const curUnit=()=>/^lot\d$/.test(selected)?unitName(selected):'any';
+const deep=openDeepLink(INIT_HASH);
+/* ?time= deep links into A day here: sunrise, morning, midday, afternoon, golden, sunset, evening, or a clock time (18:30, 6pm); ?season= summer, autumn, spring, winter */
+const SEASON_Q={summer:'sum',winter:'win',autumn:'eq',spring:'eq',equinox:'eq'}, SEASON_NAME={sum:'summer',eq:'spring',win:'winter'};
+function sunriseOf(S){ let a=S.t0-2, b=12; for(let k=0;k<24;k++){ const mid=(a+b)/2; if(sunAt(mid).el>0) b=mid; else a=mid; } return b; }
+function parseTime(v){ const S=SEASON[season], ss=sunsetOf(S), sr=sunriseOf(S);
+  const named={sunrise:sr+0.15,dawn:sr,morning:9,midday:12.5,noon:12.5,afternoon:15.5,golden:ss-0.5,goldenhour:ss-0.5,sunset:ss,dusk:ss+0.35,evening:ss+1,night:S.t1};
+  const k=String(v).toLowerCase().replace(/[^a-z0-9:]/g,''); if(k in named) return named[k];
+  const m=/^(\d{1,2})(?::?(\d{2}))?(am|pm)?$/.exec(k); if(!m) return null; let h=+m[1]; const mi=+(m[2]||0);
+  if(m[3]==='pm'&&h<12) h+=12; if(m[3]==='am'&&h===12) h=0; return h+mi/60; }
+function setClock(t){ const S=SEASON[season]; $('#sunT').value=Math.round(Math.max(0,Math.min(1,(t-S.t0)/(S.t1-S.t0)))*1000); applySun(); }
+function clockNow(){ const S=SEASON[season]; return S.t0+(S.t1-S.t0)*(+$('#sunT').value/1000); }
+function timeQuery(){ if(!sunOn) return ''; const t=clockNow(), h=Math.floor(t), mi=Math.round((t-h)*60)%60; return '?time='+String(h+(Math.round((t-h)*60)===60?1:0)).padStart(2,'0')+':'+String(mi).padStart(2,'0')+'&season='+SEASON_NAME[season]; }
+function syncTime(){ try{ history.replaceState(null,'',location.pathname+timeQuery()+location.hash); }catch(e){} }
+const TQ=new URLSearchParams(location.search);
+const timeLinked=(()=>{ const sq=SEASON_Q[(TQ.get('season')||'').toLowerCase()]; if(sq){ season=sq; document.querySelectorAll('#season button').forEach(x=>x.setAttribute('aria-pressed',String(x.dataset.s===sq))); }
+  if(!TQ.has('time')) return false; const t=parseTime(TQ.get('time')); if(t==null) return false;
+  touched=true; setSun(true,deep); setClock(t); syncTime(); return true; })(); const curUnit=()=>/^lot\d$/.test(selected)?unitName(selected):'any';
 $('#bSun').addEventListener('click',()=>{ if(sunOn) track('day-here',{unit:curUnit()}); });
 $('#sunPlay').addEventListener('click',()=>{ if(dayPlay) track('day-play',{unit:curUnit()}); });
 $('#bShare').addEventListener('click',()=>track('share',{action:'open',unit:curUnit()}));
 $('#bCopy').addEventListener('click',()=>track('share',{action:'copy',unit:curUnit()}));
 const spec=document.querySelector('details'); if(spec) spec.addEventListener('toggle',()=>{ if(spec.open&&!viewed.has('spec')){viewed.add('spec'); track('spec-open',{unit:curUnit()});} });
 addEventListener('hashchange',()=>{stopTour();openDeepLink(location.hash);});
-if(!reduce&&!deep) setTimeout(()=>{if(!touched)startTour();},60);   /* moving from the first frame, under the loader fade */
+if(!reduce&&!deep&&!timeLinked) setTimeout(()=>{if(!touched)startTour();},60);   /* moving from the first frame, under the loader fade */
 })();
 </script>
 
