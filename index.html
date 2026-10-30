@@ -1588,7 +1588,7 @@ function loop(now){
 let loopStarted=false;
 setNight(false); setCut(0); setLife(lifeOn); render('site'); requestAnimationFrame(loop);
 const deep=openDeepLink(INIT_HASH); addEventListener('hashchange',()=>{stopTour();openDeepLink(location.hash);});
-if(!reduce&&!deep) setTimeout(()=>{if(!touched)startTour();},400);
+if(!reduce&&!deep) setTimeout(()=>{if(!touched)startTour();},1500);
 })();
 </script>
 
