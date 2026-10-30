@@ -1651,7 +1651,6 @@ function loop(now){
   updateCompass();
   const w=sceneEl.clientWidth,h=sceneEl.clientHeight;
   const dist=camera.position.distanceTo(controls.target), fl=focusLot(), top=cut-1, ctrlB=$('.ctrls').offsetTop+$('.ctrls').offsetHeight+6;   /* unit tags stay below the top controls */
-  const tags=[];
   labels.forEach(l=>{
     let ok=true;
     if(l.room){ const near=narrow()?17:12; ok=cut!==0&&l.level===top&&l.lot===fl&&(dist<near||((touring||walking)&&KEYROOM.test(l.el.textContent)));   // only when zoomed in close, or for the key rooms during the tour / walk-through
@@ -1663,10 +1662,8 @@ function loop(now){
     if(vis){const px=(v.x+1)/2*w, py=(1-v.y)/2*h;
       if(!l.room&&!l.lotTag&&(py<64||py>h-56||px<44||px>w-44)){l.el.hidden=true;return;}   // keep place names clear of the controls and edges
       if(l.lotTag&&py<ctrlB){l.el.hidden=true;return;}
-      if(l.lotTag){ l._x=px; l._y=py; l._d=v.z; tags.push(l); }
       l.el.style.left=px+'px';l.el.style.top=py+'px';}
   });
-  tags.sort((a,b)=>(b.el.classList.contains('sale')-a.el.classList.contains('sale'))||a._d-b._d).forEach((l,k,arr)=>{ for(let q=0;q<k;q++){ const o=arr[q]; if(!o.el.hidden&&Math.abs(o._x-l._x)<36&&Math.abs(o._y-l._y)<20){ l.el.hidden=true; break; } } });   /* overlapping unit tags: homes for sale win, then the nearer one */
   requestAnimationFrame(loop);
 }
 let loopStarted=false;
