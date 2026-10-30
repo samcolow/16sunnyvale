@@ -123,6 +123,7 @@ main.wrap{padding-block:24px 40px;display:grid;grid-template-columns:minmax(0,1.
 .contact{position:sticky;top:16px;align-self:start}
 .contact-h{font:700 20px/1.1 var(--f-display);margin:2px 0 0}
 .contact .cta-box:first-of-type{margin-top:12px}
+.ctrls .opt[hidden]{display:none!important}
 .site-foot{padding-block:0 32px}.site-foot .fine{margin:0}
 .skey{position:absolute;right:10px;top:54px;display:flex;gap:10px;padding:6px 10px;border-radius:999px;background:var(--chip-bg);color:var(--chip-fg);font:500 11px/1 var(--f-body);box-shadow:0 1px 3px rgba(0,0,0,.15);pointer-events:none}
 .skey span{display:inline-flex;align-items:center;gap:5px}.skey i{width:9px;height:9px;border-radius:2px;display:inline-block}
@@ -265,6 +266,7 @@ dialog.share p{font-size:13px;color:var(--muted);margin:0 0 12px}
       <button id="bLife" class="opt" aria-pressed="true">People &amp; cars</button>
       <button id="bSun" class="opt" aria-pressed="false">Sun</button>
       <div class="seg" id="seg" role="group" aria-label="Floor"><button data-cut="0" aria-pressed="true">Outside</button><button data-cut="1">GF</button><button data-cut="2">L1</button><button data-cut="3">L2</button></div>
+      <button id="bArea" class="opt" aria-pressed="true" hidden title="Show or hide room sizes">Room sizes</button>
       <span class="spacer"></span>
       <button id="bNorth" class="compass" aria-label="Turn the view so north is up" title="North up"><svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true"><g id="needle"><path d="M16 3 L21 16 L11 16 Z" fill="#d6452f"/><path d="M16 29 L21 16 L11 16 Z" fill="currentColor" opacity=".45"/><text x="16" y="13.5" text-anchor="middle" font-size="7" font-weight="700" fill="#fff" font-family="IBM Plex Mono,monospace">N</text></g></svg></button>
       <button id="bReset" class="opt">Reset view</button>
@@ -445,6 +447,7 @@ const glass=new THREE.MeshLambertMaterial({color:0x8fa6b2,emissive:0x000000});
 const voidGlass=new THREE.MeshLambertMaterial({color:0x9db0b9,emissive:0x000000,transparent:true,opacity:0.45});
 const balGlass=new THREE.MeshLambertMaterial({color:0xa9c0c9,transparent:true,opacity:0.35});
 M.ceramic=mat(0xf6f6f3); M.mirror=new THREE.MeshLambertMaterial({color:0xd3dce0,emissive:0x1b2328}); M.robe=mat(0xe7e4de); M.chair=mat(0x7a5638);
+Object.assign(M,{rug:mat(0xb9b2a6),rugKid:mat(0xa9b8a0),fabric:mat(0xbdb4a6),art:mat(0xb0703f),outdoor:mat(0x3b3e42),pot:mat(0x2d2e30),leaf:mat(0x5f7f4f)});   /* staging: rugs, upholstered headboard, dining art, deck setting, plants */
 const lamp=new THREE.MeshBasicMaterial({color:0x5a5f62});
 
 const pickables=[];
@@ -636,7 +639,7 @@ function unit(n,x){
       const yc=y0+FH-WD; if(yc>y0+1e-3) bx(x0,x1,y0,yc,z0,z1,SKIN[sk],L.shell,true);   // solid below the void
       [[x0,ix0,z0,z1],[ix1,x1,z0,z1],[ix0,ix1,z0,iz0],[ix0,ix1,iz1,z1]].forEach(([a,b,c,d])=>{ if(b-a>1e-3&&d-c>1e-3) bx(a,b,yc,y0+FH,c,d,SKIN[sk],L.shell,true); });
     });
-    interior(i,y0,L,x,mir,n===1?PLANS1:PLANS,n===1?FURN1:FURN,n===6);
+    interior(i,y0,L,x,mir,n===1?PLANS1:PLANS,n===1?FURN1:(sale?FURN_S:FURN),n===6);   /* sale homes get the staged furniture */
     L.cut.visible=false;
   }
   const [G,L1,L2]=lv;
@@ -999,7 +1002,7 @@ FURN1[0].push(['black',522,612,530,615,0.32,0.42]);   // 16A storage door handle
 function interior(i,y0,L,x,mir,P,FU,endHome){
   const f=P[i], CUT=1.2, sx=6/(f.R-f.L), sz=(f.zr+4.5)/(f.B-f.T);
   const m=(a,b)=>[f.flip?3-(a-f.L)*sx:-3+(a-f.L)*sx,-4.5+(b-f.T)*sz];
-  const lab=(t,c)=>L.rooms.push({lab:t.replace(/ · [\d.]+ m²$/,''),pos:new THREE.Vector3(x+mir*c[0],y0+0.7,c[1])});
+  const lab=(t,c)=>L.rooms.push({lab:t.replace(/ · [\d.]+ m²$/,''),area:(t.match(/ · ([\d.]+ m²)$/)||[])[1],pos:new THREE.Vector3(x+mir*c[0],y0+0.7,c[1])});
   const hr=f.well&&(f.well.hole||[f.well.x0,f.well.y0,f.well.x1,f.well.y1]);
   const wellHole=hr?(f.well.poly||[[hr[0],hr[1]],[hr[2],hr[1]],[hr[2],hr[3]],[hr[0],hr[3]]]).map(p=>m(...p)):null;   // open stairwell down to the floor below
   prism(f.slab.map(p=>m(...p)),y0,0.12,i===2?carpetM:M.slab,L.cut,false,wellHole&&[wellHole]);   // top floor: carpet runs through the landing too
@@ -1074,8 +1077,43 @@ function interior(i,y0,L,x,mir,P,FU,endHome){
     [[X0+0.004,X0+0.03,Z0,Z1],[X1-0.03,X1-0.004,Z0,Z1],[X0,X1,Z0+0.004,Z0+0.03],[X0,X1,Z1-0.03,Z1-0.004]].forEach(([a,b,c,d])=>bx(a,b,base-0.02,y0+0.12,c,d,wellWallM,L.cut));   // white plastered well walls, set just inside the opening
     }
   }
-  FU[i].forEach(([mt,a,b,c,d,h0,h1])=>{const [X0,X1,Z0,Z1]=ext(a,b,c,d); bx(X0,X1,y0+0.15+h0,y0+0.15+h1,Z0,Z1,M[mt],L.cut);});
+  FU[i].forEach(([mt,a,b,c,d,h0,h1])=>{const [X0,X1,Z0,Z1]=ext(a,b,c,d), cx=(X0+X1)/2, cz=(Z0+Z1)/2, rr=Math.min(X1-X0,Z1-Z0)/2;
+    if(mt.startsWith('o:')){ const o=new THREE.Mesh(new THREE.CylinderGeometry(rr,rr,h1-h0,28),M[mt.slice(2)]); o.position.set(cx,y0+0.15+(h0+h1)/2,cz); o.castShadow=o.receiveShadow=true; L.cut.add(o); return; }   /* round piece */
+    if(mt==='plant'){ const pot=new THREE.Mesh(new THREE.CylinderGeometry(rr*0.62,rr*0.5,0.42,18),M.pot); pot.position.set(cx,y0+0.15+h0+0.21,cz);
+      const lf=new THREE.Mesh(new THREE.SphereGeometry(rr,14,10),M.leaf); lf.scale.y=Math.max(1,(h1-h0-0.42)/(2*rr)); lf.position.set(cx,y0+0.15+h0+0.42+(h1-h0-0.42)/2,cz);
+      [pot,lf].forEach(o=>{o.castShadow=true; L.cut.add(o);}); return; }   /* potted plant */
+    bx(X0,X1,y0+0.15+h0,y0+0.15+h1,Z0,Z1,M[mt],L.cut);});
 }
+/* staged furniture for the sale homes (16C, and 16D as its mirror): a stager's scheme on top of the standard set.
+   Edit here to match the stager: same [material,x0,y0,x1,y1,bottom,top] rows; 'o:' makes a round piece, 'plant' a potted plant */
+const STAGE_DROP=[
+  [['bed',62,1400],['quilt',162,1400],['pillow',72,1415],['pillow',72,1553],['oak',52,1395],['oak',57,1310]],   /* guest bed becomes a study */
+  [['oak',905,785],['oak',884,1360],['chair',924,1328],['chair',924,1638],['chair',850,1385],['chair',850,1530],['chair',1046,1385],['chair',1046,1530]],
+  [['oak',1405,1325],['bed',30,1520],['quilt',158,1520],['pillow',38,1535],['pillow',38,1686],['oak',18,1515],['oak',23,1440]]
+];
+const STAGE_ADD=[
+  [ ['sofa',62,1250,274,1697,0,0.42],['sofa',52,1250,92,1697,0.42,0.78],['pillow',95,1270,160,1360,0.42,0.6],   /* study: daybed along the wall */
+    ['oak',300,1665,585,1792,0.72,0.76],['black',300,1665,312,1792,0,0.72],['black',573,1665,585,1792,0,0.72],['black',380,1785,500,1790,0.8,1.0],   /* desk facing the courtyard, task lamp */
+    ['chair',400,1565,482,1645,0,0.46],['rug',300,1290,640,1600,0,0.012],['plant',600,1650,690,1740,0,1.1] ],
+  [ ['rug',740,560,1185,1090,0,0.012],
+    ['sofa',1000,905,1130,1030,0,0.42],['sofa',1000,1030,1130,1060,0,0.75],
+    ['o:oak',890,750,1080,940,0,0.38],
+    ['o:oak',822,1356,1106,1640,0.72,0.76],['o:black',934,1468,994,1528,0,0.72],
+    ['chair',1095.5,1554.5,1187.5,1646.5,0,0.45],
+    ['chair',918.0,1657.0,1010.0,1749.0,0,0.45],
+    ['chair',740.5,1554.5,832.5,1646.5,0,0.45],
+    ['chair',740.5,1349.5,832.5,1441.5,0,0.45],
+    ['chair',918.0,1247.0,1010.0,1339.0,0,0.45],
+    ['chair',1095.5,1349.5,1187.5,1441.5,0,0.45],
+    ['black',1220,1345,1227,1651,0.42,1.08],['art',1214,1362,1221,1634,0.47,1.03],
+    ['plant',1150,535,1235,620,0,1.2],
+    ['outdoor',840,222,1170,392,0,0.4],['outdoor',840,222,1170,252,0.4,0.75],['o:black',700,260,800,360,0,0.45],['plant',520,215,620,315,0,1.0] ],
+  [ ['fabric',1404,1310,1417,1704,0,1.05],['rug',880,1250,1330,1780,0,0.012],   /* primary: upholstered headboard, rug */
+    ['bed',40,1752,487,1965,0,0.3],['quilt',140,1752,487,1965,0.3,0.36],['pillow',48,1775,118,1940,0.3,0.4],['oak',28,1747,40,1970,0,0.7],   /* child's room: single bed under the window */
+    ['oak',570,1330,690,1610,0.72,0.76],['black',570,1330,690,1340,0,0.72],['black',570,1600,690,1610,0,0.72],['chair',480,1428,560,1508,0,0.46],   /* desk */
+    ['oak',500,1890,562,1955,0,0.45],['rugKid',190,1430,520,1720,0,0.012] ]
+];
+const FURN_S=FURN.map((lv,k)=>lv.filter(it=>!STAGE_DROP[k].some(d=>d.length&&d.every((v,j)=>v===it[j]))).concat(STAGE_ADD[k]));
 // Lot 1 on the Sunnyvale Rd frontage, Lot 6 at the far end
 [1,2,3,4,5,6].forEach((n,i)=>unit(n,-15+i*W));
 // charcoal party-wall fins, one segment per floor
@@ -1165,7 +1203,10 @@ addLabel('Dead end','geo',new THREE.Vector3(-25.9,1.2,-30.3),{local:true});
 // shared driveway ground label removed (tour caption and info panel still name it)
 addLabel('N','geo',new THREE.Vector3(40+2.6*NORTH_L[0],1.4,-20+2.6*NORTH_L[2]),{local:true});
 LM.forEach(([t,x,z])=>addLabel(t,'',new THREE.Vector3(x,t.includes('station')?0:7,z),{local:true}));
-for(const n in units) units[n].lv.forEach((L,i)=>L.rooms.forEach(r=>addLabel(r.lab,'room',r.pos,{room:true,lot:+n,level:i,local:true})));
+for(const n in units) units[n].lv.forEach((L,i)=>L.rooms.forEach(r=>addLabel(r.lab,'room',r.pos,{room:true,lot:+n,level:i,local:true,name:r.lab,area:r.area})));
+let showAreas=true;   /* room sizes on the floor-view labels, toggled by the Room sizes button */
+function applyAreas(){ labels.forEach(l=>{ if(l.room) l.el.textContent=l.name+(showAreas&&l.area?' · '+l.area:''); }); $('#bArea').setAttribute('aria-pressed',String(showAreas)); }
+applyAreas(); $('#bArea').onclick=()=>{ showAreas=!showAreas; applyAreas(); if(showAreas) track('room-sizes',{unit:curUnit()}); };
 /* Stria grooves: map the texture in site coordinates so grooves line up across separate panels and floors */
 striaTex.wrapS=striaTex.wrapT=THREE.RepeatWrapping;
 { site.updateMatrixWorld(true); const p=new THREE.Vector3(), nv=new THREE.Vector3(), S=4.8;
@@ -1410,7 +1451,7 @@ renderer.domElement.addEventListener('pointerup',e=>{
 /* ---------- cutaway ---------- */
 let cut=0;
 function setCut(c){
-  cut=c; trackFloor();
+  cut=c; trackFloor(); $('#bArea').hidden=c===0;   /* room sizes only matter in the floor views */
   document.querySelectorAll('#seg button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.cut===c)));
   const top=c===0?2:c-1;
   for(const n in units) units[n].lv.forEach((L,i)=>{
