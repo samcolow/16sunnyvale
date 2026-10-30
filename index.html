@@ -1239,7 +1239,7 @@ for(const n in units) units[n].lv.forEach((L,i)=>L.spots.forEach(sp=>{ const lb=
   const go=()=>enterSpot(+n,i,sp); lb.el.onclick=go; lb.el.onkeydown=e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); go(); } }; }));
 let inSpot=null;   /* standing at a spot: the camera stays put and dragging looks around */
 const roomFill=new THREE.AmbientLight(0xfff4e6,0); scene.add(roomFill);   /* soft daylight bounce inside, since the tall walls shade the room */
-function roomMode(L,on){ if(!L) return; L.ceil.visible=on; roomFill.intensity=on?0.18:0; SPOT_FOV=on?68:0; resize();
+function roomMode(L,on){ if(!L) return; L.ceil.visible=on; roomFill.intensity=on?0.18:0; SPOT_FOV=on?68:0;   /* the loop eases the lens there, so nothing jumps */
   glass.transparent=on; glass.opacity=on?0.22:1; glass.depthWrite=!on; glass.color.set(on?0xd8e7ee:0x8fa6b2); glass.needsUpdate=true;   /* from inside, windows are clear panes onto the daylight */   /* full-height walls and a ceiling, so you see the room rather than the floors next door */
   L.tall.forEach(({me,yb,h,gap})=>{ const H=on?L.y0+0.12+RH-yb-gap:h; me.scale.y=H/h; me.position.y=yb+H/2; if(me.material===glass) me.castShadow=!on; });
   L.lift.forEach(me=>{ if(me.userData.y==null) me.userData.y=me.position.y; me.position.y=on?L.y0+0.12+RH-0.06:me.userData.y; });
@@ -1255,7 +1255,8 @@ function enterSpot(n,i,sp){ stopTour(); if(sunOn&&dayPlay) stopDay();
   if(cut!==i+1) setCut(i+1); if(selected!=='lot'+n) render('lot'+n); Object.assign(inSpot,{n,i,sp,L:units[n].lv[i]}); roomMode(inSpot.L,true);
   const p=new THREE.Vector3(...toW(sp.p)), l=new THREE.Vector3(...toW(sp.l)), t=p.clone().add(l.sub(p).normalize().multiplyScalar(0.6));
   controls.minDistance=0.3; controls.enableZoom=false; controls.enablePan=false; controls.rotateSpeed=0.45;
-  tween={p0:camera.position.clone(),t0:controls.target.clone(),p1:p,t1:t,s:performance.now(),d:reduce?1:1400};
+  const d0=controls.target.clone().sub(camera.position), r0=d0.length();
+  tween={p0:camera.position.clone(),t0:controls.target.clone(),p1:p,t1:t,s:performance.now(),d:reduce?1:1600,look:true,d0:d0.normalize(),d1:t.clone().sub(p).normalize(),r0};
   $('#spotBar').hidden=false; sceneEl.classList.add('standing'); $('#spotName').textContent=sp.label; syncHash(); track('stand-here',{unit:unitName('lot'+n),spot:sp.slug}); }
 function leaveSpot(back){ if(!inSpot) return; const pv=inSpot.prev; roomMode(inSpot.L,false); inSpot=null; $('#spotBar').hidden=true; sceneEl.classList.remove('standing');
   controls.minDistance=6; controls.enableZoom=true; controls.enablePan=true; controls.rotateSpeed=1;
@@ -1741,7 +1742,9 @@ function loop(now){
   updateDoors(dt);
   if(tween){
     const k=Math.min(1,(now-tween.s)/tween.d), e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;
-    camera.position.lerpVectors(tween.p0,tween.p1,e); controls.target.lerpVectors(tween.t0,tween.t1,e);
+    camera.position.lerpVectors(tween.p0,tween.p1,e);
+    if(tween.look){ tween.e=e; const d=tween.d0.clone().lerp(tween.d1,e).normalize(); controls.target.copy(camera.position).addScaledVector(d,0.6+(tween.r0-0.6)*(1-e)); }   /* turn the gaze smoothly from where you were looking */
+    else controls.target.lerpVectors(tween.t0,tween.t1,e);
     if(k>=1){tween=null;panT0=now;}
   }
   if(touring){
@@ -1759,6 +1762,9 @@ function loop(now){
     $('#tourp').style.width=Math.min(100,el/dw*100)+'%';
     if(el>dw) goStep(step+1,now);
   }
+  { const fT=SPOT_FOV?(sceneEl.clientWidth<520?SPOT_FOV+8:SPOT_FOV):(sceneEl.clientWidth<520?52:40);
+    if(tween&&tween.look){ if(tween.f0==null) tween.f0=camera.fov; camera.fov=tween.f0+(fT-tween.f0)*(tween.e||0); camera.updateProjectionMatrix(); }   /* lens widens as you step down into the room */
+    else if(Math.abs(camera.fov-fT)>0.05){ camera.fov+=(fT-camera.fov)*Math.min(1,(dt||0.016)*3); camera.updateProjectionMatrix(); } }
   controls.update();
   renderer.render(scene,camera);
   if(!loopStarted){loopStarted=true; const ld=$('#loading'); if(ld){ld.classList.add('done'); setTimeout(()=>ld.remove(),500);}}
