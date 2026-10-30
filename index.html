@@ -64,6 +64,13 @@ h1{font:700 clamp(28px,5vw,44px)/1.02 var(--f-display);letter-spacing:-.02em;mar
 .lbl.lot{font:500 11px/1 var(--f-mono);padding:3px 6px}
 .lbl.lot.sale{background:var(--sale);color:var(--on-sale)}
 .lbl.lot:not(.sale){background:var(--lease);color:var(--on-lease)}
+.lbl.spot{pointer-events:auto;cursor:pointer;background:var(--ink);color:#fff;border-radius:999px;font:600 11px/1 var(--f-body);padding:6px 10px;box-shadow:0 2px 6px rgba(0,0,0,.25)}
+.lbl.spot:hover,.lbl.spot:focus-visible{background:#2c3d63;outline:2px solid #fff;outline-offset:1px}
+.spotbar{position:absolute;left:10px;right:10px;bottom:52px;display:flex;justify-content:center;pointer-events:none}
+.spotbar>div{pointer-events:auto;display:flex;align-items:center;gap:10px;background:var(--chip-bg);color:var(--chip-fg);border-radius:999px;padding:6px 6px 6px 14px;box-shadow:0 1px 3px rgba(0,0,0,.15);font:600 13px/1 var(--f-body)}
+.spotbar .sb-hint{font:400 12px/1 var(--f-body);color:var(--muted)}
+.spotbar button{background:var(--ink);color:#fff}
+@media (max-width:520px){.spotbar{bottom:12px}.spotbar .sb-hint{display:none}}
 .lbl.room{font:500 9px/1 var(--f-mono);padding:2px 4px;border-radius:4px;transform:translate(-50%,-50%);opacity:.95}
 .lbl.geo{background:transparent;box-shadow:none;color:#3a4245;opacity:.7;font:500 10px/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase}
 .night .lbl.geo{color:#b9c4c8}
@@ -295,6 +302,7 @@ dialog.share p{font-size:13px;color:var(--muted);margin:0 0 12px}
       <input type="range" id="sunT" min="0" max="1000" value="500" aria-label="Time of day">
       <div class="seg" id="season" role="group" aria-label="Season"><button data-s="sum" aria-pressed="true">Summer</button><button data-s="eq" aria-pressed="false">Spring/Autumn</button><button data-s="win" aria-pressed="false">Winter</button></div>
     </div></div>
+    <div class="spotbar" id="spotBar" hidden><div><span class="sb-eye" aria-hidden="true">◉</span><span id="spotName"></span><span class="sb-hint">Drag to look around</span><button id="spotBack" type="button">Back</button></div></div>
     <div class="jump" id="jump"></div>
   </div>
   <button class="cue" id="cue" type="button">Scroll for features and contact <span aria-hidden="true">⌄</span></button>
@@ -649,7 +657,7 @@ function unit(n,x){
   const mir=(n%2===0)?-1:1; g.scale.x=mir;   // garages paired 1|2, 3|4, 5|6: even lots are mirrored
   const lv=[];
   for(let i=0;i<3;i++){
-    const L={shell:new THREE.Group(),cut:new THREE.Group(),ext:new THREE.Group(),rooms:[]};
+    const L={shell:new THREE.Group(),cut:new THREE.Group(),ext:new THREE.Group(),rooms:[],spots:[]};
     g.add(L.shell,L.cut,L.ext); lv.push(L);
     const y0=i*FH;
     const P=n===1?PLANS1:PLANS, wf0=P[2].well, wf=wf0&&(wf0.hole?{x0:wf0.hole[0],y0:wf0.hole[1],x1:wf0.hole[2],y1:wf0.hole[3]}:wf0), WD=(wf0&&wf0.depth)||1.6;   // the Level 1 block is hollowed under the top-floor stairwell so the stairs can drop into it
@@ -848,6 +856,13 @@ const PLANS=[
     ]
   }
 ];
+/* standing spots: high corner viewpoints per floor, in plan pixels [slug, label, camera x, y, look-at x, y] */
+const SPOTS=[ [['guest','Guest suite',700,725,200,1500]],
+  [['living','Living and dining',1235,1820,600,700],['kitchen','Kitchen',1235,560,300,1500]],
+  [['primary','Primary bedroom',710,1965,1250,1350],['bedroom','Front bedroom',1410,820,1000,250]] ];
+const SPOTS1=[ [['bedroom','Bedroom',600,1040,350,800]],
+  [['living','Living and dining',120,445,600,900],['kitchen','Kitchen',760,530,300,1050]],
+  [['primary','Primary bedroom',315,875,100,560],['bedroom','Front bedroom',400,215,60,40]] ];
 /* furniture in plan pixels: [material,x0,y0,x1,y1,bottom,top] (heights in metres). Level 1 follows the sales plan; beds and garage are indicative */
 const FURN=[
   [ ['bed',62,1400,468,1693,0,0.3],['quilt',162,1400,468,1693,0.3,0.36],['pillow',72,1415,147,1540,0.3,0.4],['pillow',72,1553,147,1678,0.3,0.4],['oak',52,1395,62,1698,0,0.8],['oak',57,1310,122,1380,0,0.45],
@@ -1025,6 +1040,8 @@ FURN1[0].push(['black',522,612,530,615,0.32,0.42]);   // 16A storage door handle
 function interior(i,y0,L,x,mir,P,FU,endHome){
   const f=P[i], CUT=1.2, sx=6/(f.R-f.L), sz=(f.zr+4.5)/(f.B-f.T);
   const m=(a,b)=>[f.flip?3-(a-f.L)*sx:-3+(a-f.L)*sx,-4.5+(b-f.T)*sz];
+  ((P===PLANS1?SPOTS1:SPOTS)[i]||[]).forEach(([slug,label,a,b,c,d])=>{ const [px,pz]=m(a,b),[lx,lz]=m(c,d);
+    L.spots.push({slug,label,p:[x+mir*px,y0+2.7,pz],l:[x+mir*lx,y0+0.45,lz]}); });
   const lab=(t,c)=>L.rooms.push({lab:t.replace(/ · [\d.]+ m²$/,''),area:(t.match(/ · ([\d.]+ m²)$/)||[])[1],pos:new THREE.Vector3(x+mir*c[0],y0+0.7,c[1])});
   const hr=f.well&&(f.well.hole||[f.well.x0,f.well.y0,f.well.x1,f.well.y1]);
   const wellHole=hr?(f.well.poly||[[hr[0],hr[1]],[hr[2],hr[1]],[hr[2],hr[3]],[hr[0],hr[3]]]).map(p=>m(...p)):null;   // open stairwell down to the floor below
@@ -1197,6 +1214,22 @@ addLabel('Dead end','geo',new THREE.Vector3(-25.9,1.2,-30.3),{local:true});
 addLabel('N','geo',new THREE.Vector3(40+2.6*NORTH_L[0],1.4,-20+2.6*NORTH_L[2]),{local:true});
 LM.forEach(([t,x,z])=>addLabel(t,'',new THREE.Vector3(x,t.includes('station')?0:7,z),{local:true}));
 for(const n in units) units[n].lv.forEach((L,i)=>L.rooms.forEach(r=>addLabel(r.lab,'room',r.pos,{room:true,lot:+n,level:i,local:true,name:r.lab,area:r.area})));
+for(const n in units) units[n].lv.forEach((L,i)=>L.spots.forEach(sp=>{ const lb=addLabel('◉ '+sp.label,'spot',new THREE.Vector3(...sp.p),{spot:sp,lot:+n,level:i,local:true});
+  lb.el.setAttribute('role','button'); lb.el.tabIndex=0; lb.el.title='Stand here';
+  const go=()=>enterSpot(+n,i,sp); lb.el.onclick=go; lb.el.onkeydown=e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); go(); } }; }));
+let inSpot=null;   /* standing at a spot: the camera stays put and dragging looks around */
+function enterSpot(n,i,sp){ stopTour(); if(sunOn&&dayPlay) stopDay();
+  if(!inSpot) inSpot={prev:[camera.position.toArray(),controls.target.toArray()]};
+  Object.assign(inSpot,{n,i,sp}); if(cut!==i+1) setCut(i+1); if(selected!=='lot'+n) render('lot'+n);
+  const p=new THREE.Vector3(...toW(sp.p)), l=new THREE.Vector3(...toW(sp.l)), t=p.clone().add(l.sub(p).normalize().multiplyScalar(0.6));
+  controls.minDistance=0.3; controls.enableZoom=false; controls.enablePan=false; controls.rotateSpeed=0.45;
+  tween={p0:camera.position.clone(),t0:controls.target.clone(),p1:p,t1:t,s:performance.now(),d:reduce?1:1400};
+  $('#spotBar').hidden=false; $('#spotName').textContent=sp.label; syncHash(); track('stand-here',{unit:unitName('lot'+n),spot:sp.slug}); }
+function leaveSpot(back){ if(!inSpot) return; const pv=inSpot.prev; inSpot=null; $('#spotBar').hidden=true;
+  controls.minDistance=6; controls.enableZoom=true; controls.enablePan=true; controls.rotateSpeed=1;
+  if(back) tween={p0:camera.position.clone(),t0:controls.target.clone(),p1:new THREE.Vector3(...pv[0]),t1:new THREE.Vector3(...pv[1]),s:performance.now(),d:reduce?1:1200};
+  syncHash(); }
+$('#spotBack').onclick=()=>leaveSpot(true);
 let showAreas=true;   /* room sizes on the floor-view labels, toggled by the Room sizes button */
 function applyAreas(){ labels.forEach(l=>{ if(l.room) l.el.textContent=l.name+(showAreas&&l.area?' · '+l.area:''); }); $('#bArea').setAttribute('aria-pressed',String(showAreas)); }
 applyAreas(); $('#bArea').onclick=()=>{ showAreas=!showAreas; applyAreas(); if(showAreas) track('room-sizes',{unit:curUnit()}); };
@@ -1385,12 +1418,14 @@ function ctaRow(what,C,lead){
 }
 function ctaHint(){const p=document.createElement('p'); p.className='cta-hint'; p.textContent='Each button opens a pre-filled email in your mail app. Tap an email address to copy it, or a number to call.'; return p;}
 /* deep links: #16c opens with 16C selected; #16c-l1 also opens that floor. The address follows what the viewer picks, so Share sends the same view */
-function deepHash(){ const m=/^lot(\d)$/.exec(selected); if(!m) return ''; return '#16'+'abcdef'[+m[1]-1]+(cut?'-'+['','gf','l1','l2'][cut]:''); }
+function deepHash(){ const m=/^lot(\d)$/.exec(selected); if(!m) return ''; return '#16'+'abcdef'[+m[1]-1]+(cut?'-'+['','gf','l1','l2'][cut]:'')+(inSpot&&cut?'-'+inSpot.sp.slug:''); }
 function syncHash(){ if(touring) return; const h=deepHash(); if(h!==location.hash) try{history.replaceState(null,'',h||location.pathname+location.search);}catch(e){} }
 function shareLink(){ const base=SHARE_URL||location.origin+location.pathname; return base+timeQuery()+deepHash(); }
-function openDeepLink(hash){ const m=/^#?16([a-f])(?:[-/](gf|l1|l2))?$/i.exec(decodeURIComponent(hash||'')); if(!m) return false;
+function openDeepLink(hash){ const m=/^#?16([a-f])(?:[-/](gf|l1|l2)(?:[-/]([a-z]+))?)?$/i.exec(decodeURIComponent(hash||'')); if(!m) return false;
   const n='abcdef'.indexOf(m[1].toLowerCase())+1, c=m[2]?{gf:1,l1:2,l2:3}[m[2].toLowerCase()]:0, xc=-15+(n-1)*W;
-  touched=true; selected='lot'+n; setCut(c); render('lot'+n); fly(c?lotView(n,c):[[xc+9,17,-25],[xc,4.5,-1]],1600); return true; }
+  touched=true; selected='lot'+n; setCut(c); render('lot'+n); fly(c?lotView(n,c):[[xc+9,17,-25],[xc,4.5,-1]],1600);
+  const sp=m[3]&&c&&units[n].lv[c-1].spots.find(q=>q.slug===m[3].toLowerCase()); if(sp) setTimeout(()=>enterSpot(n,c-1,sp),1700);
+  return true; }
 function render(id,pid){   /* pid: show this panel instead (the tour keeps the summary up while it highlights the driveway or entrance) */
   selected=id; placeRing(id); highlight(id);
   // popularity: once per home per visit, only when the viewer picked it (not the auto tour)
@@ -1451,6 +1486,7 @@ renderer.domElement.addEventListener('pointerup',e=>{
 /* ---------- cutaway ---------- */
 let cut=0;
 function setCut(c){
+  if(inSpot&&c!==inSpot.i+1) leaveSpot(false);
   cut=c; trackFloor(); $('#bArea').hidden=c===0;   /* room sizes only matter in the floor views */
   document.querySelectorAll('#seg button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.cut===c)));
   const top=c===0?2:c-1;
@@ -1526,7 +1562,7 @@ function fly(key,ms,keepAz,turn){
 }
 [['Overview','overview','site'],['Street entrance','entrance','entry'],['Driveway','driveway','joal'],['Backyards','yards','site'],['Landmarks','landmarks','site']]
   .forEach(([name,key,id])=>{const b=document.createElement('button');b.textContent=name;b.onclick=()=>{stopTour();setCut(0);fly(key);render(id);};$('#jump').appendChild(b);});
-$('#bReset').onclick=()=>{stopTour();fly('overview');render('site');setCut(0);};
+$('#bReset').onclick=()=>{stopTour();leaveSpot(false);fly('overview');render('site');setCut(0);};
 
 /* ---------- automatic tour ---------- */
 const TOUR=[
@@ -1548,7 +1584,7 @@ function goStep(i,now){
   $('#tourn').textContent=(step+1)+'/'+TOUR.length; $('#tourt').textContent=s.t;
 }
 const ICON_PLAY='<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg>', ICON_PAUSE='<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z" fill="currentColor"/></svg>';
-function startTour(){touring=true;$('#bTour').setAttribute('aria-pressed','true');$('#bTour').innerHTML=ICON_PAUSE;$('#bTour').setAttribute('aria-label','Pause tour');$('#bTour').title='Pause tour';$('#tourcap').hidden=false;goStep(step<0?0:step,performance.now());}
+function startTour(){leaveSpot(false);touring=true;$('#bTour').setAttribute('aria-pressed','true');$('#bTour').innerHTML=ICON_PAUSE;$('#bTour').setAttribute('aria-label','Pause tour');$('#bTour').title='Pause tour';$('#tourcap').hidden=false;goStep(step<0?0:step,performance.now());}
 let touched=false;
 let walkTok=0, walking=false;
 function walkThrough(n){   // the selected home floor by floor: GF, L1, L2
@@ -1701,7 +1737,8 @@ function loop(now){
     let ok=true;
     if(l.room){ const near=narrow()?17:12; ok=cut!==0&&l.level===top&&l.lot===fl&&(dist<near||((touring||walking)&&KEYROOM.test(l.el.textContent)));   // only when zoomed in close, or for the key rooms during the tour / walk-through
       if(ok) l.el.style.transform='translate(-50%,-50%) scale('+Math.max(0.75,Math.min(1.1,near/dist)).toFixed(2)+')'; }   // shrink as the view pulls back
-    if(l.lotTag) ok=dist<120&&!(cut&&l.lotTag===fl);   // the outlined home doesn't need its tag over its room names
+    if(l.lotTag) ok=dist<120&&!(cut&&l.lotTag===fl);
+    if(l.spot) ok=!inSpot&&!touring&&!walking&&cut!==0&&l.level===top&&l.lot===fl;   // the outlined home doesn't need its tag over its room names
     v.copy(l.pos).project(camera);
     const vis=ok&&v.z<1&&v.x>-1.1&&v.x<1.1&&v.y>-1.1&&v.y<1.1;
     l.el.hidden=!vis;
