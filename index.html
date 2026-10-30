@@ -922,9 +922,9 @@ const FURN1=[
 /* bathroom fixtures, from the 1:20 bathroom floorplans (toilets, wall-hung vanities, mirrors, showers, heated towel rails) */
 FURN[0].push(['ceramic',117.3,611.0,199.4,652.7,0,0.8]);
 FURN[0].push(['ceramic',121.7,645.7,195.1,759.2,0,0.4]);
-FURN[0].push(['oak',266.3,611.0,439.0,722.2,0.3,0.7]);
-FURN[0].push(['ceramic',300.8,624.9,404.5,708.3,0.7,0.75]);
-FURN[0].push(['mirror',277.1,611.0,428.2,615.6,0.8,1.02]);
+FURN[0].push(['oak',266.3,611.0,439.0,722.2,0.25,0.55]);
+FURN[0].push(['ceramic',300.8,624.9,404.5,708.3,0.55,0.6]);
+FURN[0].push(['mirror',277.1,611.0,428.2,615.6,0.7,1.0]);
 FURN[0].push(['part',72.0,840.3,268.5,1051.0,0,0.04]);
 FURN[0].push(['gunmetal',132.4,976.9,186.4,1034.8,0.93,0.95]);
 FURN[0].push(['gunmetal',157.3,1034.8,161.6,1051.0,0.93,0.95]);
@@ -947,9 +947,9 @@ FURN[2].push(['part',287.0,126.5,511.5,347.8,0,0.04]);
 FURN[2].push(['gunmetal',368.9,148.4,430.9,209.2,0.93,0.95]);
 FURN[2].push(['gunmetal',397.4,126.5,402.4,148.4,0.93,0.95]);
 FURN[2].push(['gunmetal',381.3,126.5,393.7,131.4,0.6,0.9]);
-FURN[2].push(['oak',287.0,367.2,411.1,586.0,0.3,0.7]);
-FURN[2].push(['ceramic',301.9,384.2,396.2,569.0,0.7,0.75]);
-FURN[2].push(['mirror',287.0,384.2,292.0,569.0,0.8,1.02]);
+FURN[2].push(['oak',287.0,367.2,411.1,586.0,0.25,0.55]);
+FURN[2].push(['ceramic',301.9,384.2,396.2,569.0,0.55,0.6]);
+FURN[2].push(['mirror',287.0,384.2,292.0,569.0,0.7,1.0]);
 FURN[2].push(['gunmetal',738.6,283.8,746.0,400.5,0.3,0.32]);
 FURN[2].push(['gunmetal',738.6,283.8,746.0,400.5,0.4,0.42]);
 FURN[2].push(['gunmetal',738.6,283.8,746.0,400.5,0.5,0.52]);
@@ -964,9 +964,9 @@ FURN1[0].push(['gunmetal',351.2,1206.5,353.3,1213.0,0.93,0.95]);
 FURN1[0].push(['gunmetal',347.0,1211.0,352.2,1213.0,0.6,0.9]);
 FURN1[0].push(['ceramic',437.5,1195.4,477.4,1213.0,0,0.8]);
 FURN1[0].push(['ceramic',439.6,1149.4,475.3,1198.3,0,0.4]);
-FURN1[0].push(['oak',501.5,1164.1,596.0,1213.0,0.3,0.7]);
-FURN1[0].push(['ceramic',509.7,1170.4,588.4,1207.5,0.7,0.75]);
-FURN1[0].push(['mirror',501.5,1211.0,596.0,1213.0,0.8,1.02]);
+FURN1[0].push(['oak',501.5,1164.1,596.0,1213.0,0.25,0.55]);
+FURN1[0].push(['ceramic',509.7,1170.4,588.4,1207.5,0.55,0.6]);
+FURN1[0].push(['mirror',501.5,1211.0,596.0,1213.0,0.7,1.0]);
 FURN1[0].push(['gunmetal',413.8,1090.2,482.0,1093.1,0.3,0.32]);
 FURN1[0].push(['gunmetal',413.8,1090.2,482.0,1093.1,0.4,0.42]);
 FURN1[0].push(['gunmetal',413.8,1090.2,482.0,1093.1,0.5,0.52]);
@@ -985,9 +985,9 @@ FURN1[2].push(['part',522.2,373.3,528.4,468.2,0,1.05]);
 FURN1[2].push(['part',440.0,460.7,522.2,468.2,0,0.3]);
 FURN1[2].push(['ceramic',573.5,373.3,607.1,392.7,0,0.8]);
 FURN1[2].push(['ceramic',575.3,389.5,605.3,443.3,0,0.4]);
-FURN1[2].push(['oak',550.6,519.2,630.0,573.0,0.3,0.7]);
-FURN1[2].push(['ceramic',563.5,525.9,620.9,566.9,0.7,0.75]);
-FURN1[2].push(['mirror',550.6,570.8,630.0,573.0,0.8,1.02]);
+FURN1[2].push(['oak',550.6,519.2,630.0,573.0,0.25,0.55]);
+FURN1[2].push(['ceramic',563.5,525.9,620.9,566.9,0.55,0.6]);
+FURN1[2].push(['mirror',550.6,570.8,630.0,573.0,0.7,1.0]);
 FURN1[2].push(['gunmetal',508.1,569.8,547.0,573.0,0.3,0.32]);
 FURN1[2].push(['gunmetal',508.1,569.8,547.0,573.0,0.4,0.42]);
 FURN1[2].push(['gunmetal',508.1,569.8,547.0,573.0,0.5,0.52]);
@@ -1017,7 +1017,11 @@ function interior(i,y0,L,x,mir,P,FU,endHome){
     else if(t==='win'){ ws(y0,0.9,0.18,M.part); ws(y0+0.9,CUT-0.9,0.05,glass); }
     else if(t==='sl'){ ws(y0+0.12,CUT-0.12,0.05,glass); ws(y0+CUT-0.04,0.04,0.08,M.black); }
     else if(t==='gd') ws(y0,0.3,0.06,M.garage);
-    else if(t==='robe') ws(y0+0.12,CUT-0.12,0.04,M.robe);   // white wardrobe doors
+    else if(t==='robe'){   /* white sliding wardrobe doors: panels with visible joins, a slim handle each and a top track, set just below the wall line so they read as doors */
+      const Ln=Math.hypot(x1-x0,z1-z0), np=Math.max(2,Math.round(Ln/0.9)), dh=1.0, g=0.03, P=u=>[x0+(x1-x0)*u,z0+(z1-z0)*u];
+      for(let k=0;k<np;k++){ const u0=(k*Ln/np+g/2)/Ln, u1=((k+1)*Ln/np-g/2)/Ln; wallSeg(...P(u0),...P(u1),y0+0.12,dh,0.04,M.robe,L.cut);
+        const uh=k%2?u0+0.07/Ln:u1-0.07/Ln; wallSeg(...P(uh-0.012/Ln),...P(uh+0.012/Ln),y0+0.45,0.34,0.07,M.gunmetal,L.cut); }
+      ws(y0+0.12+dh,0.03,0.06,M.gunmetal); }
     else if(t==='rail'){ ws(y0+0.12,0.9,0.03,balGlass); ws(y0+1.0,0.04,0.05,M.black); }
     else if(t==='scr') ws(y0+0.15,1.0,0.02,balGlass);   // shower screen
     else if(t==='sdoor'){ const dh=e||0.95; ws(y0+0.12,dh,0.025,M.part); ws(y0+0.12+dh,0.012,0.03,M.gunmetal); }   // under-stair storage door: white like the wall, fine head line
