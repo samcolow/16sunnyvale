@@ -1213,7 +1213,7 @@ actor(personMesh(mat(0xa33b3b),LM_.denim,LM_.skin2),[{tp:[-30.3,0,57]},{show:1},
 [[0x2e4a6b,3],[0x55595c,12]].forEach(([c,w])=>actor(carMesh(c),[{wait:w},{tp:[135,0,68.2]},{show:1},{to:[-195,0,68.2],sp:11},{hide:1},{wait:5}],'c'));
 // a resident's car: off Great South Rd, down Sunnyvale Rd and the shared driveway into the 16E garage, later reversing out
 {const gx=ux(5)+1.47;
- actor(carMesh(0x6b7d5c),[{wait:4},{tp:[-80,0,63.8]},{show:1},{to:[-31,0,63.8],sp:9},{to:[-24.2,0,57],sp:5},{mark:'tour'},{to:[-24.2,0,-3.2],sp:8},{to:[-21.2,0,-6.1],sp:4},{mark:'drv'},{door:5,v:1},{to:[gx-4.5,0,-6.1],sp:7},{to:[gx,0,-5.2],sp:3},
+ actor(carMesh(0x6b7d5c),[{wait:4},{tp:[-80,0,63.8]},{show:1},{to:[-31,0,63.8],sp:14},{to:[-24.2,0,57],sp:5},{mark:'tour'},{to:[-24.2,0,12],sp:8},{to:[-24.2,0,-3.2],sp:3},{to:[-21.2,0,-6.1],sp:3},{mark:'drv'},{door:5,v:1},{to:[gx-4.5,0,-6.1],sp:3.5},{to:[gx,0,-5.2],sp:2},
    {wait:0.2},{to:[gx,0,-0.6],sp:2.5},{wait:0.5},{door:5,v:0},{wait:2.6},{hide:1},{park:1},{wait:14},
    {door:5,v:1},{tp:[gx,0,-0.6]},{show:1},{wait:2.6},{to:[gx,0,-6.0],sp:1,rev:1},{door:5,v:0},{to:[gx-3,0,-6.1],sp:2},{to:[-21.2,0,-6.1],sp:3},{to:[-27.6,0,-3.0],sp:2.5},{to:[-27.6,0,57],sp:6},{to:[-33,0,68.2],sp:5},{to:[-110,0,68.2],sp:9},{hide:1},{wait:8}],'c');}
 let lifeOn=true, lifeT=0;
@@ -1229,8 +1229,8 @@ function updateLife(dt){
       else if(s.flag){FLAGS[s.flag]=s.v;}
       else if(s.until){if(!FLAGS[s.until]) break;}
       else if(s.park){if(touring&&a===tourCar) break;}   // during the tour the car stays parked until the next driveway stop
-      else if(s.wait!==undefined){a.t+=dt; if(a.t<s.wait) break; a.t=0;}
-      else if(s.to){const tg=new THREE.Vector3(...s.to), d=tg.clone().sub(a.pos), L=d.length(), mv=s.sp*dt;
+      else if(s.wait!==undefined){a.v=0; a.t+=dt; if(a.t<s.wait) break; a.t=0;}
+      else if(s.to){const tg=new THREE.Vector3(...s.to), d=tg.clone().sub(a.pos), L=d.length(), sp=a.kind==='c'?(a.v=(a.v??s.sp)+(s.sp-(a.v??s.sp))*Math.min(1,dt*1.5)):s.sp, mv=sp*dt;   /* cars ease between speeds */
         if(L>1e-3){const h=Math.atan2(d.x,d.z)+(s.rev?Math.PI:0); let dh=((h-a.head+Math.PI)%(2*Math.PI)+2*Math.PI)%(2*Math.PI)-Math.PI; a.head+=dh*Math.min(1,dt*(a.kind==='c'?4:8));}
         if(L>mv){a.pos.addScaledVector(d,mv/L); break;} a.pos.copy(tg);}
       a.i=(a.i+1)%a.script.length; if(s.wait!==undefined) break;}
@@ -1242,7 +1242,7 @@ function updateLife(dt){
 let tourCar=null;
 function carToDriveway(){
   const a=actors.find(x=>x.script.some(st=>st.mark==='drv')); if(!a) return;
-  a.i=a.script.findIndex(st=>st.mark==='tour'); a.t=0; a.pos.set(-24.2,0,16); a.head=Math.PI; a.obj.visible=true;   /* coming down Sunnyvale Rd just out of shot (off-screen in both the entrance and driveway views), timed to turn into the driveway as the camera settles */
+  a.i=a.script.findIndex(st=>st.mark==='tour'); a.t=0; a.v=8; a.pos.set(-24.2,0,narrow()?22:38); a.head=Math.PI; a.obj.visible=true;   /* starts during the entrance stop, out of shot up Sunnyvale Rd; slows to the camera's pan speed once in view and reaches the driveway as the camera settles there (phones a little earlier, as their frame starts further in) */
   tourCar=a;
   units[5].gdoor.userData.target=0;
 }
@@ -1424,8 +1424,8 @@ $('#bReset').onclick=()=>{stopTour();fly('overview');render('site');setCut(0);};
 /* ---------- automatic tour ---------- */
 const TOUR=[
   {t:'The terrace from the driveway side',v:'overview',sel:'site',cut:0,d:7000},
-  {t:'Street entrance on Sunnyvale Rd',v:'entrance',sel:'entry',cut:0,d:6000},
-  {t:'Shared driveway: garages, entries, Level 1 decks',v:'driveway',sel:'joal',cut:0,rot:-0.9,zoom:0.75,d:12000,car:1},
+  {t:'Street entrance on Sunnyvale Rd',v:'entrance',sel:'entry',cut:0,d:6000,car:1},
+  {t:'Shared driveway: garages, entries, Level 1 decks',v:'driveway',sel:'joal',cut:0,rot:-0.9,zoom:0.75,d:12000},
   {t:'GF: guest suite with ensuite, internal garage',sel:'lot3',cut:1,d:9000,rot:-0.5},
   {t:'Level 1: open-plan living onto the deck',sel:'lot3',cut:2,d:9000,rot:-0.5},
   {t:'Level 2: three bedrooms and the bathroom',sel:'lot3',cut:3,d:9000,rot:-0.5},
