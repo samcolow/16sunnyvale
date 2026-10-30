@@ -1,4 +1,5 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:only light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:only light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style><script defer id="umami" src="https://cloud.umami.is/script.js" data-website-id="a1380e31-5647-4dc0-a598-c6579a6b227d" data-domains="16sunnyvale.sasu.co.nz" data-exclude-hash="true"></script>
+</head><body>
 <title>16 Sunnyvale Road</title>
 <meta name="description" content="Explore 16 Sunnyvale Road, Greenlane: six new freehold 4-bedroom terrace homes in the Double Grammar Zone. Walk the site, look inside each floor and see the sun on the decks through the day.">
 <meta property="og:title" content="16 Sunnyvale Road, Greenlane · 3D site and floor tour">
@@ -326,6 +327,10 @@ dialog.share p{font-size:13px;color:var(--muted);margin:0 0 12px}
 (function(){
 const INIT_HASH=location.hash;   // read before the page syncs the address to its own state
 const $=s=>document.querySelector(s);
+/* analytics (Umami): events queue until the tracker loads; ad blockers just make these no-ops */
+const trackQ=[]; const track=(n,d)=>{try{if(window.umami&&umami.track)umami.track(n,d);else trackQ.push([n,d]);}catch(e){}};
+const umEl=document.getElementById('umami'); if(umEl) umEl.addEventListener('load',()=>{trackQ.splice(0).forEach(([n,d])=>track(n,d));});
+const unitName=id=>'16'+'ABCDEF'[+id[3]-1], viewed=new Set();
 const sceneEl=$('#scene'), labelsEl=$('#labels');
 const labels=[];
 const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -1298,6 +1303,9 @@ function ctaRow(what,C,lead){
     try{await navigator.clipboard.writeText(t); ok=true;}catch(_){const r=document.createRange(); r.selectNodeContents(em); const sel=getSelection(); sel.removeAllRanges(); sel.addRange(r); ok=document.execCommand&&document.execCommand('copy');}
     em.textContent=ok?'Email copied':'Select to copy'; em.classList.add('copied'); setTimeout(()=>{em.textContent=t; em.classList.remove('copied');},1600);};
   ph.title='Tap to call';
+  // intent: email button, phone number, copy email
+  const enq=method=>()=>track('enquiry',{unit:/^lot\d$/.test(selected)?unitName(selected):'any',type:rent?'rent':'sale',method});
+  bk.addEventListener('click',enq('email')); ph.addEventListener('click',enq('call')); em.addEventListener('click',enq('copy-email'));
   row.append(bk);
   box.append(head,row); return box;
 }
@@ -1311,6 +1319,8 @@ function openDeepLink(hash){ const m=/^#?16([a-f])(?:[-/](gf|l1|l2))?$/i.exec(de
   touched=true; setCut(c); render('lot'+n); fly(c?lotView(n,c):[[xc+9,17,-25],[xc,4.5,-1]],1600); return true; }
 function render(id){
   selected=id; placeRing(id); highlight(id);
+  // popularity: once per home per visit, only when the viewer picked it (not the auto tour)
+  if(/^lot\d$/.test(id)&&!viewed.has(id)&&!touring){viewed.add(id); track('unit-view',{unit:unitName(id),type:STATUS[+id[3]]==='sale'?'sale':'rent'});}
   const d=INFO[id], c=CAT[d.cat];
   const el=$('#info'); el.innerHTML=''; el.classList.toggle('is-site',id==='site');
   if(d.cat!=='dev'){const pill=document.createElement('span'); pill.className='pill'; pill.style.background='var('+c[1]+')'; pill.style.color=d.cat==='sale'?'var(--on-sale)':d.cat==='lease'?'var(--on-lease)':'var(--surface)'; pill.textContent=c[0]; el.append(pill);}
