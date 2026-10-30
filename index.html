@@ -1417,7 +1417,7 @@ function poseFor(key){
   if(narrow()&&!/M$/.test(key)) p=p.map((v,i)=>t[i]+(v-t[i])*1.4);   /* phones sit further back, except the driveway view which is already wide */
   return [p,t];
 }
-let panT0=0;   /* when the camera last came to rest: the tour's pan and push-in ease in from here */
+let panT0=0, firstFly=true;   /* the load fly-in is shorter than the tour's usual move */   /* when the camera last came to rest: the tour's pan and push-in ease in from here */
 function fly(key,ms,keepAz,turn){
   let [p,t]=poseFor(key);
   if(keepAz){ const cx=camera.position.x-controls.target.x, cz=camera.position.z-controls.target.z, cl=Math.hypot(cx,cz), hz=Math.hypot(p[0]-t[0],p[2]-t[2]);
@@ -1447,7 +1447,7 @@ const DWELL=10000, FLY=2400;
 let touring=false, step=-1, stepStart=0;
 function goStep(i,now){
   step=i%TOUR.length; stepStart=now; const s=TOUR[step];
-  setCut(s.cut); render(s.sel); setNight(!!s.night); controls.autoRotateSpeed=s.rot??0.5; fly(s.cut?lotView(3,s.cut):s.v,FLY,!!s.cut&&step>0,s.flipPan?(s.rot??0.5)*Math.PI/30*(s.d-FLY)/1000:0);   /* flipPan: begin where the pan would have ended and pan back to the usual view */ if(s.car&&lifeOn) carToDriveway();
+  setCut(s.cut); render(s.sel); setNight(!!s.night); controls.autoRotateSpeed=s.rot??0.5; fly(s.cut?lotView(3,s.cut):s.v,firstFly?(firstFly=false,1200):FLY,!!s.cut&&step>0,s.flipPan?(s.rot??0.5)*Math.PI/30*(s.d-FLY)/1000:0);   /* flipPan: begin where the pan would have ended and pan back to the usual view */ if(s.car&&lifeOn) carToDriveway();
   $('#tourn').textContent=(step+1)+'/'+TOUR.length; $('#tourt').textContent=s.t;
 }
 const ICON_PLAY='<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg>', ICON_PAUSE='<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z" fill="currentColor"/></svg>';
@@ -1458,7 +1458,7 @@ function walkThrough(n){   // the selected home floor by floor: GF, L1, L2
   stopTour(); const tok=++walkTok; walking=true; render('lot'+n); sceneEl.scrollIntoView({behavior:reduce?'auto':'smooth',block:'center'});
   [1,2,3].forEach((c,k)=>setTimeout(()=>{ if(tok!==walkTok) return; setCut(c); render('lot'+n); fly(lotView(n,c),k?1800:1400); },k*5200));
 }
-function stopTour(){touched=true;walkTok++;walking=false;if(!touring)return;touring=false;controls.autoRotate=false;$('#bTour').setAttribute('aria-pressed','false');$('#bTour').innerHTML=ICON_PLAY;$('#bTour').setAttribute('aria-label','Play tour');$('#bTour').title='Play tour';$('#tourcap').hidden=true;}
+function stopTour(){touched=true;firstFly=false;walkTok++;walking=false;if(!touring)return;touring=false;controls.autoRotate=false;$('#bTour').setAttribute('aria-pressed','false');$('#bTour').innerHTML=ICON_PLAY;$('#bTour').setAttribute('aria-label','Play tour');$('#bTour').title='Play tour';$('#tourcap').hidden=true;}
 $('#bTour').onclick=()=>{if(touring)stopTour();else{if(sunOn)setSun(false);startTour();}};
 
 /* compass: needle shows where north is on screen; tap to turn the view north-up like a map */
@@ -1537,7 +1537,7 @@ function resize(){
   camera.fov=w<520?52:40; camera.updateProjectionMatrix();
 }
 new ResizeObserver(resize).observe(sceneEl);
-{const [p,t]=poseFor('overview'); camera.position.set(...p); controls.target.set(...t);}   /* open exactly where the tour's first stop starts, so it pans straight away */
+{const [p,t]=poseFor('overview'); camera.position.set(...p.map((v,i)=>t[i]+(v-t[i])*1.3)); controls.target.set(...t);}   /* open a little pulled back from the first stop; the tour glides in (short fly-in) */
 resize();
 
 const v=new THREE.Vector3();
