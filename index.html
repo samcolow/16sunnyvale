@@ -817,7 +817,7 @@ const PLANS=[
       ['i',276,597,545,597],['i',712,597,757,597],['i',757,18,757,612],
       ['i',508,597,508,745],['i',472,740,515,740],['i',276,740,300,740],
       ['i',757,822,757,1005],['i',757,830,1417,830],['i',1008,660,1008,830],['robe',1015,665,1410,665],
-      ['robe',765,1000,1410,1000],['i',665,1218,765,1218],['i',700,1218,700,1975],
+      ['robe',765,1000,1410,1000,2],['i',665,1218,765,1218],['i',700,1218,700,1975],
       ['i',18,1043,440,1043],['i',433,1043,433,1218],['robe',28,1218,425,1218],['i',425,1218,470,1218]
     ]
   }
@@ -899,7 +899,7 @@ const PLANS1=[
       ['win',640,35,640,85],['w',640,85,640,239],['win',640,239,640,297],['w',640,297,640,403],['win',640,403,640,636],['w',640,636,640,811],['win',640,811,640,854],['w',640,854,640,880],
       ['w',5,880,71,880],['win',71,880,293,880],['w',293,880,393,880],['win',393,880,608,880],['w',608,880,640,880],
       ['i',405,35,405,220],['i',320,220,405,220],['i',320,220,320,235],['i',320,315,320,485],['i',320,570,320,880],
-      ['robe',10,325,315,325],['i',5,400,320,400],['robe',10,475,315,475],
+      ['robe',10,325,315,325],['i',5,400,320,400],['robe',10,475,315,475,2],
       ['i',325,575,325,880],['i',415,578,640,578],['i',325,690,400,690],['robe',400,690,400,875],
       ['i',435,340,545,340],['i',545,340,545,370],['i',545,370,640,370],['i',435,340,435,465],['i',435,545,435,578]
     ]
@@ -1017,8 +1017,8 @@ function interior(i,y0,L,x,mir,P,FU,endHome){
     else if(t==='win'){ ws(y0,0.9,0.18,M.part); ws(y0+0.9,CUT-0.9,0.05,glass); }
     else if(t==='sl'){ ws(y0+0.12,CUT-0.12,0.05,glass); ws(y0+CUT-0.04,0.04,0.08,M.black); }
     else if(t==='gd') ws(y0,0.3,0.06,M.garage);
-    else if(t==='robe'){   /* white sliding wardrobe doors: panels with visible joins, a slim handle each and a top track, set just below the wall line so they read as doors */
-      const Ln=Math.hypot(x1-x0,z1-z0), np=Math.max(2,Math.round(Ln/0.9)), dh=1.0, g=0.03, P=u=>[x0+(x1-x0)*u,z0+(z1-z0)*u];
+    else if(t==='robe'){   /* white sliding wardrobe doors (6th value = number of doors; the primary bedrooms have 2): panels with visible joins, a slim handle each and a top track, set just below the wall line so they read as doors */
+      const Ln=Math.hypot(x1-x0,z1-z0), np=e||Math.max(2,Math.round(Ln/0.9)), dh=1.0, g=0.03, P=u=>[x0+(x1-x0)*u,z0+(z1-z0)*u];
       for(let k=0;k<np;k++){ const u0=(k*Ln/np+g/2)/Ln, u1=((k+1)*Ln/np-g/2)/Ln; wallSeg(...P(u0),...P(u1),y0+0.12,dh,0.04,M.robe,L.cut);
         const uh=k%2?u0+0.07/Ln:u1-0.07/Ln; wallSeg(...P(uh-0.012/Ln),...P(uh+0.012/Ln),y0+0.45,0.34,0.07,M.gunmetal,L.cut); }
       ws(y0+0.12+dh,0.03,0.06,M.gunmetal); }
