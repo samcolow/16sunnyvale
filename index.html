@@ -331,6 +331,7 @@ const $=s=>document.querySelector(s);
 const trackQ=[]; const track=(n,d)=>{try{if(window.umami&&umami.track)umami.track(n,d);else trackQ.push([n,d]);}catch(e){}};
 const umEl=document.getElementById('umami-tracker'); if(umEl) umEl.addEventListener('load',()=>{trackQ.splice(0).forEach(([n,d])=>track(n,d));});
 const unitName=id=>'16'+'ABCDEF'[+id[3]-1], viewed=new Set();
+const trackFloor=()=>{try{ if(touring||!cut||!/^lot\d$/.test(selected)) return; const k=selected+'-'+cut; if(viewed.has(k)) return; viewed.add(k); track('floor-view',{unit:unitName(selected),floor:['','GF','L1','L2'][cut]}); }catch(e){}};
 const sceneEl=$('#scene'), labelsEl=$('#labels');
 const labels=[];
 const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -1316,11 +1317,12 @@ function syncHash(){ if(touring) return; const h=deepHash(); if(h!==location.has
 function shareLink(){ const base=SHARE_URL||location.href.split('#')[0]; return base+deepHash(); }
 function openDeepLink(hash){ const m=/^#?16([a-f])(?:[-/](gf|l1|l2))?$/i.exec(decodeURIComponent(hash||'')); if(!m) return false;
   const n='abcdef'.indexOf(m[1].toLowerCase())+1, c=m[2]?{gf:1,l1:2,l2:3}[m[2].toLowerCase()]:0, xc=-15+(n-1)*W;
-  touched=true; setCut(c); render('lot'+n); fly(c?lotView(n,c):[[xc+9,17,-25],[xc,4.5,-1]],1600); return true; }
+  touched=true; selected='lot'+n; setCut(c); render('lot'+n); fly(c?lotView(n,c):[[xc+9,17,-25],[xc,4.5,-1]],1600); return true; }
 function render(id){
   selected=id; placeRing(id); highlight(id);
   // popularity: once per home per visit, only when the viewer picked it (not the auto tour)
   if(/^lot\d$/.test(id)&&!viewed.has(id)&&!touring){viewed.add(id); track('unit-view',{unit:unitName(id),type:STATUS[+id[3]]==='sale'?'sale':'rent'});}
+  trackFloor();
   const d=INFO[id], c=CAT[d.cat];
   const el=$('#info'); el.innerHTML=''; el.classList.toggle('is-site',id==='site');
   if(d.cat!=='dev'){const pill=document.createElement('span'); pill.className='pill'; pill.style.background='var('+c[1]+')'; pill.style.color=d.cat==='sale'?'var(--on-sale)':d.cat==='lease'?'var(--on-lease)':'var(--surface)'; pill.textContent=c[0]; el.append(pill);}
@@ -1331,7 +1333,7 @@ function render(id){
   el.append(h,s,dl);
   if(d.note){const n=document.createElement('p');n.className='note';n.textContent=d.note;el.append(n);}
   if(/^lot\d$/.test(id)){ const n=+id[3], row=document.createElement('div'); row.className='cta home-acts';
-    const wt=document.createElement('button'); wt.type='button'; wt.className='primary'; wt.textContent='Walk through '+d.t; wt.onclick=()=>walkThrough(n);
+    const wt=document.createElement('button'); wt.type='button'; wt.className='primary'; wt.textContent='Walk through '+d.t; wt.onclick=()=>{track('walk-through',{unit:unitName('lot'+n)}); walkThrough(n);};
     const fp=document.createElement('a'); fp.className='soon'; fp.setAttribute('aria-disabled','true'); fp.textContent='Floor plan (PDF) · coming soon'; fp.title='Floor plan download coming soon';
     row.append(wt,fp); el.append(row); }   // no listing links: the portal listings link to this page instead
   // contact panel follows the selection: the right person for a home, both for the overview
@@ -1367,7 +1369,7 @@ renderer.domElement.addEventListener('pointerup',e=>{
 /* ---------- cutaway ---------- */
 let cut=0;
 function setCut(c){
-  cut=c;
+  cut=c; trackFloor();
   document.querySelectorAll('#seg button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.cut===c)));
   const top=c===0?2:c-1;
   for(const n in units) units[n].lv.forEach((L,i)=>{
@@ -1600,7 +1602,13 @@ function loop(now){
 }
 let loopStarted=false;
 setNight(false); setCut(0); setLife(lifeOn); render('site'); requestAnimationFrame(loop);
-const deep=openDeepLink(INIT_HASH); addEventListener('hashchange',()=>{stopTour();openDeepLink(location.hash);});
+const deep=openDeepLink(INIT_HASH); const curUnit=()=>/^lot\d$/.test(selected)?unitName(selected):'any';
+$('#bSun').addEventListener('click',()=>{ if(sunOn) track('sun-study',{unit:curUnit()}); });
+$('#bNight').addEventListener('click',()=>{ if(night) track('night-mode',{unit:curUnit()}); });
+$('#bShare').addEventListener('click',()=>track('share',{action:'open',unit:curUnit()}));
+$('#bCopy').addEventListener('click',()=>track('share',{action:'copy',unit:curUnit()}));
+const spec=document.querySelector('details'); if(spec) spec.addEventListener('toggle',()=>{ if(spec.open&&!viewed.has('spec')){viewed.add('spec'); track('spec-open',{unit:curUnit()});} });
+addEventListener('hashchange',()=>{stopTour();openDeepLink(location.hash);});
 if(!reduce&&!deep) setTimeout(()=>{if(!touched)startTour();},60);   /* moving from the first frame, under the loader fade */
 })();
 </script>
