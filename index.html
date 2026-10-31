@@ -298,7 +298,7 @@ dialog.share p{font-size:13px;color:var(--muted);margin:0 0 12px}
       <button id="bArea" class="opt" aria-pressed="true" hidden title="Show or hide room sizes">Room sizes</button>
       <span class="spacer"></span>
       <button id="bNorth" class="compass" aria-label="Turn the view so north is up" title="North up"><svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true"><g id="needle"><path d="M16 3 L21 16 L11 16 Z" fill="#d6452f"/><path d="M16 29 L21 16 L11 16 Z" fill="currentColor" opacity=".45"/><text x="16" y="13.5" text-anchor="middle" font-size="7" font-weight="700" fill="#fff" font-family="IBM Plex Mono,monospace">N</text></g></svg></button>
-      <button id="bReset" class="opt">Reset view</button>
+      <button id="bReset" class="opt">Reset</button>
       <button id="bMore" class="more" aria-expanded="false" aria-label="More controls">More</button>
     </div>
     <div class="skey" aria-label="Key"><span><i style="background:var(--sale)"></i>For sale</span><span><i style="background:var(--lease)"></i>For rent</span></div>
@@ -323,7 +323,7 @@ dialog.share p{font-size:13px;color:var(--muted);margin:0 0 12px}
     <li><b>Convenient location</b><span>Woolworths, bus and train close by · SH1 2 min · Westfield Newmarket 7 min · Cornwall Park 13 min</span></li>
     <li><b>Freehold and brand new</b><span>No body corporate · CCC issued · Master Builders 10-year guarantee</span></li>
     <li><b>Sunny living and deck</b><span>Open-plan living opening onto a private north-east-facing deck</span></li>
-    <li><b>Warm and connected</b><span>Heat pump · double glazing · underfloor-heated bathrooms · Cat6 to every level</span></li>
+    <li><b>Warm and connected</b><span>Heat pump · double glazing · underfloor-heated bathrooms · wired data to every level</span></li>
     <li><b>Window furnishings included</b><span>High-quality linen sheers and blackout curtains in every room</span></li>
   </ul>
 </section>
@@ -336,9 +336,9 @@ dialog.share p{font-size:13px;color:var(--muted);margin:0 0 12px}
       <div><h4>Kitchen</h4><ul><li>30 mm engineered stone island benchtop</li><li>Bosch 60 cm induction cooktop, built-in oven, integrated rangehood and dishwasher</li><li>Mosaicfx Kit Kat Nero stacked mosaic splashback</li></ul></div>
       <div><h4>Flooring</h4><ul><li>Desert Oak SPC flooring across Level 1 living, dining and kitchen</li><li>Feltex Okiwi Bay plush carpet in Stone on stairs and bedrooms</li><li>Charcoal marine-grade carpet in the garage</li></ul></div>
       <div><h4>Bathrooms</h4><ul><li>Full-height tiling: Sand Light Grey walls, Gem Ash Grey floors</li><li>Plumbline Como brushed gunmetal PVD tapware and showers</li><li>Wall-hung vanities · LED backlit mirror in the main bathroom</li><li>Rain shower heads throughout · separate guest WC</li></ul></div>
-      <div><h4>Heating and comfort</h4><ul><li>Heat pump in the living area</li><li>Bedrooms pre-piped for heat pumps (concealed in-wall pipework) · 16C &amp; 16D have heat pumps installed in every bedroom</li><li>Underfloor heating and heated towel rails on Wi-Fi touchscreen thermostats</li><li>Double-glazed Low-E joinery · R7.0 roof and R2.4 wall insulation</li></ul></div>
-      <div><h4>Smart home and connectivity</h4><ul><li>Keyless smart lock (PIN and app)</li><li>Cat6 cabled to every level from a central network panel, for fast, stable mesh Wi-Fi throughout</li><li>16C &amp; 16D: Smart home control of lighting scenes, climate, smart alarm and PoE video doorbell</li></ul></div>
-      <div><h4>Build and outdoor</h4><ul><li>GIB intertenancy walls between homes: 60-minute fire rated, STC 55 acoustic</li><li>Fully fenced courtyard with artificial turf · private Level 1 deck</li><li>Garage with a 32 A circuit ready for an EV charger · shared parcel lockers</li><li>David Trubridge pendant in the stairwell</li></ul></div>
+      <div><h4>Heating and comfort</h4><ul><li>Heat pump in the living area</li><li>Bedrooms pre-piped for heat pumps · 16C &amp; 16D have heat pumps installed in every bedroom</li><li>Underfloor heating and heated towel rails on Wi-Fi touchscreen thermostats</li><li>Low-E double glazing · well-insulated roof and walls (R7.0 and R2.4)</li></ul></div>
+      <div><h4>Smart home and connectivity</h4><ul><li>Keyless smart lock (PIN and app)</li><li>Wired data to every level for fast, reliable Wi-Fi throughout</li><li>16C &amp; 16D: Smart home control of lighting scenes, climate, smart alarm and video doorbell</li></ul></div>
+      <div><h4>Build and outdoor</h4><ul><li>GIB intertenancy walls between homes: fire rated and sound insulated</li><li>Fully fenced courtyard with artificial turf · private Level 1 deck</li><li>EV charger-ready garage · shared parcel lockers</li><li>David Trubridge pendant in the stairwell</li></ul></div>
       <div><h4>Exterior materials</h4><ul class="mats"><li><i class="sw" style="background:#34373a"></i>James Hardie Stria, vertical: Resene Baltic Sea</li><li><i class="sw" style="background:#eeeae2"></i>James Hardie Oblique, horizontal: Resene Black White · soffits to match</li><li><i class="sw" style="background:#585c61"></i>Brick: Austral Bricks Industry range in Platinum, a graphite glazed brick with a metallic sheen</li><li><i class="sw" style="background:#1d1e20"></i>Roof: Metalcraft · Colorsteel Ebony</li><li><i class="sw" style="background:#151617"></i>Joinery, garage doors, fascia, gutters and louvres: Matt black aluminium · black uPVC downpipes</li></ul></div>
     </div>
   </details>
@@ -404,14 +404,13 @@ const lot=n=>{
       ['Level 1','Open-plan lounge, dining and kitchen · WC · 7.9 m² deck'],
       ['Level 2','Primary bedroom and two bedrooms · bathroom with shower · linen']]),
     ['Outdoor',n===1?'Level 1 deck and 24.4 m² outdoor living space':'7.9 m² deck and 18 m² fenced backyard'],
-    ['Title','Freehold (fee simple), no body corporate'],
+    ['Title','Freehold, no body corporate'],
     ['Access','Shared driveway (JOAL), 1/6 share each'],
     ['Heating',sale?'Heat pumps in the living area and every bedroom · underfloor heating in bathrooms':'Heat pump in the living area · underfloor heating in bathrooms'],
-    ['Smart home',sale?'Smart home control of lighting scenes, climate, smart alarm and PoE video doorbell · keyless entry · fibre ready':'Keyless entry · fibre ready'],
+    ['Smart home',sale?'Smart home control of lighting scenes, climate, smart alarm and video doorbell · keyless entry · fibre ready':'Keyless entry · fibre ready'],
     ['Window furnishings','High-quality linen sheers and blackout curtains in every room'],
-    ['Garage','Carpeted, with a 32 A circuit ready for an EV charger']];
-  b.note=n===1?'End home on the Sunnyvale Rd frontage with its own floor plan; the front door faces the street. Use GF, L1 and L2 to look inside.'
-    :'Use GF, L1 and L2 to look inside. '+(n%2?'':'This home is a mirror image of the layout shown for 16C. ')+(n===6?'End home with a side yard.':'');
+    ['Garage','Carpeted, EV charger ready']];
+  b.note=n===1?'End home facing Sunnyvale Rd, with its own floor plan.':n===6?'End home with a side yard.':'';
   return b;
 };
 const INFO={
@@ -489,6 +488,7 @@ const oakM=new THREE.MeshLambertMaterial({map:oakTex}), carpetM=new THREE.MeshLa
 const glass=new THREE.MeshLambertMaterial({color:0x8fa6b2,emissive:0x000000});
 const voidGlass=new THREE.MeshLambertMaterial({color:0x9db0b9,emissive:0x000000,transparent:true,opacity:0.45});
 const balGlass=new THREE.MeshLambertMaterial({color:0xa9c0c9,transparent:true,opacity:0.35});
+const deckGlass=new THREE.MeshLambertMaterial({color:0x56626b,transparent:true,opacity:0.5});   /* Level 1 deck balustrades: lightly tinted grey glass */
 const tintGlass=new THREE.MeshLambertMaterial({color:0x2a3036,transparent:true,opacity:0.55});   /* dark-tinted Juliet balustrade at the kitchen/dining sliders */
 M.ceramic=mat(0xf6f6f3); M.mirror=new THREE.MeshLambertMaterial({color:0xd3dce0,emissive:0x1b2328}); M.robe=mat(0xe7e4de); M.idoor=mat(0xf1efea); M.ceil=new THREE.MeshBasicMaterial({color:0xe9e7e2});   /* lit-looking white ceiling (it is only ever seen from below) */ M.stone=mat(0x55585c); M.mosaic=mat(0x1b1d22); M.oakCab=mat(0x8f6c4b);   /* dark grey stone top, black Kit Kat mosaic, oak overheads */ M.chair=mat(0x7a5638);
 const lamp=new THREE.MeshBasicMaterial({color:0x5a5f62});
@@ -710,7 +710,7 @@ function unit(n,x){
   bx(-0.48,3,3,3.22,-4.5,-2.9,M.deck,L1.ext);
   bx(n===1?-0.65:-0.85,-0.48,3,6,-4.5,-2.9,M.charcoal,L1.shell,true);   // Stria runs across to the battens
   bx(-0.6,-0.48,6,9,-4.53,-4.5,M.charcoal,L2.shell,true);                // same edge on Level 2, so the Stria lines up floor to floor
-  bx(-0.48,3,3.22,4.25,-4.52,-4.48,balGlass,L1.ext); bx(-0.48,3,4.2,4.28,-4.54,-4.46,M.black,L1.ext);
+  bx(-0.48,3,3.22,4.25,-4.52,-4.48,deckGlass,L1.ext); bx(-0.48,3,4.2,4.28,-4.54,-4.46,M.black,L1.ext);
   // level 2 cantilevers over the deck
   bx(sx[0],sx[1],cy[2],cy[3],-4.56,-4.5,M.black,L2.shell); bx(sx[0]+0.1,sx[1]-0.1,cy[2]+(n===1?0.08:0),cy[3]-0.1,-4.59,-4.56,voidGlass,L2.shell);
   bx(0.45,2.4,6.2,8.4,-4.56,-4.5,M.black,L2.shell); bx(0.55,2.3,6.3,8.3,-4.59,-4.56,glass,L2.shell); bx(1.4,1.46,6.3,8.3,-4.6,-4.59,M.black,L2.shell); bx(1.46,2.3,7.4,7.45,-4.6,-4.59,M.black,L2.shell);   /* bedroom window near floor to ceiling: two panes, awning top right */
@@ -758,7 +758,7 @@ function unit(n,x){
   /* end elevation (Lots 1 and 6), from the render: charcoal Stria at both corners, white Oblique panel down the middle */
   if(n===1||n===6){
     const win=(z0,z1,y0,y1,par,gm,xo)=>{xo=xo||0;bx(-3.1-xo,-3.06-xo,y0,y1,z0,z1,M.black,par);bx(-3.12-xo,-3.1-xo,y0+0.07,y1-0.07,z0+0.07,z1-0.07,gm||glass,par);};
-    const one=n===1, zw=one?-2.65:-1.4;
+    const one=n===1, zw=one?-2.65:-1.55;
     lv.forEach((L,i)=>{const y0=i*FH, y1=y0+FH+(i===2?0.35:0), zr=i===0?3.6:3.8, zf=-4.5;
       bx(-3.06,-3,y0,y1,2.9,zr,M.charcoal,L.shell,true);
       bx(-3.06,-3,y0,y1,zw,2.9,M.white,L.shell,true);
@@ -777,11 +777,13 @@ function unit(n,x){
       win(-0.7,0.4,6.8,8.3,L2.shell); for(let k=0;k<7;k++) bx(-3.16,-3.12,6.9+k*0.2,6.98+k*0.2,0.45,1.45,M.black,L2.shell);
       win(-2.25,-1.7,6.8,8.3,L2.shell); win(-4.56,-3.7,cy[2],cy[3],L2.shell,voidGlass); win(3.15,3.55,7.0,8.0,L2.shell);
     }else{
-      win(1.0,2.3,1.3,2.5,G.shell);
-      win(1.47,3.27,FH+1.06,FH+1.67,L1.shell); bx(-3.13,-3.08,FH+1.06,FH+1.67,2.35,2.39,M.black,L1.shell);   /* kitchen window over the hob bench, two panes, as built */
-      win(-1.1,-0.5,4.2,5.3,L1.shell); win(-4.5,-3.7,3.4,6.07,L1.shell,voidGlass);
-      win(0.3,2.6,6.8,8.3,L2.shell); for(let k=0;k<7;k++) bx(-3.16,-3.12,6.9+k*0.2,6.98+k*0.2,0.35,1.4,M.black,L2.shell);
-      win(-1.1,-0.5,7.0,8.0,L2.shell); win(-4.5,-3.7,5.93,8.6,L2.shell,voidGlass); win(3.15,3.55,7.0,8.0,L2.shell);
+      /* 16F west elevation, positioned from the drawing: W103/W205/W304 stacked toward the rear (fixed pane + awning), W107/W303 stacked mid-wall, W204 between, W203 stair glazing in the charcoal at the front */
+      const mul=(y0,y1,par)=>bx(-3.13,-3.08,y0,y1,2.32,2.36,M.black,par);
+      win(1.39,3.31,1.68,2.41,G.shell); mul(1.68,2.41,G.shell); win(-1.44,-0.73,1.1,2.09,G.shell);   /* W103 bedroom, W107 ensuite */
+      win(1.39,3.31,FH+1.11,FH+2.01,L1.shell); mul(FH+1.11,FH+2.01,L1.shell); win(-0.17,0.57,FH+1.19,FH+2.52,L1.shell);   /* W205 kitchen over the hob bench, W204 */
+      win(-3.93,-3.0,5.11,6.02,L1.shell,voidGlass); win(-3.93,-3.0,5.95,8.57,L2.shell,voidGlass);   /* W203: five-pane stair glazing */
+      [5.81].forEach(y=>bx(-3.13,-3.08,y-0.03,y+0.03,-3.93,-3.0,M.black,L1.shell)); [6.49,7.2,7.83].forEach(y=>bx(-3.13,-3.08,y-0.03,y+0.03,-3.93,-3.0,M.black,L2.shell));
+      win(-1.44,-0.73,2*FH+1.26,2*FH+2.6,L2.shell); win(1.39,3.31,2*FH+1.83,2*FH+2.62,L2.shell); mul(2*FH+1.83,2*FH+2.62,L2.shell);   /* W303, W304 */
     }
   }
   pickables.push(g);
@@ -805,7 +807,8 @@ const PLANS=[
       ['garage',[[710,390],[1399,390],[1399,1800],[710,1800]],'Garage · 17.2 m²']
     ],
     walls:[
-      ['w',52,41,52,1340],['win',52,1340,52,1740],['w',52,1740,52,1800],
+      ['w',52,41,52,706],['win',52,706,52,860,[1.1,2.09]],['w',52,860,52,1340],['win',52,1340,52,1740,[1.68,2.41]],['w',52,1740,52,1800],   /* 16F end wall: W107 ensuite, W103 bedroom (other homes: intertenancy, no windows) */
+      
       ['w',52,41,500,41],['w',500,41,575,150],['w',648,272,715,390],
       ['gd',715,390,1399,390],['w',1399,390,1399,1800],
       ['w',52,1800,160,1800],['sl',160,1800,600,1800],['w',600,1800,1029,1800],['w',1197,1800,1399,1800],
@@ -829,7 +832,7 @@ const PLANS=[
     ],
     extra:[['Deck · 7.9 m²',1.07,-3.7]],
     walls:[
-      ['w',36,196,36,275],['win',36,275,36,445],['w',36,445,36,1055],['win',36,1055,36,1185],['w',36,1185,36,1375],['win',36,1375,36,1730,[1.06,1.67,{kit:1}]],['w',36,1730,36,1835],
+      ['w',36,196,36,1051],['win',36,1051,36,1197,[1.19,2.52]],['w',36,1197,36,1375],['win',36,1375,36,1730,[1.11,2.01,{kit:1}]],['w',36,1730,36,1835],
       ['w',36,196,105,196],['win',105,196,225,196],['w',225,196,470,196],['w',470,196,470,500],
       ['w',470,500,555,500],['sl',555,500,1130,500],['w',1130,500,1248,500],['w',1248,500,1248,1835],
       ['w',36,1835,149,1835],['win',149,1835,516,1835,[1.06,1.67,{kit:1}]],['w',516,1835,741,1835],['sl',741,1835,1144,1835],['w',1144,1835,1248,1835],
@@ -854,7 +857,7 @@ const PLANS=[
     ],
     well:{x0:28,x1:266,y0:100,y1:1025,land:760,steps:8},   // landing spans the opening to the hall (760–1025); the flight runs to the front wall
     walls:[
-      ['w',18,92,18,120],['win',18,120,18,378],['w',18,378,18,850],['win',18,850,18,1015],['w',18,1015,18,1460],['win',18,1460,18,1940],['w',18,1940,18,1975],
+      ['w',18,92,18,152],['win',18,152,18,372,[0.05,2.57]],['w',18,372,18,740],['win',18,740,18,907,[1.26,2.6]],['w',18,907,18,1407],['win',18,1407,18,1860,[1.83,2.62]],['w',18,1860,18,1975],
       ['w',18,92,55,92],['win',55,92,263,92,[0.15,1.25]],['w',263,92,518,92],['w',518,92,518,18],   /* front windows as on the north elevation: stair-void glazing, the bay */
       ['w',518,18,822,18],['win',822,18,1277,18,[0.2,2.3,{aw:1,awY:1.25}]],['w',1277,18,1417,18],
       ['w',1417,18,1417,130],['win',1417,130,1417,550],['w',1417,550,1417,1975],
@@ -1059,7 +1062,7 @@ function interior(i,y0,L,x,mir,P,FU,endHome){
   const hr=f.well&&(f.well.hole||[f.well.x0,f.well.y0,f.well.x1,f.well.y1]);
   const wellHole=hr?(f.well.poly||[[hr[0],hr[1]],[hr[2],hr[1]],[hr[2],hr[3]],[hr[0],hr[3]]]).map(p=>m(...p)):null;   // open stairwell down to the floor below
   prism(f.slab.map(p=>m(...p)),y0,0.12,i===2?carpetM:M.slab,L.cut,false,wellHole&&[wellHole]);
-  L.ceil=prism(f.slab.map(p=>m(...p)),y0+0.12+RH,0.04,M.ceil,L.cut); L.ceil.castShadow=false; L.ceil.visible=false; L.y0=y0;   /* ceiling, only when standing in a room */   // top floor: carpet runs through the landing too
+  L.ceil=prism(f.slab.map(p=>m(...p)),y0+0.12+RH,0.04,M.ceil,L.cut,false,P===PLANS1&&i===1?[[[520,265],[770,265],[770,525],[520,525]].map(p=>m(...p))]:null);   /* 16A: opening over the stair */ L.ceil.castShadow=false; L.ceil.visible=false; L.y0=y0;   /* ceiling, only when standing in a room */   // top floor: carpet runs through the landing too
   f.rooms.forEach(([k,poly,t,lp])=>{
     let pts=null;
     if(k){ pts=poly.map(p=>m(...p)); prism(pts,y0+0.12,0.03,floorMat[k],L.cut,false,k==='stair'&&wellHole?[wellHole]:null); }
@@ -1156,12 +1159,12 @@ function interior(i,y0,L,x,mir,P,FU,endHome){
   if(i===1){   /* kitchen, as built: black stick-mosaic splashback around the window, oak overhead cupboards to the ceiling (eye level) */
     const splash=(a,b,c,d)=>{ const [X0,X1,Z0,Z1]=ext(a,b,c,d), me=bx(X0,X1,y0+1.05,y0+CUT,Z0,Z1,M.mosaic,L.cut); L.tall.push({me,yb:y0+1.05,h:CUT-1.05,gap:0.9}); };
     if(P===PLANS){ splash(36,1812,149,1816); splash(516,1812,610,1816); if(endHome){ splash(52,1225,56,1375); splash(52,1730,56,1816); } else splash(52,1225,56,1816);
-      const band=(a,b,c,d)=>{ const [X0,X1,Z0,Z1]=ext(a,b,c,d); bx(X0,X1,y0+1.67,y0+1.77,Z0,Z1,M.mosaic,L.doors); }; band(149,1812,516,1816); if(endHome) band(52,1375,56,1730); }   /* mosaic strip between the window head and the overheads (eye level) */
+      const band=(a,b,c,d)=>{ const [X0,X1,Z0,Z1]=ext(a,b,c,d); bx(X0,X1,y0+1.67,y0+1.77,Z0,Z1,M.mosaic,L.doors); }; band(149,1812,516,1816); }   /* mosaic strip between the window head and the overheads (eye level) */
     else{ splash(120,866,124,1138); splash(124,1134,178,1138); }   /* Kit Kat mosaic along the intertenancy wall and into the window corner */
     const over=(a,b,c,d)=>{ const [X0,X1,Z0,Z1]=ext(a,b,c,d); bx(X0,X1,y0+1.77,y0+0.12+RH,Z0,Z1,M.oakCab,L.doors); bx(X0,X1,y0+1.76,y0+1.77,Z0,Z1,M.black,L.doors); };
     if(P===PLANS) over(46,1750,610,1816); else over(120,866,158,1138);   /* oak overheads along the intertenancy wall */
     { const [X0,X1,Z0,Z1]=P===PLANS?ext(612,1695,730,1825):ext(304,1076,387,1140), me=bx(X0,X1,y0+0.15,y0+CUT,Z0,Z1,M.bench,L.cut); L.tall.push({me,yb:y0+0.15,h:CUT-0.15,gap:0});   /* tower pantry at the end of the run, floor to ceiling */
-      bx(X0+0.01,X1-0.01,y0+0.15,y0+0.27,Z0+0.03,Z0+0.04,M.bench,L.cut); if(P===PLANS) over(52,1225,122,1750); }
+      bx(X0+0.01,X1-0.01,y0+0.15,y0+0.27,Z0+0.03,Z0+0.04,M.bench,L.cut); if(P===PLANS){ if(endHome) over(52,1225,122,1375); else over(52,1225,122,1750); } }   /* 16F: the side kitchen window rises past the overhead line, so the overheads stop short of it */
     /* eye level: cabinet fronts with their lines, as built: oven under the hob, dishwasher beside the sink run, drawer stacks with black pull handles, oak overhead door joints */
     const slab=f.slab.map(q=>m(...q)), pip=(px,pz)=>{let c=false; for(let a=0,b=slab.length-1;a<slab.length;b=a++){const [xa,za]=slab[a],[xb,zb]=slab[b]; if((za>pz)!==(zb>pz)&&px<(xb-xa)*(pz-za)/(zb-za)+xa) c=!c;} return c;};
     const benches=(f.fix||[]).filter(q=>q[0]==='bench').map(q=>ext(...q.slice(1))), items=(f.fix||[]).filter(q=>q[0]!=='bench').map(q=>[q[0],ext(...q.slice(1))]);
@@ -1203,8 +1206,25 @@ function interior(i,y0,L,x,mir,P,FU,endHome){
       const [fX0,fX1,fZ0,fZ1]=ext(387,1076,476,1140), [eX0,eX1,eZ0,eZ1]=ext(476,1076,482,1140), top=0.12+RH;
       const me=bx(eX0,eX1,y0+0.15,y0+CUT,eZ0,eZ1,M.bench,L.cut); L.tall.push({me,yb:y0+0.15,h:CUT-0.15,gap:0});
       bx(fX0,fX1,y0+1.95,y0+top,fZ0+0.02,fZ1,M.bench,L.doors); bx((fX0+fX1)/2-G/2,(fX0+fX1)/2+G/2,y0+1.95,y0+top,fZ0+0.01,fZ0+0.02,lineM,L.doors); }
-    (P===PLANS?[[46,1750,610,1816],[52,1225,122,1750]]:[[120,866,158,1138]]).forEach(q=>fronts(ext(...q),true));
+    (P===PLANS?[[46,1750,610,1816],[52,1225,122,endHome?1375:1750]]:[[120,866,158,1138]]).forEach(q=>fronts(ext(...q),true));
   }
+  if(P===PLANS1&&i===1){   /* 16A Level 1 to Level 2, as on the Lot 1 plan: a U-stair of 16 risers, 4 up the left flight from the dining, 8 winders against the street-front wall, 4 back along the right flight to Level 2.
+      Carpeted treads and risers over a white closed understair; treads above the cut appear only at eye level, so the floor view stays a clean section */
+    const rise=FH/16, F=y0+0.12, Pv=[645,375], BX=[525,765,265,375], whiteM=new THREE.MeshLambertMaterial({color:0xebe9e5,emissive:0x3a3936});
+    const put=(pts,k)=>{ const top=k*rise, par=top>CUT-0.05?L.doors:L.cut, q=pts.map(p=>m(...p));
+      if(k>1) prism(q,F,top-rise,whiteM,par); prism(q,F+top-rise,rise,carpetM,par); };
+    for(let j=1;j<=4;j++) put([[525,525-37.5*j],[645,525-37.5*j],[645,525-37.5*(j-1)],[525,525-37.5*(j-1)]],j);   // left flight, rising from the dining towards the street
+    const hit=a=>{const dx=Math.cos(a),dy=Math.sin(a); let t=1e9; if(dx>1e-6)t=Math.min(t,(BX[1]-Pv[0])/dx); if(dx<-1e-6)t=Math.min(t,(BX[0]-Pv[0])/dx); if(dy<-1e-6)t=Math.min(t,(BX[2]-Pv[1])/dy); return [Pv[0]+dx*t,Pv[1]+dy*t];};
+    const C=[[525,265,Math.atan2(-110,-120)+2*Math.PI],[765,265,Math.atan2(-110,120)+2*Math.PI]];
+    for(let k=0;k<8;k++){ const a0=Math.PI+k*Math.PI/8, a1=Math.PI+(k+1)*Math.PI/8, pts=[Pv,hit(a0)];   // winders turning round against the street-front wall
+      C.forEach(([cx,cy,ca])=>{ if(ca>a0&&ca<a1) pts.push([cx,cy]); }); pts.push(hit(a1)); put(pts,5+k); }
+    for(let j=1;j<=4;j++) put([[645,375+37.5*(j-1)],[765,375+37.5*(j-1)],[765,375+37.5*j],[645,375+37.5*j]],12+j);   // right flight, back towards the dining, arriving at Level 2
+    const rail=(a,b,c,d,h0,h1)=>{ const [x0,z0]=m(a,b),[x1,z1]=m(c,d), v=new THREE.Vector3(x1-x0,h1-h0,z1-z0), len=v.length(), me=new THREE.Mesh(new THREE.BoxGeometry(len,0.04,0.04),M.black);
+      me.position.set((x0+x1)/2,(h0+h1)/2,(z0+z1)/2); me.rotation.order='YZX'; me.rotation.y=Math.atan2(-v.z,v.x); me.rotation.z=Math.atan2(v.y,Math.hypot(v.x,v.z)); L.doors.add(me); };
+    rail(528,525,528,375,F+0.9+rise*0.5,F+0.9+rise*4.5); rail(762,375,762,525,F+0.9+rise*12.5,F+0.9+rise*16);   // black wall-mounted handrails, 900 above the nosings
+    { const [X0,X1,Z0,Z1]=ext(520,265,770,525), yc=F+RH, yt=F+FH+RH;   // open to the Level 2 landing above: white void walls up to the top-floor ceiling
+      bx(X0,X1,yt,yt+0.04,Z0,Z1,M.ceil,L.doors); bx(X0,X0+0.02,yc,yt,Z0,Z1,whiteM,L.doors); bx(X1-0.02,X1,yc,yt,Z0,Z1,whiteM,L.doors); bx(X0,X1,yc,yt,Z0,Z0+0.02,whiteM,L.doors); bx(X0,X1,yc,yt,Z1-0.02,Z1,whiteM,L.doors); }
+  }else
   (f.stairs||[]).forEach(st=>st.steps.forEach(([a,b,k,xa,xb])=>{
     const [X0,X1,Z0,Z1]=ext(xa??st.x0,a,xb??st.x1,b), h=k*0.19;
     if(h>CUT-0.05) return;   // above the cutaway: left open, like a real section
@@ -1520,7 +1540,7 @@ ring.rotation.x=-Math.PI/2; ring.visible=false; scene.add(ring);   // selection 
 let selected='site';
 function placeRing(id){ ring.visible=false; }
 /* selected home: light tint on everything in that unit (night-lit glass and pendants keep their own materials) */
-const HL=new Map(), NOHL=new Set([glass,voidGlass,balGlass,M.bamboo,M.coral,lamp]);
+const HL=new Map(), NOHL=new Set([glass,voidGlass,balGlass,deckGlass,M.bamboo,M.coral,lamp]);
 let hlGroup=null;
 function highlight(id){
   if(hlGroup){hlGroup.traverse(o=>{if(o.isMesh&&o.userData.hl){o.material=o.userData.hl;delete o.userData.hl;}});hlGroup=null;}
