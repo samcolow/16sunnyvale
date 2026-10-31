@@ -777,7 +777,7 @@ function unit(n,x){
       win(-2.25,-1.7,7.0,8.0,L2.shell); win(-4.56,-3.7,cy[2],cy[3],L2.shell,voidGlass); win(3.15,3.55,7.0,8.0,L2.shell);
     }else{
       win(1.0,2.3,1.3,2.5,G.shell);
-      win(0.3,2.6,3.55,5.7,L1.shell); bx(-3.2,-3.12,4.0,4.95,0.25,2.65,balGlass,L1.shell); bx(-3.22,-3.12,4.9,4.98,0.25,2.65,M.black,L1.shell);
+      win(1.47,3.27,FH+1.06,FH+1.67,L1.shell); bx(-3.13,-3.08,FH+1.06,FH+1.67,2.35,2.39,M.black,L1.shell);   /* kitchen window over the hob bench, two panes, as built */
       win(-1.1,-0.5,4.2,5.3,L1.shell); win(-4.5,-3.7,3.4,6.07,L1.shell,voidGlass);
       win(0.3,2.6,6.8,8.3,L2.shell); for(let k=0;k<7;k++) bx(-3.16,-3.12,6.9+k*0.2,6.98+k*0.2,0.35,1.4,M.black,L2.shell);
       win(-1.1,-0.5,7.0,8.0,L2.shell); win(-4.5,-3.7,5.93,8.6,L2.shell,voidGlass); win(3.15,3.55,7.0,8.0,L2.shell);
@@ -828,7 +828,7 @@ const PLANS=[
     ],
     extra:[['Deck · 7.9 m²',1.07,-3.7]],
     walls:[
-      ['w',36,196,36,275],['win',36,275,36,445],['w',36,445,36,1055],['win',36,1055,36,1185],['w',36,1185,36,1375],['win',36,1375,36,1730],['w',36,1730,36,1835],
+      ['w',36,196,36,275],['win',36,275,36,445],['w',36,445,36,1055],['win',36,1055,36,1185],['w',36,1185,36,1375],['win',36,1375,36,1730,[1.06,1.67]],['w',36,1730,36,1835],
       ['w',36,196,105,196],['win',105,196,225,196],['w',225,196,470,196],['w',470,196,470,500],
       ['w',470,500,555,500],['sl',555,500,1130,500],['w',1130,500,1248,500],['w',1248,500,1248,1835],
       ['w',36,1835,149,1835],['win',149,1835,516,1835,[1.06,1.67]],['w',516,1835,741,1835],['sl',741,1835,1144,1835],['w',1144,1835,1248,1835],
@@ -1148,7 +1148,8 @@ function interior(i,y0,L,x,mir,P,FU,endHome){
   });
   if(i===1){   /* kitchen, as built: black stick-mosaic splashback around the window, oak overhead cupboards to the ceiling (eye level) */
     const splash=(a,b,c,d)=>{ const [X0,X1,Z0,Z1]=ext(a,b,c,d), me=bx(X0,X1,y0+1.05,y0+CUT,Z0,Z1,M.mosaic,L.cut); L.tall.push({me,yb:y0+1.05,h:CUT-1.05,gap:0.9}); };
-    if(P===PLANS){ splash(36,1812,149,1816); splash(516,1812,610,1816); splash(52,1225,56,1816); }
+    if(P===PLANS){ splash(36,1812,149,1816); splash(516,1812,610,1816); if(endHome){ splash(52,1225,56,1375); splash(52,1730,56,1816); } else splash(52,1225,56,1816);
+      const band=(a,b,c,d)=>{ const [X0,X1,Z0,Z1]=ext(a,b,c,d); bx(X0,X1,y0+1.67,y0+1.77,Z0,Z1,M.mosaic,L.doors); }; band(149,1812,516,1816); if(endHome) band(52,1375,56,1730); }   /* mosaic strip between the window head and the overheads (eye level) */
     else{ splash(120,1134,178,1138); splash(316,1134,485,1138); splash(120,1068,124,1138); }
     const over=(a,b,c,d)=>{ const [X0,X1,Z0,Z1]=ext(a,b,c,d); bx(X0,X1,y0+1.77,y0+0.12+RH,Z0,Z1,M.oakCab,L.doors); bx(X0,X1,y0+1.76,y0+1.77,Z0,Z1,M.black,L.doors); };
     if(P===PLANS) over(46,1750,610,1816); else{ over(120,1101,485,1138); over(120,1068,158,1101); }
@@ -1169,7 +1170,7 @@ function interior(i,y0,L,x,mir,P,FU,endHome){
         (alongX?[[X0,-1],[X1,1]]:[[Z0,-1],[Z1,1]]).forEach(([pl,sg])=>{ const ex=alongX?pl+sg*0.08:(X0+X1)/2, ez=alongX?(Z0+Z1)/2:pl+sg*0.08; if(!pip(ex,ez)||inBench(ex,ez,R)) return; oakSkin(alongX?Z0:X0,alongX?Z1:X1,pl,sg,!alongX); }); }
       faces.forEach(([pl,sg])=>{ if(!open([pl,sg])) return;
         const a0=alongX?X0:Z0, a1=alongX?X1:Z1, F=pl+sg*0.004;
-        if(pen&&sg*(oc-mid)<0){ oakSkin(a0,a1,pl,sg,alongX); return; }
+        if(pen&&sg*(oc-mid)<0){ let b0=a0,b1=a1; others.forEach(r=>{ const rp=alongX?(sg<0?r[2]:r[3]):(sg<0?r[0]:r[1]), r0=alongX?r[0]:r[2], r1=alongX?r[1]:r[3]; if(Math.abs(rp-pl)<0.08&&r1>=b0-0.05&&r0<=b1+0.05){ b0=Math.min(b0,r0); b1=Math.max(b1,r1); } }); oakSkin(b0,b1,pl+sg*Math.max(0,...others.map(r=>{ const rp=alongX?(sg<0?r[2]:r[3]):(sg<0?r[0]:r[1]); return Math.abs(rp-pl)<0.08?sg*(rp-pl):0; })),sg,alongX); return; }
         const panel=(u0,u1,yb,yt,mm,th)=>{ const t=th||0.008; if(alongX) bx(u0,u1,y0+yb,y0+yt,Math.min(F,F+sg*t),Math.max(F,F+sg*t),mm,L.doors); else bx(Math.min(F,F+sg*t),Math.max(F,F+sg*t),y0+yb,y0+yt,u0,u1,mm,L.doors); };
         const vline=(u,yb,yt)=>panel(u-G/2,u+G/2,yb,yt,lineM,0.01), hline=(u0,u1,y)=>panel(u0,u1,y-G/2,y+G/2,lineM,0.01), handle=(u0,u1,y)=>panel((u0+u1)/2-0.12,(u0+u1)/2+0.12,y-0.012,y+0.012,lineM,0.03);
         if(overhead){ const n=Math.max(1,Math.round((a1-a0)/0.45)); for(let k=1;k<n;k++) vline(a0+(a1-a0)*k/n,1.77,0.12+RH); return; }
