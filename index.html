@@ -1082,7 +1082,7 @@ function interior(i,y0,L,x,mir,P,FU,endHome){
           const mx=pts.reduce((t,q)=>t+q[0],0)/pts.length, mz=pts.reduce((t,q)=>t+q[1],0)/pts.length; best=Math.max(best,10-Math.hypot(px-mx,pz-mz)); }); return best; };
       const side=score(1)>=score(-1)?1:-1;   /* handles only on the bedroom face */
       for(let k=0;k<np;k++){ const u0=(k*Ln/np+g/2)/Ln, u1=((k+1)*Ln/np-g/2)/Ln; tall(wallSeg(...P(u0),...P(u1),y0+0.12,dh,0.04,M.robe,L.cut),y0+0.12,0.08);
-        const uh=k%2?u0+0.07/Ln:u1-0.07/Ln; L.handles.push(wallSeg(...P(uh-0.012/Ln),...P(uh+0.012/Ln),y0+0.6,0.34,0.025,M.gunmetal,L.cut,false,side*0.032)); }
+        const uh=k%2?u1-0.07/Ln:u0+0.07/Ln;   /* sliding doors: handles at the outer ends */ L.handles.push(wallSeg(...P(uh-0.012/Ln),...P(uh+0.012/Ln),y0+0.6,0.34,0.025,M.gunmetal,L.cut,false,side*0.032)); }
       L.lift.push(ws(y0+0.12+dh,0.03,0.06,M.gunmetal)); }
     else if(t==='slat'){   /* oak acoustic slats on black felt: full panel along the solid wall, a band over the opening up to the ceiling */
       const Ln=Math.hypot(x1-x0,z1-z0), [ox,oz]=m(c,d), solid=Math.hypot(...m(254,815).map((v,k)=>v-[x0,z0][k]));
