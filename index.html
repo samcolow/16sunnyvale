@@ -61,7 +61,7 @@ h1{font:700 clamp(28px,5vw,44px)/1.02 var(--f-display);letter-spacing:-.02em;mar
 .scene canvas{display:block;width:100%;height:100%}
 .labels{position:absolute;inset:0;pointer-events:none;overflow:hidden}
 .lbl{position:absolute;transform:translate(-50%,-100%);white-space:nowrap;font:500 11px/1 var(--f-body);padding:4px 7px;border-radius:5px;background:var(--chip-bg);color:var(--chip-fg);box-shadow:0 1px 3px rgba(0,0,0,.15)}
-.lbl.lot{font:500 11px/1 var(--f-mono);padding:3px 6px}
+.lbl.lot{font:500 11px/1 var(--f-mono);padding:3px 6px;pointer-events:auto;cursor:pointer}
 .lbl.lot.sale{background:var(--sale);color:var(--on-sale)}
 .lbl.lot:not(.sale){background:var(--lease);color:var(--on-lease)}
 .lbl.spot{pointer-events:auto;cursor:pointer;padding:2px;background:none;box-shadow:none;border-radius:50%;font:700 17px/1 var(--f-body);color:var(--ink);text-shadow:0 0 2px #fff,0 0 5px #fff,0 0 8px #fff;transform:translate(-50%,-50%);animation:spotBlink 1.4s ease-in-out 3}   /* pulses three times to be noticed, then rests */
@@ -129,7 +129,7 @@ button:focus-visible{outline:2px solid var(--lease);outline-offset:2px}
 .jump{position:absolute;bottom:10px;left:10px;right:10px;display:flex;gap:6px;overflow-x:auto;pointer-events:none;padding-bottom:2px}
 .jump button{pointer-events:auto;flex:none}
 main.wrap{padding-block:24px 40px;display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:24px}
-@media (max-width:760px){main.wrap{grid-template-columns:1fr} #info.is-site{display:none}}
+@media (max-width:760px){main.wrap{grid-template-columns:1fr}}
 .panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px 18px 16px;min-width:0}
 .panel h2{font:700 24px/1.1 var(--f-display);margin:8px 0 2px;letter-spacing:-.01em}
 .panel .sub{color:var(--muted);font-size:13px;margin:0 0 12px}
@@ -330,9 +330,9 @@ dialog.share p{font-size:13px;color:var(--muted);margin:0 0 12px}
 
 <section class="wrap spec" aria-label="Full specification">
   <details>
-    <summary><b>Full specification</b><span>Industrial cool design theme · Interior by Nicola Manning · Built by Reco Construction</span></summary>
+    <summary><b>Full specification</b><span>Industrial Cool design theme · Interiors by Nicola Manning Design · Built by Reco Construction</span></summary>
     <div class="spec-grid">
-      <div><h4>Design and build</h4><ul><li>Oak acoustic slat feature wall to the Level 1 stairwell (16B–16F)</li><li>Industrial Cool: monochrome accents, natural timber tones and brushed metal hardware</li><li>Interiors by Nicola Manning Design: kitchens, bathrooms, bedrooms, materials and colours</li><li>Built by Reco Construction · Master Builders 10-year guarantee · Code Compliance Certificate issued</li></ul></div>
+      <div><h4>Design and build</h4><ul><li>Oak acoustic slat feature wall to the Level 1 stairwell (16B–16F)</li><li>Industrial Cool design theme: monochrome accents, natural timber tones and brushed metal hardware</li><li>Interiors by Nicola Manning Design: kitchens, bathrooms, bedrooms, materials and colours</li><li>Built by Reco Construction · Master Builders 10-year guarantee · Code Compliance Certificate issued</li></ul></div>
       <div><h4>Kitchen</h4><ul><li>30 mm engineered stone island benchtop</li><li>Bosch 60 cm induction cooktop, built-in oven, integrated rangehood and dishwasher</li><li>Mosaicfx Kit Kat Nero stacked mosaic splashback</li></ul></div>
       <div><h4>Flooring</h4><ul><li>Desert Oak SPC flooring across Level 1 living, dining and kitchen</li><li>Feltex Okiwi Bay plush carpet in Stone on stairs and bedrooms</li><li>Charcoal marine-grade carpet in the garage</li></ul></div>
       <div><h4>Bathrooms</h4><ul><li>Full-height tiling: Sand Light Grey walls, Gem Ash Grey floors</li><li>Plumbline Como brushed gunmetal PVD tapware and showers</li><li>Wall-hung vanities · LED backlit mirror in the main bathroom</li><li>Rain shower heads throughout · separate guest WC</li></ul></div>
@@ -804,7 +804,8 @@ function unit(n,x){
   }
   pickables.push(g);
   units[n]={g,lv,x,gdoor,outline};
-  addLabel('16'+'ABCDEF'[n-1],'lot'+(sale?' sale':''),new THREE.Vector3(x,FH*3+1.2,-0.4),{lotTag:n,local:true});
+  { const tg=addLabel('16'+'ABCDEF'[n-1],'lot'+(sale?' sale':''),new THREE.Vector3(x,FH*3+1.2,-0.4),{lotTag:n,local:true}), go=()=>{ stopTour(); render('lot'+n); cut?fly(lotView(n,cut)):centreOn(n); };   // the home tags are buttons: tap one to stop the tour and open that home
+    tg.el.setAttribute('role','button'); tg.el.tabIndex=0; tg.el.setAttribute('aria-label','View 16'+'ABCDEF'[n-1]); tg.el.onclick=go; tg.el.onkeydown=e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); go(); } }; }
 }
 /* ---------- interiors, traced from the sales floor plans (16B–16F) ----------
    Each floor is traced in plan pixels, then fitted to the unit envelope: L/R = outer side walls (6 m),
@@ -1727,7 +1728,7 @@ $('#bLife').onclick=()=>setLife(!lifeOn);
 /* ---------- camera (positions in the site frame) ---------- */
 const narrow=()=>sceneEl.clientWidth<520;
 const V={
-  overview:[[22,30,-46],[-3,3,-2]],
+  overview:[[22,30,-46],[-3,3,-2]], overviewM:[[39,31,-33.5],[0,1,-1]],   // phones: from the 16F end, so all six homes fill the tall frame
   entrance:[[-34,7,-10],[-18,3.5,-4]], entranceM:[[-37,8,-8],[-18,4.6,-4]],
   driveway:[[-36,9,-23],[8,4.5,-3]],
   drivewayM:[[-40,9.5,-24],[1,4.5,-3.5]],
@@ -1745,7 +1746,7 @@ function centreOn(n){   /* outside view: slide the camera across so the picked h
 }
 function lotView(n,c){const xc=-15+(n-1)*W, y=(c-1)*FH; return [[xc+3,y+13,-11],[xc,y,-0.3]];}
 function poseFor(key){
-  if((key==='driveway'||key==='landmarks'||key==='entrance')&&narrow()) key+='M';   /* phones: centred on the middle homes */
+  if((key==='overview'||key==='driveway'||key==='landmarks'||key==='entrance')&&narrow()) key+='M';   /* phones: centred on the middle homes */
   const [p0,t0]=Array.isArray(key)?key:V[key]; let p=toW(p0), t=toW(t0);
   if(narrow()&&!/M$/.test(key)) p=p.map((v,i)=>t[i]+(v-t[i])*1.4);   /* phones sit further back, except the driveway view which is already wide */
   return [p,t];
