@@ -479,9 +479,9 @@ const oakTex=floorTex('#c3a17a',x=>{for(let r=0;r<5;r++){const y=r*51.2, off=(r*
     x.fillStyle='#8f7254'; x.fillRect(0,y+50,256,1.4); x.fillRect(off%256,y,1.4,51);}});
 const carpetTex=floorTex('#8a8680',x=>speck(x,'rgba(255,255,255,.22)','rgba(60,58,54,.25)',2600));   // Feltex Okiwi Bay 'Stone': mid warm grey
 const tileTex=floorTex('#a9acaa',x=>{speck(x,'rgba(255,255,255,.18)','rgba(60,62,64,.15)',900); x.fillStyle='#8c8f8e'; [0,154].forEach(v=>{x.fillRect(v,0,2,256); x.fillRect(0,v,256,2);});});
-/* natural grey permeable pavers, 200 x 100 in a 90° herringbone of mixed greys (the aprons between the concrete driveway and the garages).
+/* natural grey permeable pavers, 200 x 100 in a 90° herringbone, one consistent grey (the aprons between the concrete driveway and the garages).
    The canvas spans 1.2 m and tiles seamlessly: bricks sit on the herringbone lattice, so each copy keeps its colour across the seam */
-const paveTex=floorTex('#2c2e31',x=>{ const N=12, c=256/N, G=['#4a4d51','#56595d','#62656a','#6e7175','#7a7d80','#5c5f63','#85878a','#515458'];
+const paveTex=floorTex('#2c2e31',x=>{ const N=12, c=256/N, G=['#686b6f','#6b6e72','#66696d','#6d7074','#696c70','#6a6d71','#676a6e','#6c6f73'];
   const col=(i,k)=>{ const q=Math.floor(i/6), i0=i-6*q, k0=(((k-3*q)%6)+6)%6; return G[(i0*7+k0*13+((i0*k0)%5))%G.length]; };
   for(let k=-8;k<=8;k++) for(let i=-14;i<=26;i++){ const hx=i+2*k, hy=i-2*k;
     if(hx<-3||hx>N+1||hy<-3||hy>N+1) continue;
@@ -1334,6 +1334,18 @@ for(let k=0;k<5;k++) slatFence(-12+k*W,3.95,-12+k*W,6.0,1.6);
 bx(-20.4,-18.05,0,0.08,-4.5,5.95,M.turf,site);                 // Lot 1's fenced side yard
 bx(-20.4,-18.05,0,0.09,-2.45,-1.5,M.concrete,site);           // path from the gate to Lot 1's front door
 tree(-19.3,4.8,site,M.maple,0.55);
+// landscaping strip on the neighbours' side of the driveway: bark mulch with low planting, from the parcel hub to the far end
+{ const barkTex=floorTex('#4b3424',x=>{ for(let k=0;k<2200;k++){ x.fillStyle=['#5e4330','#3a281b','#6b4d36','#2f2118','#7a5a40'][k%5]; const w=2+Math.random()*5; x.save(); x.translate(Math.random()*256,Math.random()*256); x.rotate(Math.random()*3.14); x.fillRect(-w/2,-1,w,2.2); x.restore(); } });
+  const barkM=new THREE.MeshLambertMaterial({map:barkTex});
+  prism([[-17.05,-8.25],[18.6,-8.25],[18.6,-7.62],[-17.05,-7.62]],0,0.08,barkM,site);
+  bx(-17.05,18.6,0,0.1,-7.64,-7.6,M.black,site);   // slim steel edging against the driveway
+  const shrubM=new THREE.MeshLambertMaterial({color:0x4f6b3c}), grassM=new THREE.MeshLambertMaterial({color:0x7d8455}), flaxM=new THREE.MeshLambertMaterial({color:0x3d4f33});
+  const shrubG=new THREE.SphereGeometry(0.26,10,8), tuftG=new THREE.ConeGeometry(0.2,0.34,9), flaxG=new THREE.ConeGeometry(0.05,0.75,4);
+  for(let k=0,x=-16.4;x<18.2;k++,x+=1.15){ const z=-7.94+((k*37)%5-2)*0.03;
+    if(k%3===0){ const sh=new THREE.Mesh(shrubG,shrubM); sh.position.set(x,0.22,z); sh.scale.set(1,0.75,1); sh.castShadow=true; site.add(sh); }   // clipped native shrub (corokia / pittosporum)
+    else if(k%3===1){ for(let j=0;j<5;j++){ const f=new THREE.Mesh(flaxG,flaxM); f.position.set(x+(j-2)*0.05,0.42,z+((j%2)-0.5)*0.06); f.rotation.z=(j-2)*0.22; f.rotation.x=((j%2)-0.5)*0.3; site.add(f); } }   // small flax
+    else { const t=new THREE.Mesh(tuftG,grassM); t.position.set(x,0.25,z); site.add(t); } }   // tussock grass
+}
 // vehicle crossing: Sunnyvale Rd into the JOAL
 bx(-22.4,-20.5,0,0.12,-7.6,-4.6,M.joal,site);   // sits just above the footpath so the surfaces don't flicker
 prism([[-22.4,-7.6],[-22.4,-8.9],[-20.6,-7.6]],0,0.12,M.joal,site); prism([[-22.4,-4.6],[-22.4,-3.3],[-20.6,-4.6]],0,0.12,M.joal,site);
