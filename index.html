@@ -453,6 +453,7 @@ Object.assign(sun.shadow.camera,{left:-55,right:55,top:55,bottom:-55,near:5,far:
 sun.shadow.bias=-0.0005; scene.add(sun);
 
 function tex(fill,draw){const c=document.createElement('canvas');c.width=c.height=256;const x=c.getContext('2d');x.fillStyle=fill;x.fillRect(0,0,256,256);draw(x);const t=new THREE.CanvasTexture(c);t.anisotropy=4;return t;}
+const wallTileTex=tex('#bdb9b2',x=>{ x.fillStyle='#c9c5be'; x.fillRect(3,3,250,250); x.fillStyle='rgba(255,255,255,.06)'; x.fillRect(3,3,250,120); });   /* one 600 mm wall tile and its grout joint */
 const slatTex=tex('#141516',x=>{ x.fillStyle='#c79a63'; x.fillRect(0,0,206,256); x.fillStyle='rgba(120,80,40,.18)'; for(let k=0;k<9;k++) x.fillRect(10+k*22,0,2,256); });   /* one slat (about 42 mm) and its dark gap */
 const brickTex=tex('#585c61',x=>{x.fillStyle='#7d8186';for(let r=0;r<16;r++){const y=r*16;x.fillRect(0,y,256,2);for(let k=0;k<8;k++)x.fillRect(k*32+(r%2?16:0),y,2,16);}});
 const obliqueTex=tex('#eeeae2',x=>{for(let r=0;r<10;r++){x.fillStyle='#d4cfc4';x.fillRect(0,r*25.6,256,3);x.fillStyle='#f7f4ee';x.fillRect(0,r*25.6+3,256,2);}});
@@ -1105,6 +1106,18 @@ function interior(i,y0,L,x,mir,P,FU,endHome){
       if(hz){ bx(a1,b0,y0+2.05,y0+2.05+H,c-th/2,c+th/2,M.part,L.doors); bx(a1,a1+0.04,y0+0.12,y0+2.04,c,c+gap-0.05,M.idoor,L.doors); }   /* head over the opening; leaf swung open against the wall */
       else{ bx(c-th/2,c+th/2,y0+2.05,y0+2.05+H,a1,b0,M.part,L.doors); bx(c,c+gap-0.05,y0+0.12,y0+2.04,a1,a1+0.04,M.idoor,L.doors); }
     })); }
+  { /* bathrooms tiled floor to ceiling at eye level (Sand Light Grey): a tile skin on the room side of each wall, around windows */
+    const baths=f.rooms.filter(([k,poly])=>k==='bath'&&poly).map(([,poly])=>poly.map(q=>m(...q)));
+    const inside=(px,pz)=>baths.some(pts=>{let c=false; for(let a=0,b=pts.length-1;a<pts.length;b=a++){const [xa,za]=pts[a],[xb,zb]=pts[b]; if((za>pz)!==(zb>pz)&&px<(xb-xa)*(pz-za)/(zb-za)+xa) c=!c;} return c;});
+    const top=0.12+RH;
+    if(baths.length) f.walls.forEach(([t,a,b,c,d,e])=>{ if(!['w','i','win'].includes(t)) return;
+      const [x0,z0]=m(a,b),[x1,z1]=m(c,d), Ln=Math.hypot(x1-x0,z1-z0); if(Ln<0.05) return;
+      const nx=(z1-z0)/Ln, nz=-(x1-x0)/Ln, mx=(x0+x1)/2, mz=(z0+z1)/2, th=t==='i'?0.1:0.18;
+      const sd=inside(mx+nx*0.15,mz+nz*0.15)?1:inside(mx-nx*0.15,mz-nz*0.15)?-1:0; if(!sd) return;
+      const band=(yb,yt)=>{ if(yt-yb<0.02) return; const tm=new THREE.MeshLambertMaterial({map:wallTileTex.clone()}); tm.map.needsUpdate=true; tm.map.wrapS=tm.map.wrapT=THREE.RepeatWrapping; tm.map.repeat.set(Ln/0.6,(yt-yb)/0.6);
+        wallSeg(x0,z0,x1,z1,y0+yb,yt-yb,0.01,tm,L.doors,false,sd*(th/2+0.008)); };
+      if(t==='win'){ const [sl,hd]=e||[0.9,2.1]; band(0.12,sl); band(hd,top); } else band(0.12,top);
+    }); }
   const ext=(a,b,c,d)=>{const [x0,z0]=m(a,b),[x1,z1]=m(c,d);return [Math.min(x0,x1),Math.max(x0,x1),Math.min(z0,z1),Math.max(z0,z1)];};
   (f.fix||[]).forEach(([t,a,b,c,d])=>{
     const [X0,X1,Z0,Z1]=ext(a,b,c,d);
