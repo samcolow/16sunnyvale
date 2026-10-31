@@ -977,7 +977,6 @@ FURN[0].push(['ceramic',121.7,645.7,195.1,759.2,0,0.4]);
 FURN[0].push(['oak',266.3,611.0,439.0,722.2,0.25,0.55]);
 FURN[0].push(['ceramic',300.8,624.9,404.5,708.3,0.55,0.6]);
 FURN[0].push(['mirror',277.1,611.0,428.2,615.6,0.7,1.0]);
-FURN[0].push(['part',72.0,840.3,268.5,1051.0,0,0.04]);
 FURN[0].push(['gunmetal',132.4,976.9,186.4,1034.8,0.93,0.95]);
 FURN[0].push(['gunmetal',157.3,1034.8,161.6,1051.0,0.93,0.95]);
 FURN[0].push(['gunmetal',154.0,1046.4,164.8,1051.0,0.6,0.9]);
@@ -986,6 +985,7 @@ FURN[0].push(['gunmetal',305.2,1044.1,402.3,1051.0,0.4,0.42]);
 FURN[0].push(['gunmetal',305.2,1044.1,402.3,1051.0,0.5,0.52]);
 FURN[0].push(['gunmetal',305.2,1044.1,402.3,1051.0,0.6,0.62]);
 FURN[0].push(['gunmetal',305.2,1044.1,402.3,1051.0,0.7,0.72]);
+FURN[0].push(['part',72.0,840.3,268.5,1051.0,0,0.04,[[72.0,840.3],[164.8,840.3],[268.5,954.7],[268.5,1051.0],[72.0,1051.0]]]);
 PLANS[0].walls.push(['scr',72.0,840.3,164.8,840.3]);
 PLANS[0].walls.push(['scr',164.8,840.3,268.5,954.7]);
 PLANS[0].walls.push(['scr',268.5,954.7,268.5,1051.0]);
@@ -995,7 +995,6 @@ FURN[1].push(['ceramic',207.0,1141.0,279.5,1205.0,0.45,0.52]);
 FURN[1].push(['mirror',191.3,1200.9,299.2,1205.0,0.65,0.9]);
 FURN[2].push(['ceramic',599.6,39.0,693.9,82.8,0,0.8]);
 FURN[2].push(['ceramic',604.6,75.5,688.9,197.0,0,0.4]);
-FURN[2].push(['part',287.0,126.5,511.5,347.8,0,0.04]);
 FURN[2].push(['gunmetal',368.9,148.4,430.9,209.2,0.93,0.95]);
 FURN[2].push(['gunmetal',397.4,126.5,402.4,148.4,0.93,0.95]);
 FURN[2].push(['gunmetal',381.3,126.5,393.7,131.4,0.6,0.9]);
@@ -1007,6 +1006,7 @@ FURN[2].push(['gunmetal',738.6,283.8,746.0,400.5,0.4,0.42]);
 FURN[2].push(['gunmetal',738.6,283.8,746.0,400.5,0.5,0.52]);
 FURN[2].push(['gunmetal',738.6,283.8,746.0,400.5,0.6,0.62]);
 FURN[2].push(['gunmetal',738.6,283.8,746.0,400.5,0.7,0.72]);
+FURN[2].push(['part',287.0,126.5,511.5,345.6,0,0.04,[[287.0,126.5],[511.5,126.5],[511.5,230.6],[383.3,345.6],[287.0,345.6]]]);
 PLANS[2].walls.push(['scr',511.5,126.5,511.5,230.6]);
 PLANS[2].walls.push(['scr',511.5,230.6,383.3,345.6]);
 PLANS[2].walls.push(['scr',383.3,345.6,287.0,345.6]);
@@ -1029,7 +1029,6 @@ FURN1[1].push(['ceramic',739.3,1056.2,760.0,1099.3,0,0.8]);
 FURN1[1].push(['ceramic',686.4,1058.4,742.7,1097.1,0,0.4]);
 FURN1[1].push(['ceramic',630.0,1017.0,672.6,1051.1,0.45,0.52]);
 FURN1[1].push(['mirror',630.0,1017.0,699.0,1019.3,0.65,0.9]);
-FURN1[2].push(['part',440.0,345.0,522.2,460.7,0,0.04]);
 FURN1[2].push(['gunmetal',470.2,352.5,492.2,379.5,0.93,0.95]);
 FURN1[2].push(['gunmetal',480.3,345.0,482.1,352.5,0.93,0.95]);
 FURN1[2].push(['gunmetal',478.8,345.0,483.2,347.2,0.6,0.9]);
@@ -1043,6 +1042,7 @@ FURN1[2].push(['gunmetal',469.1,569.8,508.0,573.0,0.4,0.42]);
 FURN1[2].push(['gunmetal',469.1,569.8,508.0,573.0,0.5,0.52]);
 FURN1[2].push(['gunmetal',469.1,569.8,508.0,573.0,0.6,0.62]);
 FURN1[2].push(['gunmetal',469.1,569.8,508.0,573.0,0.7,0.72]);
+FURN1[2].push(['part',440.0,345.0,522.2,463.5,0,0.04,[[440.0,345.0],[522.2,345.0],[522.2,413.9],[485.9,463.5],[440.0,463.5]]]);
 PLANS1[2].walls.push(['scr',522.2,345.0,522.2,413.9]);
 PLANS1[2].walls.push(['scr',522.2,413.9,485.9,463.5]);
 PLANS1[2].walls.push(['scr',485.9,463.5,440.0,463.5]);
@@ -1161,8 +1161,15 @@ function interior(i,y0,L,x,mir,P,FU,endHome){
     const ovenM=M.black, steelM=M.steel, lineM=M.black, G=0.006;
     const fronts=(R,overhead)=>{ const [X0,X1,Z0,Z1]=R, alongX=(X1-X0)>=(Z1-Z0);
       const faces=alongX?[[Z0,-1],[Z1,1]]:[[X0,-1],[X1,1]];
-      faces.forEach(([pl,sg])=>{ const ox=alongX?(X0+X1)/2:pl+sg*0.35, oz=alongX?pl+sg*0.35:(Z0+Z1)/2; if(!pip(ox,oz)||(!overhead&&inBench(ox,oz,R))) return;
+      const open=([pl,sg])=>{ const ox=alongX?(X0+X1)/2:pl+sg*0.35, oz=alongX?pl+sg*0.35:(Z0+Z1)/2; return pip(ox,oz)&&(overhead||!inBench(ox,oz,R)); };
+      /* a peninsula (open on both long sides): the side facing away from the rest of the kitchen is the living-room side, finished in oak melteca with no drawers, as built */
+      const others=benches.filter(r=>r!==R), pen=!overhead&&others.length&&faces.every(open), oc=others.reduce((s_,r)=>s_+(alongX?(r[2]+r[3])/2:(r[0]+r[1])/2),0)/Math.max(1,others.length), mid=alongX?(Z0+Z1)/2:(X0+X1)/2;
+      const oakSkin=(u0,u1,F,sg,along)=>{ const t=0.012; if(along) bx(u0,u1,y0+0.15,y0+1.02,Math.min(F,F+sg*t),Math.max(F,F+sg*t),M.oakCab,L.cut); else bx(Math.min(F,F+sg*t),Math.max(F,F+sg*t),y0+0.15,y0+1.02,u0,u1,M.oakCab,L.cut); };
+      if(pen){ /* free end of the peninsula: oak end panel */
+        (alongX?[[X0,-1],[X1,1]]:[[Z0,-1],[Z1,1]]).forEach(([pl,sg])=>{ const ex=alongX?pl+sg*0.08:(X0+X1)/2, ez=alongX?(Z0+Z1)/2:pl+sg*0.08; if(!pip(ex,ez)||inBench(ex,ez,R)) return; oakSkin(alongX?Z0:X0,alongX?Z1:X1,pl,sg,!alongX); }); }
+      faces.forEach(([pl,sg])=>{ if(!open([pl,sg])) return;
         const a0=alongX?X0:Z0, a1=alongX?X1:Z1, F=pl+sg*0.004;
+        if(pen&&sg*(oc-mid)<0){ oakSkin(a0,a1,pl,sg,alongX); return; }
         const panel=(u0,u1,yb,yt,mm,th)=>{ const t=th||0.008; if(alongX) bx(u0,u1,y0+yb,y0+yt,Math.min(F,F+sg*t),Math.max(F,F+sg*t),mm,L.doors); else bx(Math.min(F,F+sg*t),Math.max(F,F+sg*t),y0+yb,y0+yt,u0,u1,mm,L.doors); };
         const vline=(u,yb,yt)=>panel(u-G/2,u+G/2,yb,yt,lineM,0.01), hline=(u0,u1,y)=>panel(u0,u1,y-G/2,y+G/2,lineM,0.01), handle=(u0,u1,y)=>panel((u0+u1)/2-0.12,(u0+u1)/2+0.12,y-0.012,y+0.012,lineM,0.03);
         if(overhead){ const n=Math.max(1,Math.round((a1-a0)/0.45)); for(let k=1;k<n;k++) vline(a0+(a1-a0)*k/n,1.77,0.12+RH); return; }
@@ -1179,6 +1186,11 @@ function interior(i,y0,L,x,mir,P,FU,endHome){
           else { hline(u0,u1,0.77); hline(u0,u1,0.52); handle(u0,u1,0.97); handle(u0,u1,0.73); handle(u0,u1,0.48); } });
       }); };
     benches.forEach(R=>fronts(R,false));
+    if(P===PLANS){ /* tower pantry: white doors to the ceiling, split low, black handles (eye level) */
+      const [X0,X1,Z0]=ext(612,1695,730,1825), F=Z0-0.004, top=0.12+RH, n=(X1-X0)>0.75?2:1, w=(X1-X0)/n;
+      const pz=(yb,yt,u0,u1,mm,t)=>bx(u0,u1,y0+yb,y0+yt,F-(t||0.01),F,mm,L.doors);
+      pz(0.95-G/2,0.95+G/2,X0,X1,lineM); for(let k=1;k<n;k++) pz(0.27,top,X0+w*k-G/2,X0+w*k+G/2,lineM);
+      for(let k=0;k<n;k++){ const e=n===2?(k===0?X0+w-0.05:X0+w+0.05):X1-0.06; pz(1.0,1.32,e-0.012,e+0.012,lineM,0.03); pz(0.86,0.884,X0+w*k+w/2-0.12,X0+w*k+w/2+0.12,lineM,0.03); } }
     (P===PLANS?[[46,1750,610,1816],[52,1225,122,1750]]:[[120,1101,485,1138],[120,1068,158,1101]]).forEach(q=>fronts(ext(...q),true));
   }
   (f.stairs||[]).forEach(st=>st.steps.forEach(([a,b,k,xa,xb])=>{
@@ -1225,7 +1237,7 @@ function interior(i,y0,L,x,mir,P,FU,endHome){
   }
   const EYE={'oak|0.25|0.55':[0.5,0.82],'ceramic|0.55|0.6':[0.82,0.87],'mirror|0.7|1':[1.05,1.85],'gunmetal|0.93|0.95':[2.05,2.08],'gunmetal|0.6|0.9':[1.1,2.05],
     'ceramic|0.45|0.52':[0.8,0.87],'mirror|0.65|0.9':[1.05,1.65]};   /* bathroom and WC fittings: true heights at eye level (the floor views keep them low) */
-  FU[i].forEach(([mt,a,b,c,d,h0,h1])=>{const [X0,X1,Z0,Z1]=ext(a,b,c,d), me=bx(X0,X1,y0+0.15+h0,y0+0.15+h1,Z0,Z1,M[mt],L.cut);
+  FU[i].forEach(([mt,a,b,c,d,h0,h1,poly])=>{const [X0,X1,Z0,Z1]=ext(a,b,c,d), me=poly?prism(poly.map(q=>m(...q)),y0+0.15+h0,h1-h0,M[mt],L.cut):bx(X0,X1,y0+0.15+h0,y0+0.15+h1,Z0,Z1,M[mt],L.cut);   /* angled shower bases follow their glass */
     let alt=EYE[mt+'|'+h0+'|'+h1]; if(!alt&&mt==='gunmetal'&&Math.abs(h1-h0-0.02)<0.005&&h0>=0.3&&h0<=0.7) alt=[h0+0.45,h1+0.45];   /* heated towel rail bars */
     if(alt) L.eyeFix.push({me,a:[y0+0.15+h0,h1-h0],b:[y0+0.15+alt[0],alt[1]-alt[0]]}); });
 }
