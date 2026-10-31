@@ -700,7 +700,8 @@ function unit(n,x){
   bx(0.15,2.8,-2.25,0,-2.96,-2.9,M.garage,gdoor);
   for(let k=0;k<5;k++) bx(0.15,2.8,0.3+k*0.45-2.25,0.33+k*0.45-2.25,-2.98,-2.96,M.black,gdoor);
   gdoor.userData.open=0; gdoor.userData.target=0;
-  if(n!==1) prism([[-1.0,-4.6],[-0.06,-4.6],[-0.06,-2.9]],0,0.04,M.concrete,G.ext);
+  if(n!==1) prism([[-1.14,-4.62],[-0.04,-4.62],[-0.04,-2.7]],0,0.07,M.joal,G.ext);
+  bx(-3,3,0,0.07,-4.62,-4.49,M.joal,G.ext);   // close the strip between the shared driveway and the front wall, so no ground shows at the base   // driveway paving runs right up to the angled front door
   // garage driveway: darker paved pad from the garage door out to the JOAL, with saw-cut joints
   bx(-0.06,3,0,0.07,-4.6,-2.9,M.joal,G.ext);   // driveway surface runs straight to the garage door
   // level 1: sliders from the lounge to a recessed deck (line and width from the floor plan); stair-void glazing L1–L2
