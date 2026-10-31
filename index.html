@@ -1019,12 +1019,12 @@ FURN1[0].push(['ceramic',439.6,1149.4,475.3,1198.3,0,0.4]);
 FURN1[0].push(['oak',501.5,1164.1,596.0,1213.0,0.25,0.55]);
 FURN1[0].push(['ceramic',509.7,1170.4,588.4,1207.5,0.55,0.6]);
 FURN1[0].push(['mirror',501.5,1211.0,596.0,1213.0,0.7,1.0]);
-FURN1[0].push(['gunmetal',413.8,1090.2,482.0,1093.1,0.3,0.32]);
-FURN1[0].push(['gunmetal',413.8,1090.2,482.0,1093.1,0.4,0.42]);
-FURN1[0].push(['gunmetal',413.8,1090.2,482.0,1093.1,0.5,0.52]);
-FURN1[0].push(['gunmetal',413.8,1090.2,482.0,1093.1,0.6,0.62]);
-FURN1[0].push(['gunmetal',413.8,1090.2,482.0,1093.1,0.7,0.72]);
 PLANS1[0].walls.push(['scr',400.0,1114.6,400.0,1213.0]);
+FURN1[0].push(['gunmetal',380,1050.5,448,1054,0.3,0.32]);
+FURN1[0].push(['gunmetal',380,1050.5,448,1054,0.4,0.42]);
+FURN1[0].push(['gunmetal',380,1050.5,448,1054,0.5,0.52]);
+FURN1[0].push(['gunmetal',380,1050.5,448,1054,0.6,0.62]);
+FURN1[0].push(['gunmetal',380,1050.5,448,1054,0.7,0.72]);
 FURN1[1].push(['ceramic',739.3,1056.2,760.0,1099.3,0,0.8]);
 FURN1[1].push(['ceramic',686.4,1058.4,742.7,1097.1,0,0.4]);
 FURN1[1].push(['ceramic',630.0,1017.0,672.6,1051.1,0.45,0.52]);
@@ -1033,8 +1033,6 @@ FURN1[2].push(['part',440.0,345.0,522.2,460.7,0,0.04]);
 FURN1[2].push(['gunmetal',470.2,352.5,492.2,379.5,0.93,0.95]);
 FURN1[2].push(['gunmetal',480.3,345.0,482.1,352.5,0.93,0.95]);
 FURN1[2].push(['gunmetal',478.8,345.0,483.2,347.2,0.6,0.9]);
-FURN1[2].push(['part',522.2,373.3,528.4,468.2,0,1.05]);
-FURN1[2].push(['part',440.0,460.7,522.2,468.2,0,0.3]);
 FURN1[2].push(['ceramic',573.5,373.3,607.1,392.7,0,0.8]);
 FURN1[2].push(['ceramic',575.3,389.5,605.3,443.3,0,0.4]);
 FURN1[2].push(['oak',524.1,519.2,630.0,573.0,0.25,0.55]);
@@ -1045,7 +1043,9 @@ FURN1[2].push(['gunmetal',469.1,569.8,508.0,573.0,0.4,0.42]);
 FURN1[2].push(['gunmetal',469.1,569.8,508.0,573.0,0.5,0.52]);
 FURN1[2].push(['gunmetal',469.1,569.8,508.0,573.0,0.6,0.62]);
 FURN1[2].push(['gunmetal',469.1,569.8,508.0,573.0,0.7,0.72]);
-PLANS1[2].walls.push(['scr',440.0,464.5,522.2,464.5]);
+PLANS1[2].walls.push(['scr',522.2,345.0,522.2,413.9]);
+PLANS1[2].walls.push(['scr',522.2,413.9,485.9,463.5]);
+PLANS1[2].walls.push(['scr',485.9,463.5,440.0,463.5]);
 FURN[0].push(['black',305,468,309,480,0.3,0.38]);   // storage door handle
 FURN1[0].push(['black',522,612,530,615,0.32,0.42]);   // 16A storage door handle
 function interior(i,y0,L,x,mir,P,FU,endHome){
@@ -1119,8 +1119,10 @@ function interior(i,y0,L,x,mir,P,FU,endHome){
       if(!hz&&!vt) return; const a1=hz?Math.max(A.x0,A.x1):Math.max(A.z0,A.z1), b0=hz?Math.min(B.x0,B.x1):Math.min(B.z0,B.z1), gap=b0-a1;
       if(gap<0.55||gap>1.1) return; const key=(hz?'h':'v')+(hz?A.z0:A.x0).toFixed(2)+':'+a1.toFixed(2); if(seen.has(key)) return; seen.add(key);
       const c=hz?A.z0:A.x0, th=Math.min(A.th,B.th), H=0.12+RH-2.05;
-      if(hz){ bx(a1,b0,y0+2.05,y0+2.05+H,c-th/2,c+th/2,M.part,L.doors); bx(a1,a1+0.04,y0+0.12,y0+2.04,c,c+gap-0.05,M.idoor,L.doors); }   /* head over the opening; leaf swung open against the wall */
-      else{ bx(c-th/2,c+th/2,y0+2.05,y0+2.05+H,a1,b0,M.part,L.doors); bx(c,c+gap-0.05,y0+0.12,y0+2.04,a1,a1+0.04,M.idoor,L.doors); }
+      const bathPts=f.rooms.filter(([k,poly])=>k==='bath'&&poly).map(([,poly])=>poly.map(q=>m(...q))), inBath=(px,pz)=>bathPts.some(pts=>{let cc=false; for(let a=0,b=pts.length-1;a<pts.length;b=a++){const [xa,za]=pts[a],[xb,zb]=pts[b]; if((za>pz)!==(zb>pz)&&px<(xb-xa)*(pz-za)/(zb-za)+xa) cc=!cc;} return cc;});
+      const sg=(hz?inBath(a1+0.1,c+gap/2):inBath(c+gap/2,a1+0.1))?-1:1;   /* leaves swing out of bathrooms, clear of the fittings */
+      if(hz){ bx(a1,b0,y0+2.05,y0+2.05+H,c-th/2,c+th/2,M.part,L.doors); bx(a1,a1+0.04,y0+0.12,y0+2.04,Math.min(c,c+sg*(gap-0.05)),Math.max(c,c+sg*(gap-0.05)),M.idoor,L.doors); }   /* head over the opening; leaf swung open against the wall */
+      else{ bx(c-th/2,c+th/2,y0+2.05,y0+2.05+H,a1,b0,M.part,L.doors); bx(Math.min(c,c+sg*(gap-0.05)),Math.max(c,c+sg*(gap-0.05)),y0+0.12,y0+2.04,a1,a1+0.04,M.idoor,L.doors); }
     })); }
   { /* bathrooms tiled floor to ceiling at eye level (Sand Light Grey): a tile skin on the room side of each wall, around windows */
     const baths=f.rooms.filter(([k,poly])=>k==='bath'&&poly).map(([,poly])=>poly.map(q=>m(...q)));
