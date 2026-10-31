@@ -367,7 +367,7 @@ const trackQ=[]; const track=(n,d)=>{try{if(window.umami&&umami.track)umami.trac
 const umEl=document.getElementById('umami-tracker'); if(umEl) umEl.addEventListener('load',()=>{trackQ.splice(0).forEach(([n,d])=>track(n,d));});
 const unitName=id=>'16'+'ABCDEF'[+id[3]-1], viewed=new Set();
 const trackFloor=()=>{try{ if(touring||!cut||!/^lot\d$/.test(selected)) return; const k=selected+'-'+cut; if(viewed.has(k)) return; viewed.add(k); track('floor-view',{unit:unitName(selected),floor:['','GF','L1','L2'][cut]}); }catch(e){}};
-var SPOT_FOV=0; const RH=2.55;   /* stud height used when standing in a room */   /* wide lens while standing in a room, like a property photographer's */
+var SPOT_FOV=0; const RH=2.55, SECT=1.6;   /* SECT: where the floor views slice the walls (above the slab), so 0.9 m benches read at their true height */   /* stud height used when standing in a room */   /* wide lens while standing in a room, like a property photographer's */
 const sceneEl=$('#scene'), labelsEl=$('#labels');
 const labels=[];
 const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -1044,7 +1044,7 @@ PLANS1[2].walls.push(['scr',440.0,464.5,522.2,464.5]);
 FURN[0].push(['black',305,468,309,480,0.3,0.38]);   // storage door handle
 FURN1[0].push(['black',522,612,530,615,0.32,0.42]);   // 16A storage door handle
 function interior(i,y0,L,x,mir,P,FU,endHome){
-  const f=P[i], CUT=1.2, sx=6/(f.R-f.L), sz=(f.zr+4.5)/(f.B-f.T);
+  const f=P[i], CUT=SECT, sx=6/(f.R-f.L), sz=(f.zr+4.5)/(f.B-f.T);
   const m=(a,b)=>[f.flip?3-(a-f.L)*sx:-3+(a-f.L)*sx,-4.5+(b-f.T)*sz];
   ((P===PLANS1?SPOTS1:SPOTS)[i]||[]).forEach(([slug,label,a,b,c,d,ma,mb])=>{ const [px,pz]=m(a,b),[lx,lz]=m(c,d), mk=ma!=null?m(ma,mb):null;
     const fx=mk?mk[0]:px+(lx-px)*0.45, fz=mk?mk[1]:pz+(lz-pz)*0.45;   /* marker sits on the floor inside the room, between the viewpoint and what it looks at */
@@ -1071,7 +1071,7 @@ function interior(i,y0,L,x,mir,P,FU,endHome){
     else if(t==='sl'){ tall(ws(y0+0.12,CUT-0.12,0.05,glass),y0+0.12); ws(y0+CUT-0.04,0.04,0.08,M.black); }
     else if(t==='gd') ws(y0,0.3,0.06,M.garage);
     else if(t==='robe'){   /* white sliding wardrobe doors (6th value = number of doors; the primary bedrooms have 2): panels with visible joins, a slim handle each and a top track, set just below the wall line so they read as doors */
-      const Ln=Math.hypot(x1-x0,z1-z0), np=e||Math.max(2,Math.round(Ln/0.9)), dh=1.0, g=0.03, P=u=>[x0+(x1-x0)*u,z0+(z1-z0)*u];
+      const Ln=Math.hypot(x1-x0,z1-z0), np=e||Math.max(2,Math.round(Ln/0.9)), dh=CUT-0.2, g=0.03, P=u=>[x0+(x1-x0)*u,z0+(z1-z0)*u];
       const nx=(z1-z0)/Ln, nz=-(x1-x0)/Ln, cx0=(x0+x1)/2, cz0=(z0+z1)/2, pip=(pts,px,pz)=>{let c=false; for(let a=0,b=pts.length-1;a<pts.length;b=a++){const [xa,za]=pts[a],[xb,zb]=pts[b]; if((za>pz)!==(zb>pz)&&px<(xb-xa)*(pz-za)/(zb-za)+xa) c=!c;} return c;};
       const score=sd=>{ const px=cx0+nx*0.3*sd, pz=cz0+nz*0.3*sd; let best=-1;   /* inside a bedroom, and nearer its middle (a robe can sit inside the bedroom outline) */
         f.rooms.forEach(([k,poly])=>{ if(k!=='bed'||!poly) return; const pts=poly.map(q=>m(...q)); if(!pip(pts,px,pz)) return;
@@ -1108,11 +1108,11 @@ function interior(i,y0,L,x,mir,P,FU,endHome){
     else bx(X0,X1,y0+1.05,y0+1.07,Z0,Z1,t==='hob'?M.black:M.gunmetal,L.cut);
   });
   if(P===PLANS&&i===1){   /* kitchen, as built: black stick-mosaic splashback around the window, oak overhead cupboards to the ceiling (eye level) */
-    const splash=(a,b,c,d)=>{ const [X0,X1,Z0,Z1]=ext(a,b,c,d), me=bx(X0,X1,y0+1.05,y0+1.2,Z0,Z1,M.mosaic,L.cut); L.tall.push({me,yb:y0+1.05,h:0.15,gap:0.9}); };
+    const splash=(a,b,c,d)=>{ const [X0,X1,Z0,Z1]=ext(a,b,c,d), me=bx(X0,X1,y0+1.05,y0+CUT,Z0,Z1,M.mosaic,L.cut); L.tall.push({me,yb:y0+1.05,h:CUT-1.05,gap:0.9}); };
     splash(36,1812,149,1816); splash(516,1812,610,1816); splash(52,1225,56,1816);
     const over=(a,b,c,d)=>{ const [X0,X1,Z0,Z1]=ext(a,b,c,d); bx(X0,X1,y0+1.77,y0+0.12+RH,Z0,Z1,M.oakCab,L.doors); bx(X0,X1,y0+1.76,y0+1.77,Z0,Z1,M.black,L.doors); };
     over(46,1750,610,1816);
-    { const [X0,X1,Z0,Z1]=ext(612,1695,730,1825), me=bx(X0,X1,y0+0.15,y0+1.2,Z0,Z1,M.bench,L.cut); L.tall.push({me,yb:y0+0.15,h:1.05,gap:0});   /* tower pantry at the end of the run, floor to ceiling */
+    { const [X0,X1,Z0,Z1]=ext(612,1695,730,1825), me=bx(X0,X1,y0+0.15,y0+CUT,Z0,Z1,M.bench,L.cut); L.tall.push({me,yb:y0+0.15,h:CUT-0.15,gap:0});   /* tower pantry at the end of the run, floor to ceiling */
       bx(X0+0.01,X1-0.01,y0+0.15,y0+0.27,Z0+0.03,Z0+0.04,M.black,L.cut); } over(52,1225,122,1750);
   }
   (f.stairs||[]).forEach(st=>st.steps.forEach(([a,b,k,xa,xb])=>{
@@ -1263,7 +1263,7 @@ function roomMode(L,on){ if(!L) return; L.ceil.visible=on; roomFill.intensity=on
   L.doors.visible=on;
   const setH=(me,yb,H)=>{ const h=me.geometry.parameters.height; me.visible=H>0.01; me.scale.y=Math.max(H,0.001)/h; me.position.y=yb+H/2; };
   L.wins.forEach(w=>{ if(on){ setH(w.lo,w.y0,w.sl); setH(w.gl,w.y0+w.sl,w.hd-w.sl); w.gl.castShadow=false; w.up.visible=true; }
-    else{ setH(w.lo,w.y0,0.9); setH(w.gl,w.y0+0.9,1.2-0.9); w.gl.castShadow=true; w.up.visible=false; } });
+    else{ setH(w.lo,w.y0,0.9); setH(w.gl,w.y0+0.9,SECT-0.9); w.gl.castShadow=true; w.up.visible=false; } });
   if(on){ for(const n in units) units[n].outline.visible=false; } else highlight(selected); }
 function enterSpot(n,i,sp){ stopTour(); if(sunOn&&dayPlay) stopDay();
   if(inSpot&&inSpot.L) roomMode(inSpot.L,false);
@@ -1428,7 +1428,7 @@ function highlight(id){
   if(hlGroup){hlGroup.traverse(o=>{if(o.isMesh&&o.userData.hl){o.material=o.userData.hl;delete o.userData.hl;}});hlGroup=null;}
   for(const n in units) units[n].outline.visible=false;
   const g=/^lot\d$/.test(id)&&pickables.find(p=>p.userData.id===id); if(!g)return;
-  if(cut){ const ol=units[+id[3]].outline; ol.position.y=(cut-1)*FH+1.3; ol.visible=true; /* sits on top of the cut-away walls */ return; }   // floor views: a crisp outline instead of a colour wash
+  if(cut){ const ol=units[+id[3]].outline; ol.position.y=(cut-1)*FH+SECT+0.1; ol.visible=true; /* sits on top of the cut-away walls */ return; }   // floor views: a crisp outline instead of a colour wash
   const cuts=new Set(units[+id[3]].lv.map(L=>L.cut));
   g.traverse(o=>{ if(!o.isMesh||NOHL.has(o.material)||!o.material.emissive)return;
     for(let q=o.parent;q&&q!==g;q=q.parent) if(cuts.has(q)) return;   // keep the floor views readable
