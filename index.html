@@ -829,10 +829,10 @@ const PLANS=[
     ],
     extra:[['Deck · 7.9 m²',1.07,-3.7]],
     walls:[
-      ['w',36,196,36,275],['win',36,275,36,445],['w',36,445,36,1055],['win',36,1055,36,1185],['w',36,1185,36,1375],['win',36,1375,36,1730,[1.06,1.67]],['w',36,1730,36,1835],
+      ['w',36,196,36,275],['win',36,275,36,445],['w',36,445,36,1055],['win',36,1055,36,1185],['w',36,1185,36,1375],['win',36,1375,36,1730,[1.06,1.67,{kit:1}]],['w',36,1730,36,1835],
       ['w',36,196,105,196],['win',105,196,225,196],['w',225,196,470,196],['w',470,196,470,500],
       ['w',470,500,555,500],['sl',555,500,1130,500],['w',1130,500,1248,500],['w',1248,500,1248,1835],
-      ['w',36,1835,149,1835],['win',149,1835,516,1835,[1.06,1.67]],['w',516,1835,741,1835],['sl',741,1835,1144,1835],['w',1144,1835,1248,1835],
+      ['w',36,1835,149,1835],['win',149,1835,516,1835,[1.06,1.67,{kit:1}]],['w',516,1835,741,1835],['sl',741,1835,1144,1835],['w',1144,1835,1248,1835],
       ['i',254,440,254,815],['slat',254,440,254,995],   /* oak slat feature wall on the living side, wrapping over the stair opening */
       ['i',36,1003,375,1003],['i',368,1003,368,1040],['i',368,1188,368,1215],['i',36,1215,375,1215]
     ],
@@ -927,7 +927,7 @@ const PLANS1=[
       ['w',110,435,110,1148],['w',110,435,170,435],['sl',170,435,465,435],['w',465,435,520,435],
       ['w',520,265,520,435],['i',520,435,520,525],['w',520,265,671,265],['win',671,265,770,265,[0.48,2.22]],   /* 16A windows positioned and sized from the elevations */
       ['win',770,265,770,350,[0.48,2.22]],['w',770,350,770,504],['win',770,504,770,563,[1.27,2.23]],['w',770,563,770,669],['sl',770,669,770,903],['w',770,903,770,1148],
-      ['w',110,1148,178,1148],['win',178,1148,302,1148,[1.18,2.06]],['w',302,1148,496,1148],['win',496,1148,580,1148,[1.18,2.06]],['w',580,1148,649,1148],['win',649,1148,720,1148,[1.18,2.06]],['w',720,1148,770,1148],
+      ['w',110,1148,178,1148],['win',178,1148,302,1148,[1.18,2.06,{kit:1}]],['w',302,1148,496,1148],['win',496,1148,580,1148,[1.18,2.06]],['w',580,1148,649,1148],['win',649,1148,720,1148,[1.18,2.06]],['w',720,1148,770,1148],
       ['i',488,1055,488,1148],['i',590,1012,770,1012],['i',590,1100,590,1148]
     ],
     fix:[['bench',120,866,188,1140],['bench',188,866,417,935],['bench',188,1076,304,1140],['hob',126,965,185,1034],['sink',260,880,346,932]],   /* 16A per the dimensioned Level 1 layout: hob run on the intertenancy wall, sink peninsula off it, rear bench under the window, tower and fridge space at the WC end */
@@ -1079,7 +1079,13 @@ function interior(i,y0,L,x,mir,P,FU,endHome){
       const slab=f.slab.map(q=>m(...q)), pip=(px,pz)=>{let c=false; for(let a=0,b=slab.length-1;a<slab.length;b=a++){const [xa,za]=slab[a],[xb,zb]=slab[b]; if((za>pz)!==(zb>pz)&&px<(xb-xa)*(pz-za)/(zb-za)+xa) c=!c;} return c;};
       const nx=(z1-z0)/Ln, nz=-(x1-x0)/Ln, mx=(x0+x1)/2, mz=(z0+z1)/2, out=pip(mx+nx*0.3,mz+nz*0.3)?-1:1;
       for(let yy=yb-0.05; yy<yt+0.05; yy+=0.21) wallSeg(x0,z0,x1,z1,y0+yy,0.09,0.03,M.black,L.doors,false,out*0.24); }
-    [[0,F*0.3],[Ln-F*0.3,Ln]].forEach(([u0,u1])=>wallSeg(...P(u0),...P(u1),y0+yb-0.02,yt-yb+0.04,0.2,M.part,L.doors));   /* white reveal returns */
+    const kit=wo&&wo.kit, rv=kit?M.mosaic:M.part;
+    [[0,F*0.3],[Ln-F*0.3,Ln]].forEach(([u0,u1])=>wallSeg(...P(u0),...P(u1),y0+yb-0.02,yt-yb+0.04,0.2,rv,L.doors));   /* reveal returns: white, or lined in the splashback mosaic over a kitchen bench */
+    if(kit){ /* kitchen window: splashback carried under the sill and round the reveals, no white border */
+      const slab=f.slab.map(q=>m(...q)), pip=(px,pz)=>{let c=false; for(let a=0,b=slab.length-1;a<slab.length;b=a++){const [xa,za]=slab[a],[xb,zb]=slab[b]; if((za>pz)!==(zb>pz)&&px<(xb-xa)*(pz-za)/(zb-za)+xa) c=!c;} return c;};
+      const nx=(z1-z0)/Ln, nz=-(x1-x0)/Ln, mx=(x0+x1)/2, mz=(z0+z1)/2, inn=pip(mx+nx*0.3,mz+nz*0.3)?1:-1;
+      if(yb>1.06) wallSeg(x0,z0,x1,z1,y0+1.05,yb-1.05,0.012,M.mosaic,L.doors,false,inn*0.1);
+      wallSeg(x0,z0,x1,z1,y0+yb-0.025,0.02,0.2,M.mosaic,L.doors); wallSeg(x0,z0,x1,z1,y0+yt+0.005,0.02,0.2,M.mosaic,L.doors); }
   };
   f.walls.forEach(([t,a,b,c,d,e])=>{
     if(t==='win'&&!f.flip&&((!endHome&&a===f.L&&c===f.L)||(a===f.R&&c===f.R))) t='w';   // no windows on intertenancy walls; only 16F's outer end wall keeps its side windows
@@ -1144,7 +1150,7 @@ function interior(i,y0,L,x,mir,P,FU,endHome){
   const ext=(a,b,c,d)=>{const [x0,z0]=m(a,b),[x1,z1]=m(c,d);return [Math.min(x0,x1),Math.max(x0,x1),Math.min(z0,z1),Math.max(z0,z1)];};
   (f.fix||[]).forEach(([t,a,b,c,d])=>{
     const [X0,X1,Z0,Z1]=ext(a,b,c,d);
-    if(t==='bench'){ bx(X0+0.03,X1-0.03,y0+0.15,y0+0.27,Z0+0.03,Z1-0.03,M.black,L.cut); bx(X0,X1,y0+0.27,y0+1.02,Z0,Z1,M.bench,L.cut); bx(X0-0.015,X1+0.015,y0+1.02,y0+1.05,Z0-0.015,Z1+0.015,M.stone,L.cut); }   /* kick, cabinets, 30 mm engineered stone top */
+    if(t==='bench'){ bx(X0+0.03,X1-0.03,y0+0.15,y0+0.27,Z0+0.03,Z1-0.03,M.bench,L.cut); bx(X0,X1,y0+0.27,y0+1.02,Z0,Z1,M.bench,L.cut); bx(X0-0.015,X1+0.015,y0+1.02,y0+1.05,Z0-0.015,Z1+0.015,M.stone,L.cut); }   /* kick, cabinets, 30 mm engineered stone top */
     else bx(X0,X1,y0+1.05,y0+1.07,Z0,Z1,t==='hob'?M.black:M.gunmetal,L.cut);
   });
   if(i===1){   /* kitchen, as built: black stick-mosaic splashback around the window, oak overhead cupboards to the ceiling (eye level) */
@@ -1155,7 +1161,7 @@ function interior(i,y0,L,x,mir,P,FU,endHome){
     const over=(a,b,c,d)=>{ const [X0,X1,Z0,Z1]=ext(a,b,c,d); bx(X0,X1,y0+1.77,y0+0.12+RH,Z0,Z1,M.oakCab,L.doors); bx(X0,X1,y0+1.76,y0+1.77,Z0,Z1,M.black,L.doors); };
     if(P===PLANS) over(46,1750,610,1816); else over(120,866,158,1138);   /* oak overheads along the intertenancy wall */
     { const [X0,X1,Z0,Z1]=P===PLANS?ext(612,1695,730,1825):ext(304,1076,387,1140), me=bx(X0,X1,y0+0.15,y0+CUT,Z0,Z1,M.bench,L.cut); L.tall.push({me,yb:y0+0.15,h:CUT-0.15,gap:0});   /* tower pantry at the end of the run, floor to ceiling */
-      bx(X0+0.01,X1-0.01,y0+0.15,y0+0.27,Z0+0.03,Z0+0.04,M.black,L.cut); if(P===PLANS) over(52,1225,122,1750); }
+      bx(X0+0.01,X1-0.01,y0+0.15,y0+0.27,Z0+0.03,Z0+0.04,M.bench,L.cut); if(P===PLANS) over(52,1225,122,1750); }
     /* eye level: cabinet fronts with their lines, as built: oven under the hob, dishwasher beside the sink run, drawer stacks with black pull handles, oak overhead door joints */
     const slab=f.slab.map(q=>m(...q)), pip=(px,pz)=>{let c=false; for(let a=0,b=slab.length-1;a<slab.length;b=a++){const [xa,za]=slab[a],[xb,zb]=slab[b]; if((za>pz)!==(zb>pz)&&px<(xb-xa)*(pz-za)/(zb-za)+xa) c=!c;} return c;};
     const benches=(f.fix||[]).filter(q=>q[0]==='bench').map(q=>ext(...q.slice(1))), items=(f.fix||[]).filter(q=>q[0]!=='bench').map(q=>[q[0],ext(...q.slice(1))]);
