@@ -484,7 +484,7 @@ const glass=new THREE.MeshLambertMaterial({color:0x8fa6b2,emissive:0x000000});
 const voidGlass=new THREE.MeshLambertMaterial({color:0x9db0b9,emissive:0x000000,transparent:true,opacity:0.45});
 const balGlass=new THREE.MeshLambertMaterial({color:0xa9c0c9,transparent:true,opacity:0.35});
 const tintGlass=new THREE.MeshLambertMaterial({color:0x2a3036,transparent:true,opacity:0.55});   /* dark-tinted Juliet balustrade at the kitchen/dining sliders */
-M.ceramic=mat(0xf6f6f3); M.mirror=new THREE.MeshLambertMaterial({color:0xd3dce0,emissive:0x1b2328}); M.robe=mat(0xe7e4de); M.idoor=mat(0xf1efea); M.ceil=new THREE.MeshBasicMaterial({color:0xe9e7e2});   /* lit-looking white ceiling (it is only ever seen from below) */ M.stone=mat(0xd9d6d0); M.chair=mat(0x7a5638);
+M.ceramic=mat(0xf6f6f3); M.mirror=new THREE.MeshLambertMaterial({color:0xd3dce0,emissive:0x1b2328}); M.robe=mat(0xe7e4de); M.idoor=mat(0xf1efea); M.ceil=new THREE.MeshBasicMaterial({color:0xe9e7e2});   /* lit-looking white ceiling (it is only ever seen from below) */ M.stone=mat(0x55585c); M.mosaic=mat(0x1b1d22); M.oakCab=mat(0x8f6c4b);   /* dark grey stone top, black Kit Kat mosaic, oak overheads */ M.chair=mat(0x7a5638);
 const lamp=new THREE.MeshBasicMaterial({color:0x5a5f62});
 
 const pickables=[];
@@ -1107,6 +1107,12 @@ function interior(i,y0,L,x,mir,P,FU,endHome){
     if(t==='bench'){ bx(X0+0.03,X1-0.03,y0+0.15,y0+0.27,Z0+0.03,Z1-0.03,M.black,L.cut); bx(X0,X1,y0+0.27,y0+1.02,Z0,Z1,M.bench,L.cut); bx(X0-0.015,X1+0.015,y0+1.02,y0+1.05,Z0-0.015,Z1+0.015,M.stone,L.cut); }   /* kick, cabinets, 30 mm engineered stone top */
     else bx(X0,X1,y0+1.05,y0+1.07,Z0,Z1,t==='hob'?M.black:M.gunmetal,L.cut);
   });
+  if(P===PLANS&&i===1){   /* kitchen, as built: black stick-mosaic splashback around the window, oak overhead cupboards to the ceiling (eye level) */
+    const splash=(a,b,c,d)=>{ const [X0,X1,Z0,Z1]=ext(a,b,c,d), me=bx(X0,X1,y0+1.05,y0+1.2,Z0,Z1,M.mosaic,L.cut); L.tall.push({me,yb:y0+1.05,h:0.15,gap:0.9}); };
+    splash(36,1812,149,1816); splash(516,1812,730,1816); splash(52,1225,56,1816);
+    const over=(a,b,c,d)=>{ const [X0,X1,Z0,Z1]=ext(a,b,c,d); bx(X0,X1,y0+1.77,y0+0.12+RH,Z0,Z1,M.oakCab,L.doors); bx(X0,X1,y0+1.76,y0+1.77,Z0,Z1,M.black,L.doors); };
+    over(46,1750,730,1816); over(52,1225,122,1750);
+  }
   (f.stairs||[]).forEach(st=>st.steps.forEach(([a,b,k,xa,xb])=>{
     const [X0,X1,Z0,Z1]=ext(xa??st.x0,a,xb??st.x1,b), h=k*0.19;
     if(h>CUT-0.05) return;   // above the cutaway: left open, like a real section
