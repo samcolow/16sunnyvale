@@ -735,7 +735,7 @@ function unit(n,x){
      clad(0,2.9,3,6,M.charcoal,L1.shell,3.8); clad(2.9,6,3,6,M.white,L1.shell,3.8);
      clad(0,2.9,6,9,M.charcoal,L2.shell,3.8); clad(2.9,6,6,9,M.white,L2.shell,3.8);
      rw(1.07,1.78,1.0,2.44,G.shell,3.63); door(4.38,5.24,2.38);                       // W104 shower, W105 garage door
-     rw(0.45,1.1,4.1,5.14,L1.shell,3.83); rw(1.73,2.49,4.1,5.14,L1.shell,3.83); rw(4.95,5.55,4.1,5.14,L1.shell,3.83);   // W204, W205, W206 (narrow kitchen window in the corner beside the tower, as built)
+     rw(0.45,1.1,4.1,5.14,L1.shell,3.83); rw(1.73,2.49,4.1,5.14,L1.shell,3.83); rw(4.25,5.38,4.1,5.14,L1.shell,3.83);   // W204, W205, W206 (kitchen window over the rear bench, beside the tower)
      rw(0.3,2.35,6.65,7.9,L2.shell,3.83,true); rw(3.28,5.38,6.65,7.9,L2.shell,3.83,true);                              // W305, W306 with louvres
    }else{
      clad(0,6,0,3,M.brick,G.shell,3.6);
@@ -927,10 +927,10 @@ const PLANS1=[
       ['w',110,435,110,1148],['w',110,435,170,435],['sl',170,435,465,435],['w',465,435,520,435],
       ['w',520,265,520,435],['i',520,435,520,525],['w',520,265,671,265],['win',671,265,770,265,[0.48,2.22]],   /* 16A windows positioned and sized from the elevations */
       ['win',770,265,770,350,[0.48,2.22]],['w',770,350,770,504],['win',770,504,770,563,[1.27,2.23]],['w',770,563,770,669],['sl',770,669,770,903],['w',770,903,770,1148],
-      ['w',110,1148,160,1148],['win',160,1148,225,1148,[1.18,2.06]],['w',225,1148,496,1148],['win',496,1148,580,1148,[1.18,2.06]],['w',580,1148,649,1148],['win',649,1148,720,1148,[1.18,2.06]],['w',720,1148,770,1148],
+      ['w',110,1148,178,1148],['win',178,1148,302,1148,[1.18,2.06]],['w',302,1148,496,1148],['win',496,1148,580,1148,[1.18,2.06]],['w',580,1148,649,1148],['win',649,1148,720,1148,[1.18,2.06]],['w',720,1148,770,1148],
       ['i',488,1055,488,1148],['i',590,1012,770,1012],['i',590,1100,590,1148]
     ],
-    fix:[['bench',120,860,186,1140],['bench',186,1076,230,1140],['bench',186,860,300,928],['bench',300,860,375,990],['hob',125,975,180,1040],['sink',312,890,365,960]],   /* 16A as built: hob run on the intertenancy wall, return and sink peninsula parallel to it, short bench under the rear window */
+    fix:[['bench',120,866,188,1140],['bench',188,866,417,935],['bench',188,1076,304,1140],['hob',126,965,185,1034],['sink',260,880,346,932]],   /* 16A per the dimensioned Level 1 layout: hob run on the intertenancy wall, sink peninsula off it, rear bench under the window, tower and fridge space at the WC end */
     stairs:[{x0:525,x1:645,steps:[[490,525,1],[455,490,2],[420,455,3],[375,420,4],[265,375,5,525,645],[265,375,6,645,765]]},{x0:645,x1:765,steps:[[375,420,7],[420,465,8],[465,525,9]]}]
   },
   { // Level 2
@@ -1151,10 +1151,10 @@ function interior(i,y0,L,x,mir,P,FU,endHome){
     const splash=(a,b,c,d)=>{ const [X0,X1,Z0,Z1]=ext(a,b,c,d), me=bx(X0,X1,y0+1.05,y0+CUT,Z0,Z1,M.mosaic,L.cut); L.tall.push({me,yb:y0+1.05,h:CUT-1.05,gap:0.9}); };
     if(P===PLANS){ splash(36,1812,149,1816); splash(516,1812,610,1816); if(endHome){ splash(52,1225,56,1375); splash(52,1730,56,1816); } else splash(52,1225,56,1816);
       const band=(a,b,c,d)=>{ const [X0,X1,Z0,Z1]=ext(a,b,c,d); bx(X0,X1,y0+1.67,y0+1.77,Z0,Z1,M.mosaic,L.doors); }; band(149,1812,516,1816); if(endHome) band(52,1375,56,1730); }   /* mosaic strip between the window head and the overheads (eye level) */
-    else{ splash(120,860,124,1138); splash(124,1134,160,1138); }   /* Kit Kat mosaic along the intertenancy wall and into the window corner */
+    else{ splash(120,866,124,1138); splash(124,1134,178,1138); }   /* Kit Kat mosaic along the intertenancy wall and into the window corner */
     const over=(a,b,c,d)=>{ const [X0,X1,Z0,Z1]=ext(a,b,c,d); bx(X0,X1,y0+1.77,y0+0.12+RH,Z0,Z1,M.oakCab,L.doors); bx(X0,X1,y0+1.76,y0+1.77,Z0,Z1,M.black,L.doors); };
-    if(P===PLANS) over(46,1750,610,1816); else over(120,860,158,1138);   /* oak overheads along the intertenancy wall */
-    { const [X0,X1,Z0,Z1]=P===PLANS?ext(612,1695,730,1825):ext(230,1076,296,1140), me=bx(X0,X1,y0+0.15,y0+CUT,Z0,Z1,M.bench,L.cut); L.tall.push({me,yb:y0+0.15,h:CUT-0.15,gap:0});   /* tower pantry at the end of the run, floor to ceiling */
+    if(P===PLANS) over(46,1750,610,1816); else over(120,866,158,1138);   /* oak overheads along the intertenancy wall */
+    { const [X0,X1,Z0,Z1]=P===PLANS?ext(612,1695,730,1825):ext(304,1076,387,1140), me=bx(X0,X1,y0+0.15,y0+CUT,Z0,Z1,M.bench,L.cut); L.tall.push({me,yb:y0+0.15,h:CUT-0.15,gap:0});   /* tower pantry at the end of the run, floor to ceiling */
       bx(X0+0.01,X1-0.01,y0+0.15,y0+0.27,Z0+0.03,Z0+0.04,M.black,L.cut); if(P===PLANS) over(52,1225,122,1750); }
     /* eye level: cabinet fronts with their lines, as built: oven under the hob, dishwasher beside the sink run, drawer stacks with black pull handles, oak overhead door joints */
     const slab=f.slab.map(q=>m(...q)), pip=(px,pz)=>{let c=false; for(let a=0,b=slab.length-1;a<slab.length;b=a++){const [xa,za]=slab[a],[xb,zb]=slab[b]; if((za>pz)!==(zb>pz)&&px<(xb-xa)*(pz-za)/(zb-za)+xa) c=!c;} return c;};
@@ -1189,15 +1189,15 @@ function interior(i,y0,L,x,mir,P,FU,endHome){
       }); };
     benches.forEach(R=>fronts(R,false));
     { /* tower pantry: white doors to the ceiling, split low, black handles (eye level) */
-      const [X0,X1,Z0]=P===PLANS?ext(612,1695,730,1825):ext(230,1076,296,1140), F=Z0-0.004, top=0.12+RH, n=(X1-X0)>0.75?2:1, w=(X1-X0)/n;
+      const [X0,X1,Z0]=P===PLANS?ext(612,1695,730,1825):ext(304,1076,387,1140), F=Z0-0.004, top=0.12+RH, n=(X1-X0)>0.75?2:1, w=(X1-X0)/n;
       const pz=(yb,yt,u0,u1,mm,t)=>bx(u0,u1,y0+yb,y0+yt,F-(t||0.01),F,mm,L.doors);
       pz(0.95-G/2,0.95+G/2,X0,X1,lineM); for(let k=1;k<n;k++) pz(0.27,top,X0+w*k-G/2,X0+w*k+G/2,lineM);
       for(let k=0;k<n;k++){ const e=n===2?(k===0?X0+w-0.05:X0+w+0.05):X1-0.06; pz(1.0,1.32,e-0.012,e+0.012,lineM,0.03); pz(0.86,0.884,X0+w*k+w/2-0.12,X0+w*k+w/2+0.12,lineM,0.03); } }
     if(P!==PLANS){ /* 16A: fridge space beside the tower with a white cupboard over, white end panel against the wall (as built) */
-      const [fX0,fX1,fZ0,fZ1]=ext(296,1076,395,1140), [eX0,eX1,eZ0,eZ1]=ext(395,1076,401,1140), top=0.12+RH;
+      const [fX0,fX1,fZ0,fZ1]=ext(387,1076,476,1140), [eX0,eX1,eZ0,eZ1]=ext(476,1076,482,1140), top=0.12+RH;
       const me=bx(eX0,eX1,y0+0.15,y0+CUT,eZ0,eZ1,M.bench,L.cut); L.tall.push({me,yb:y0+0.15,h:CUT-0.15,gap:0});
       bx(fX0,fX1,y0+1.95,y0+top,fZ0+0.02,fZ1,M.bench,L.doors); bx((fX0+fX1)/2-G/2,(fX0+fX1)/2+G/2,y0+1.95,y0+top,fZ0+0.01,fZ0+0.02,lineM,L.doors); }
-    (P===PLANS?[[46,1750,610,1816],[52,1225,122,1750]]:[[120,860,158,1138]]).forEach(q=>fronts(ext(...q),true));
+    (P===PLANS?[[46,1750,610,1816],[52,1225,122,1750]]:[[120,866,158,1138]]).forEach(q=>fronts(ext(...q),true));
   }
   (f.stairs||[]).forEach(st=>st.steps.forEach(([a,b,k,xa,xb])=>{
     const [X0,X1,Z0,Z1]=ext(xa??st.x0,a,xb??st.x1,b), h=k*0.19;
