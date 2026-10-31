@@ -929,7 +929,7 @@ const PLANS1=[
       ['w',110,1148,178,1148],['win',178,1148,316,1148,[1.18,2.06]],['w',316,1148,496,1148],['win',496,1148,580,1148,[1.18,2.06]],['w',580,1148,649,1148],['win',649,1148,720,1148,[1.18,2.06]],['w',720,1148,770,1148],
       ['i',488,1055,488,1148],['i',590,1012,770,1012],['i',590,1100,590,1148]
     ],
-    fix:[['bench',120,868,158,1140],['bench',158,865,415,938],['bench',158,1068,485,1140],['sink',258,880,345,925],['hob',400,1075,465,1120]],
+    fix:[['bench',120,868,158,1140],['bench',158,865,415,938],['bench',158,1068,415,1140],['sink',258,880,345,925],['hob',330,1075,395,1120]],
     stairs:[{x0:525,x1:645,steps:[[490,525,1],[455,490,2],[420,455,3],[375,420,4],[265,375,5,525,645],[265,375,6,645,765]]},{x0:645,x1:765,steps:[[375,420,7],[420,465,8],[465,525,9]]}]
   },
   { // Level 2
@@ -1150,11 +1150,11 @@ function interior(i,y0,L,x,mir,P,FU,endHome){
     const splash=(a,b,c,d)=>{ const [X0,X1,Z0,Z1]=ext(a,b,c,d), me=bx(X0,X1,y0+1.05,y0+CUT,Z0,Z1,M.mosaic,L.cut); L.tall.push({me,yb:y0+1.05,h:CUT-1.05,gap:0.9}); };
     if(P===PLANS){ splash(36,1812,149,1816); splash(516,1812,610,1816); if(endHome){ splash(52,1225,56,1375); splash(52,1730,56,1816); } else splash(52,1225,56,1816);
       const band=(a,b,c,d)=>{ const [X0,X1,Z0,Z1]=ext(a,b,c,d); bx(X0,X1,y0+1.67,y0+1.77,Z0,Z1,M.mosaic,L.doors); }; band(149,1812,516,1816); if(endHome) band(52,1375,56,1730); }   /* mosaic strip between the window head and the overheads (eye level) */
-    else{ splash(120,1134,178,1138); splash(316,1134,485,1138); splash(120,1068,124,1138); }
+    else{ splash(120,1134,178,1138); splash(316,1134,415,1138); splash(120,1068,124,1138); }
     const over=(a,b,c,d)=>{ const [X0,X1,Z0,Z1]=ext(a,b,c,d); bx(X0,X1,y0+1.77,y0+0.12+RH,Z0,Z1,M.oakCab,L.doors); bx(X0,X1,y0+1.76,y0+1.77,Z0,Z1,M.black,L.doors); };
-    if(P===PLANS) over(46,1750,610,1816); else{ over(120,1101,485,1138); over(120,1068,158,1101); }
-    if(P===PLANS){ const [X0,X1,Z0,Z1]=ext(612,1695,730,1825), me=bx(X0,X1,y0+0.15,y0+CUT,Z0,Z1,M.bench,L.cut); L.tall.push({me,yb:y0+0.15,h:CUT-0.15,gap:0});   /* tower pantry at the end of the run, floor to ceiling */
-      bx(X0+0.01,X1-0.01,y0+0.15,y0+0.27,Z0+0.03,Z0+0.04,M.black,L.cut); over(52,1225,122,1750); }
+    if(P===PLANS) over(46,1750,610,1816); else{ over(120,1101,415,1138); over(120,1068,158,1101); }
+    { const [X0,X1,Z0,Z1]=P===PLANS?ext(612,1695,730,1825):ext(415,1068,486,1140), me=bx(X0,X1,y0+0.15,y0+CUT,Z0,Z1,M.bench,L.cut); L.tall.push({me,yb:y0+0.15,h:CUT-0.15,gap:0});   /* tower pantry at the end of the run, floor to ceiling */
+      bx(X0+0.01,X1-0.01,y0+0.15,y0+0.27,Z0+0.03,Z0+0.04,M.black,L.cut); if(P===PLANS) over(52,1225,122,1750); }
     /* eye level: cabinet fronts with their lines, as built: oven under the hob, dishwasher beside the sink run, drawer stacks with black pull handles, oak overhead door joints */
     const slab=f.slab.map(q=>m(...q)), pip=(px,pz)=>{let c=false; for(let a=0,b=slab.length-1;a<slab.length;b=a++){const [xa,za]=slab[a],[xb,zb]=slab[b]; if((za>pz)!==(zb>pz)&&px<(xb-xa)*(pz-za)/(zb-za)+xa) c=!c;} return c;};
     const benches=(f.fix||[]).filter(q=>q[0]==='bench').map(q=>ext(...q.slice(1))), items=(f.fix||[]).filter(q=>q[0]!=='bench').map(q=>[q[0],ext(...q.slice(1))]);
@@ -1187,12 +1187,12 @@ function interior(i,y0,L,x,mir,P,FU,endHome){
           else { hline(u0,u1,0.77); hline(u0,u1,0.52); handle(u0,u1,0.97); handle(u0,u1,0.73); handle(u0,u1,0.48); } });
       }); };
     benches.forEach(R=>fronts(R,false));
-    if(P===PLANS){ /* tower pantry: white doors to the ceiling, split low, black handles (eye level) */
-      const [X0,X1,Z0]=ext(612,1695,730,1825), F=Z0-0.004, top=0.12+RH, n=(X1-X0)>0.75?2:1, w=(X1-X0)/n;
+    { /* tower pantry: white doors to the ceiling, split low, black handles (eye level) */
+      const [X0,X1,Z0]=P===PLANS?ext(612,1695,730,1825):ext(415,1068,486,1140), F=Z0-0.004, top=0.12+RH, n=(X1-X0)>0.75?2:1, w=(X1-X0)/n;
       const pz=(yb,yt,u0,u1,mm,t)=>bx(u0,u1,y0+yb,y0+yt,F-(t||0.01),F,mm,L.doors);
       pz(0.95-G/2,0.95+G/2,X0,X1,lineM); for(let k=1;k<n;k++) pz(0.27,top,X0+w*k-G/2,X0+w*k+G/2,lineM);
       for(let k=0;k<n;k++){ const e=n===2?(k===0?X0+w-0.05:X0+w+0.05):X1-0.06; pz(1.0,1.32,e-0.012,e+0.012,lineM,0.03); pz(0.86,0.884,X0+w*k+w/2-0.12,X0+w*k+w/2+0.12,lineM,0.03); } }
-    (P===PLANS?[[46,1750,610,1816],[52,1225,122,1750]]:[[120,1101,485,1138],[120,1068,158,1101]]).forEach(q=>fronts(ext(...q),true));
+    (P===PLANS?[[46,1750,610,1816],[52,1225,122,1750]]:[[120,1101,415,1138],[120,1068,158,1101]]).forEach(q=>fronts(ext(...q),true));
   }
   (f.stairs||[]).forEach(st=>st.steps.forEach(([a,b,k,xa,xb])=>{
     const [X0,X1,Z0,Z1]=ext(xa??st.x0,a,xb??st.x1,b), h=k*0.19;
