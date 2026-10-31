@@ -675,11 +675,13 @@ function unit(n,x){
     const P=n===1?PLANS1:PLANS, wf0=P[2].well, wf=wf0&&(wf0.hole?{x0:wf0.hole[0],y0:wf0.hole[1],x1:wf0.hole[2],y1:wf0.hole[3]}:wf0), WD=(wf0&&wf0.depth)||1.6;   // the Level 1 block is hollowed under the top-floor stairwell so the stairs can drop into it
     let wr=null; if(i===1&&wf){ const f=P[2], sx=6/(f.R-f.L), sz=(f.zr+4.5)/(f.B-f.T), mx=a=>f.flip?3-(a-f.L)*sx:-3+(a-f.L)*sx, mz=b=>-4.5+(b-f.T)*sz;
       wr=[Math.min(mx(wf.x0),mx(wf.x1)),Math.max(mx(wf.x0),mx(wf.x1)),mz(wf.y0),mz(wf.y1)]; }
+    let wd=WD; if(i===0&&n===1){ const f=PLANS1[1], sx=6/(f.R-f.L), sz=(f.zr+4.5)/(f.B-f.T), mx=a=>3-(a-f.L)*sx, mz=b=>-4.5+(b-f.T)*sz;   // 16A: the ground-floor block is hollowed under the Level 1 stairwell, so the flight up from the ground floor shows
+      wr=[mx(759),mx(525),mz(271),mz(487.5)]; wd=2.45;   /* stops short of the street and front faces, so the outside walls stay whole */ }
     (n===1?ENV1:ENV)[i].forEach(([x0,x1,z0,z1,sk,ch])=>{
       if(ch){ prism(CH,y0,FH,M.brick,L.shell,true); return; }
       const ix0=wr&&Math.max(x0,wr[0]), ix1=wr&&Math.min(x1,wr[1]), iz0=wr&&Math.max(z0,wr[2]), iz1=wr&&Math.min(z1,wr[3]);
       if(!wr||ix0>=ix1||iz0>=iz1){ bx(x0,x1,y0,y0+FH,z0,z1,SKIN[sk],L.shell,true); return; }
-      const yc=y0+FH-WD; if(yc>y0+1e-3) bx(x0,x1,y0,yc,z0,z1,SKIN[sk],L.shell,true);   // solid below the void
+      const yc=y0+FH-wd; if(yc>y0+1e-3) bx(x0,x1,y0,yc,z0,z1,SKIN[sk],L.shell,true);   // solid below the void
       [[x0,ix0,z0,z1],[ix1,x1,z0,z1],[ix0,ix1,z0,iz0],[ix0,ix1,iz1,z1]].forEach(([a,b,c,d])=>{ if(b-a>1e-3&&d-c>1e-3) bx(a,b,yc,y0+FH,c,d,SKIN[sk],L.shell,true); });
     });
     interior(i,y0,L,x,mir,n===1?PLANS1:PLANS,n===1?FURN1:FURN,n===6);
@@ -755,13 +757,15 @@ function unit(n,x){
   // feijoa tree: in the back corner for the end homes (16A, 16F), in line with the garage back door for the others
   if(n===1||n===6) feijoaTree(-2.4,5.4,G.ext); else feijoaTree(2.4,5.4,G.ext);   // in the back corner of each yard
   // end walls: windows facing the street (Lot 1) and the east boundary (Lot 6)
-  /* end elevation (Lots 1 and 6), from the render: charcoal Stria at both corners, white Oblique panel down the middle */
+  /* end elevation: 16A from the render (charcoal Stria at both corners, white Oblique down the middle); 16F from the west elevation drawing (Stria at the front only, Oblique above brick behind it) */
   if(n===1||n===6){
     const win=(z0,z1,y0,y1,par,gm,xo)=>{xo=xo||0;bx(-3.1-xo,-3.06-xo,y0,y1,z0,z1,M.black,par);bx(-3.12-xo,-3.1-xo,y0+0.07,y1-0.07,z0+0.07,z1-0.07,gm||glass,par);};
     const one=n===1, zw=one?-2.65:-1.55;
     lv.forEach((L,i)=>{const y0=i*FH, y1=y0+FH+(i===2?0.35:0), zr=i===0?3.6:3.8, zf=-4.5;
-      bx(-3.06,-3,y0,y1,2.9,zr,M.charcoal,L.shell,true);
-      bx(-3.06,-3,y0,y1,zw,2.9,M.white,L.shell,true);
+      if(one){ bx(-3.06,-3,y0,y1,2.9,zr,M.charcoal,L.shell,true); bx(-3.06,-3,y0,y1,zw,2.9,M.white,L.shell,true); }
+      else if(i===0){ const me=bx(-3.06,-3,y0,y1,zw,zr,M.brick,L.shell,true), uv=me.geometry.attributes.uv, w=zr-zw;   /* 16F west elevation: brick on the ground floor behind the Stria, at the same course scale as the rest */
+        for(let k=0;k<uv.count;k++) uv.setXY(k,uv.getX(k)*w,uv.getY(k)*(y1-y0)); uv.needsUpdate=true; }
+      else bx(-3.06,-3,y0,y1,zw,zr,M.white,L.shell,true);   /* 16F: Oblique weatherboard runs to the rear corner, no Stria strip */
       bx(-3.06,-3,y0,y1,zf,zw,M.charcoal,L.shell,true);});
     if(one){
       // ground: front door into the foyer, Bed 1 sliders onto a 1 m landing
@@ -1061,11 +1065,12 @@ function interior(i,y0,L,x,mir,P,FU,endHome){
   const lab=(t,c)=>L.rooms.push({lab:t.replace(/ · [\d.]+ m²$/,''),area:(t.match(/ · ([\d.]+ m²)$/)||[])[1],pos:new THREE.Vector3(x+mir*c[0],y0+0.7,c[1])});
   const hr=f.well&&(f.well.hole||[f.well.x0,f.well.y0,f.well.x1,f.well.y1]);
   const wellHole=hr?(f.well.poly||[[hr[0],hr[1]],[hr[2],hr[1]],[hr[2],hr[3]],[hr[0],hr[3]]]).map(p=>m(...p)):null;   // open stairwell down to the floor below
-  prism(f.slab.map(p=>m(...p)),y0,0.12,i===2?carpetM:M.slab,L.cut,false,wellHole&&[wellHole]);
+  const sw16=P===PLANS1&&i===1?[[645,487.5],[765,487.5],[765,265],[525,265],[525,375],[645,375]].map(p=>m(...p)):null;   /* 16A Level 1: open stairwell where the flight comes up from the ground floor */
+  prism(f.slab.map(p=>m(...p)),y0,0.12,i===2?carpetM:M.slab,L.cut,false,wellHole?[wellHole]:sw16?[sw16]:null);
   L.ceil=prism(f.slab.map(p=>m(...p)),y0+0.12+RH,0.04,M.ceil,L.cut,false,P===PLANS1&&i===1?[[[520,265],[770,265],[770,525],[520,525]].map(p=>m(...p))]:null);   /* 16A: opening over the stair */ L.ceil.castShadow=false; L.ceil.visible=false; L.y0=y0;   /* ceiling, only when standing in a room */   // top floor: carpet runs through the landing too
   f.rooms.forEach(([k,poly,t,lp])=>{
     let pts=null;
-    if(k){ pts=poly.map(p=>m(...p)); prism(pts,y0+0.12,0.03,floorMat[k],L.cut,false,k==='stair'&&wellHole?[wellHole]:null); }
+    if(k){ pts=poly.map(p=>m(...p)); prism(pts,y0+0.12,0.03,floorMat[k],L.cut,false,k==='stair'&&(wellHole||sw16)?[wellHole||sw16]:null); }
     if(t) lab(t,lp?m(...lp):[pts.reduce((s,p)=>s+p[0],0)/pts.length,pts.reduce((s,p)=>s+p[1],0)/pts.length]);
   });
   (f.extra||[]).forEach(([t,ex,ez])=>lab(t,[ex,ez]));
@@ -1212,12 +1217,21 @@ function interior(i,y0,L,x,mir,P,FU,endHome){
       Carpeted treads and risers over a white closed understair; treads above the cut appear only at eye level, so the floor view stays a clean section */
     const rise=FH/16, F=y0+0.12, Pv=[645,375], BX=[525,765,265,375], whiteM=new THREE.MeshLambertMaterial({color:0xebe9e5,emissive:0x3a3936});
     const put=(pts,k)=>{ const top=k*rise, par=top>CUT-0.05?L.doors:L.cut, q=pts.map(p=>m(...p));
-      if(k>1) prism(q,F,top-rise,whiteM,par); prism(q,F+top-rise,rise,carpetM,par); };
+      if(k<=4){ if(k>1) prism(q,F,top-rise,whiteM,par); } else prism(q,F+top-rise-0.15,0.15,whiteM,par);   // left flight sits on the floor; winders and the right flight float over the stairwell, white soffits under the treads
+      prism(q,F+top-rise,rise,carpetM,par); };
+    const Fb=F-2.3, low=(pts,k)=>{ const top=(k-16)*rise, q=pts.map(p=>m(...p)); prism(q,Fb,top-rise-(Fb-F),whiteM,L.cut); prism(q,F+top-rise,rise,carpetM,L.cut); };   // the flight up from the ground floor, seen down the stairwell
+    for(let j=1;j<=3;j++) low([[645,375+37.5*(j-1)],[765,375+37.5*(j-1)],[765,375+37.5*j],[645,375+37.5*j]],12+j);
     for(let j=1;j<=4;j++) put([[525,525-37.5*j],[645,525-37.5*j],[645,525-37.5*(j-1)],[525,525-37.5*(j-1)]],j);   // left flight, rising from the dining towards the street
     const hit=a=>{const dx=Math.cos(a),dy=Math.sin(a); let t=1e9; if(dx>1e-6)t=Math.min(t,(BX[1]-Pv[0])/dx); if(dx<-1e-6)t=Math.min(t,(BX[0]-Pv[0])/dx); if(dy<-1e-6)t=Math.min(t,(BX[2]-Pv[1])/dy); return [Pv[0]+dx*t,Pv[1]+dy*t];};
     const C=[[525,265,Math.atan2(-110,-120)+2*Math.PI],[765,265,Math.atan2(-110,120)+2*Math.PI]];
     for(let k=0;k<8;k++){ const a0=Math.PI+k*Math.PI/8, a1=Math.PI+(k+1)*Math.PI/8, pts=[Pv,hit(a0)];   // winders turning round against the street-front wall
-      C.forEach(([cx,cy,ca])=>{ if(ca>a0&&ca<a1) pts.push([cx,cy]); }); pts.push(hit(a1)); put(pts,5+k); }
+      C.forEach(([cx,cy,ca])=>{ if(ca>a0&&ca<a1) pts.push([cx,cy]); }); pts.push(hit(a1)); put(pts,5+k); low(pts,5+k); }
+    { const wl=(a,b,c,d,h0,h1)=>{ const [X0,X1,Z0,Z1]=ext(a,b,c,d); bx(X0,X1,h0,h1,Z0,Z1,whiteM,L.cut); };   // white stairwell linings below the floor
+      wl(525,265,529,375,Fb,F); wl(755,265,759,487.5,Fb,F); wl(525,271,765,275,Fb,F); wl(525,371,643,375,Fb,F+0.12); wl(645,484,765,487.5,Fb,F);
+      const [X0,X1,Z0,Z1]=ext(643,375,647,525), hi=F+0.9+rise*0.5, lo=F+0.9+rise*4.5, me=bx(X0,X1,Fb,hi,Z0,Z1,whiteM,L.cut), pa=me.geometry.attributes.position, cy=(Fb+hi)/2;   // dividing wall between the flights, its top following the left flight
+      const zA=m(645,525)[1], zB=m(645,375)[1], cz=(Z0+Z1)/2;
+      for(let v=0;v<pa.count;v++) if(pa.getY(v)>0){ const z=pa.getZ(v)+cz, f=(z-zA)/(zB-zA); pa.setY(v,hi+(lo-hi)*f-cy); }
+      pa.needsUpdate=true; me.geometry.computeVertexNormals(); }
     for(let j=1;j<=4;j++) put([[645,375+37.5*(j-1)],[765,375+37.5*(j-1)],[765,375+37.5*j],[645,375+37.5*j]],12+j);   // right flight, back towards the dining, arriving at Level 2
     const rail=(a,b,c,d,h0,h1)=>{ const [x0,z0]=m(a,b),[x1,z1]=m(c,d), v=new THREE.Vector3(x1-x0,h1-h0,z1-z0), len=v.length(), me=new THREE.Mesh(new THREE.BoxGeometry(len,0.04,0.04),M.black);
       me.position.set((x0+x1)/2,(h0+h1)/2,(z0+z1)/2); me.rotation.order='YZX'; me.rotation.y=Math.atan2(-v.z,v.x); me.rotation.z=Math.atan2(v.y,Math.hypot(v.x,v.z)); L.doors.add(me); };
