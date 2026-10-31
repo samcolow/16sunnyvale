@@ -367,7 +367,7 @@ const trackQ=[]; const track=(n,d)=>{try{if(window.umami&&umami.track)umami.trac
 const umEl=document.getElementById('umami-tracker'); if(umEl) umEl.addEventListener('load',()=>{trackQ.splice(0).forEach(([n,d])=>track(n,d));});
 const unitName=id=>'16'+'ABCDEF'[+id[3]-1], viewed=new Set();
 const trackFloor=()=>{try{ if(touring||!cut||!/^lot\d$/.test(selected)) return; const k=selected+'-'+cut; if(viewed.has(k)) return; viewed.add(k); track('floor-view',{unit:unitName(selected),floor:['','GF','L1','L2'][cut]}); }catch(e){}};
-var SPOT_FOV=0; const RH=2.55, SECT=1.6;   /* SECT: where the floor views slice the walls (above the slab), so 0.9 m benches read at their true height */   /* stud height used when standing in a room */   /* wide lens while standing in a room, like a property photographer's */
+var SPOT_FOV=0; const RH=2.55, SECT=1.5;   /* SECT: where the floor views slice the walls (above the slab), so 0.9 m benches read at their true height */   /* stud height used when standing in a room */   /* wide lens while standing in a room, like a property photographer's */
 const sceneEl=$('#scene'), labelsEl=$('#labels');
 const labels=[];
 const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
