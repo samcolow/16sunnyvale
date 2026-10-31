@@ -69,6 +69,9 @@ h1{font:700 clamp(28px,5vw,44px)/1.02 var(--f-display);letter-spacing:-.02em;mar
 @media (prefers-reduced-motion:reduce){.lbl.spot{animation:none}}
 .lbl.spot:hover,.lbl.spot:focus-visible{animation:none;opacity:1;outline:2px solid var(--ink);outline-offset:1px}
 .scene.standing .ctrls,.scene.standing .skey,.scene.standing .jump,.scene.standing .tourbar,.scene.standing .sunbar{display:none!important}   /* eye level: just the room and the Back bar */
+.spothint{position:absolute;left:50%;top:58px;transform:translateX(-50%);background:var(--ink);color:#fff;font:500 13px/1 var(--f-body);padding:9px 14px;border-radius:999px;box-shadow:0 2px 8px rgba(0,0,0,.25);pointer-events:none;transition:opacity .4s}
+.spothint.fade{opacity:0}
+@media (max-width:520px){.spothint{top:auto;bottom:56px}}
 .spotbar{position:absolute;left:10px;right:10px;bottom:52px;display:flex;justify-content:center;pointer-events:none}
 .spotbar>div{pointer-events:auto;display:flex;align-items:center;gap:10px;background:var(--chip-bg);color:var(--chip-fg);border-radius:999px;padding:6px 6px 6px 14px;box-shadow:0 1px 3px rgba(0,0,0,.15);font:600 13px/1 var(--f-body)}
 .spotbar .sb-hint{font:400 12px/1 var(--f-body);color:var(--muted)}
@@ -305,6 +308,7 @@ dialog.share p{font-size:13px;color:var(--muted);margin:0 0 12px}
       <input type="range" id="sunT" min="0" max="1000" value="500" aria-label="Time of day">
       <div class="seg" id="season" role="group" aria-label="Season"><button data-s="sum" aria-pressed="true">Summer</button><button data-s="eq" aria-pressed="false">Spring/Autumn</button><button data-s="win" aria-pressed="false">Winter</button></div>
     </div></div>
+    <div class="spothint" id="spotHint" hidden>Tap <b>◉</b> to stand in a room</div>
     <div class="spotbar" id="spotBar" hidden><div><span class="sb-eye" aria-hidden="true">◉</span><span id="spotName"></span><span class="sb-hint">Drag to look around</span><button id="spotBack" type="button">Back</button></div></div>
     <div class="jump" id="jump"></div>
   </div>
@@ -328,7 +332,7 @@ dialog.share p{font-size:13px;color:var(--muted);margin:0 0 12px}
   <details>
     <summary><b>Full specification</b><span>Industrial Cool interiors by Nicola Manning Design · built by Reco Construction</span></summary>
     <div class="spec-grid">
-      <div><h4>Design and build</h4><ul><li>Industrial Cool: monochrome accents, natural timber tones and brushed metal hardware</li><li>Interiors by Nicola Manning Design: kitchens, bathrooms, bedrooms, materials and colours</li><li>Built by Reco Construction · Master Builders 10-year guarantee · Code Compliance Certificate issued</li></ul></div>
+      <div><h4>Design and build</h4><ul><li>Oak acoustic slat feature wall to the Level 1 stairwell (16B–16F)</li><li>Industrial Cool: monochrome accents, natural timber tones and brushed metal hardware</li><li>Interiors by Nicola Manning Design: kitchens, bathrooms, bedrooms, materials and colours</li><li>Built by Reco Construction · Master Builders 10-year guarantee · Code Compliance Certificate issued</li></ul></div>
       <div><h4>Kitchen</h4><ul><li>30 mm engineered stone island benchtop</li><li>Bosch 60 cm induction cooktop, built-in oven, integrated rangehood and dishwasher</li><li>Mosaicfx Kit Kat Nero stacked mosaic splashback</li></ul></div>
       <div><h4>Flooring</h4><ul><li>Desert Oak SPC flooring across Level 1 living, dining and kitchen</li><li>Feltex Okiwi Bay plush carpet in Stone on stairs and bedrooms</li><li>Charcoal marine-grade carpet in the garage</li></ul></div>
       <div><h4>Bathrooms</h4><ul><li>Full-height tiling: Sand Light Grey walls, Gem Ash Grey floors</li><li>Plumbline Como brushed gunmetal PVD tapware and showers</li><li>Wall-hung vanities · LED backlit mirror in the main bathroom</li><li>Rain shower heads throughout · separate guest WC</li></ul></div>
@@ -865,10 +869,10 @@ const PLANS=[
 /* standing spots per floor, in plan pixels [slug, label, camera x, y, look-at x, y, optional marker x, y] */
 const SPOTS=[ [['guest','Guest suite',700,1790,200,1300]],
   [['dining','Dining and kitchen',1235,1820,600,700,1120,1640],['living','Living',1235,560,300,1500,850,820]],   /* named for where you stand; you look across to the other end */
-  [['primary','Primary bedroom',710,1965,1250,1350],['bedroom','Front bedroom',1400,640,900,150]] ];
+  [['primary','Primary bedroom',710,1965,1250,1350],['bedroom','Front bedroom',1400,640,900,150],['bath','Bathroom',735,330,300,470,560,430]] ];
 const SPOTS1=[ [['bedroom','Bedroom',600,1040,350,800]],
   [['dining','Dining and kitchen',700,1100,190,700,645,900],['living','Living',150,1100,650,600,230,820]],
-  [['primary','Primary bedroom',315,875,100,560],['bedroom','Front bedroom',400,215,60,40]] ];
+  [['primary','Primary bedroom',315,875,100,560],['bedroom','Front bedroom',400,215,60,40],['bath','Bathroom',620,560,450,360,540,470]] ];
 /* furniture in plan pixels: [material,x0,y0,x1,y1,bottom,top] (heights in metres). Level 1 follows the sales plan; beds and garage are indicative */
 const FURN=[
   [ ['bed',62,1400,468,1693,0,0.3],['quilt',162,1400,468,1693,0.3,0.36],['pillow',72,1415,147,1540,0.3,0.4],['pillow',72,1553,147,1678,0.3,0.4],['oak',52,1395,62,1698,0,0.8],['oak',57,1310,122,1380,0,0.45],
@@ -1253,7 +1257,9 @@ for(const n in units) units[n].lv.forEach((L,i)=>L.spots.forEach(sp=>{ const lb=
   lb.el.textContent='◉';
   lb.el.setAttribute('role','button'); lb.el.tabIndex=0; lb.el.title='Stand in the '+sp.label.toLowerCase(); lb.el.setAttribute('aria-label','Stand in the '+sp.label.toLowerCase());
   const go=()=>enterSpot(+n,i,sp); lb.el.onclick=go; lb.el.onkeydown=e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); go(); } }; }));
-let inSpot=null;   /* standing at a spot: the camera stays put and dragging looks around */
+let inSpot=null, hinted=false;
+function spotHintOnce(){ if(hinted) return; hinted=true; try{ if(localStorage.getItem('spotHint')) return; localStorage.setItem('spotHint','1'); }catch(e){}
+  const h=$('#spotHint'); h.hidden=false; h.classList.remove('fade'); setTimeout(()=>h.classList.add('fade'),4500); setTimeout(()=>h.hidden=true,5000); }   /* standing at a spot: the camera stays put and dragging looks around */
 const roomFill=new THREE.AmbientLight(0xfff4e6,0); scene.add(roomFill);   /* soft daylight bounce inside, since the tall walls shade the room */
 function roomMode(L,on){ if(!L) return; L.ceil.visible=on; roomFill.intensity=on?0.18:0; SPOT_FOV=on?68:0;   /* the loop eases the lens there, so nothing jumps */
   glass.transparent=on; glass.opacity=on?0.22:1; glass.depthWrite=!on; glass.color.set(on?0xd8e7ee:0x8fa6b2); glass.needsUpdate=true;   /* from inside, windows are clear panes onto the daylight */   /* full-height walls and a ceiling, so you see the room rather than the floors next door */
@@ -1265,7 +1271,7 @@ function roomMode(L,on){ if(!L) return; L.ceil.visible=on; roomFill.intensity=on
   L.wins.forEach(w=>{ if(on){ setH(w.lo,w.y0,w.sl); setH(w.gl,w.y0+w.sl,w.hd-w.sl); w.gl.castShadow=false; w.up.visible=true; }
     else{ setH(w.lo,w.y0,0.9); setH(w.gl,w.y0+0.9,SECT-0.9); w.gl.castShadow=true; w.up.visible=false; } });
   if(on){ for(const n in units) units[n].outline.visible=false; } else highlight(selected); }
-function enterSpot(n,i,sp){ stopTour(); if(sunOn&&dayPlay) stopDay();
+function enterSpot(n,i,sp,auto){ if(!auto) stopTour(); if(sunOn&&dayPlay) stopDay();
   if(inSpot&&inSpot.L) roomMode(inSpot.L,false);
   if(!inSpot) inSpot={prev:[camera.position.toArray(),controls.target.toArray()]};
   if(cut!==i+1) setCut(i+1); if(selected!=='lot'+n) render('lot'+n); Object.assign(inSpot,{n,i,sp,L:units[n].lv[i]}); roomMode(inSpot.L,true);
@@ -1273,7 +1279,8 @@ function enterSpot(n,i,sp){ stopTour(); if(sunOn&&dayPlay) stopDay();
   controls.minDistance=0.3; controls.enableZoom=false; controls.enablePan=false; controls.rotateSpeed=0.45;
   const d0=controls.target.clone().sub(camera.position), r0=d0.length();
   tween={p0:camera.position.clone(),t0:controls.target.clone(),p1:p,t1:t,s:performance.now(),d:reduce?1:1600,look:true,d0:d0.normalize(),d1:t.clone().sub(p).normalize(),r0};
-  $('#spotBar').hidden=false; sceneEl.classList.add('standing'); $('#spotName').textContent=sp.label; syncHash(); track('stand-here',{unit:unitName('lot'+n),spot:sp.slug}); }
+  if(!auto){ showSpotBar(); syncHash(); track('stand-here',{unit:unitName('lot'+n),spot:sp.slug}); } }
+function showSpotBar(){ $('#spotBar').hidden=false; sceneEl.classList.add('standing'); $('#spotName').textContent=inSpot.sp.label; }
 function leaveSpot(back){ if(!inSpot) return; const pv=inSpot.prev; roomMode(inSpot.L,false); inSpot=null; $('#spotBar').hidden=true; sceneEl.classList.remove('standing');
   controls.minDistance=6; controls.enableZoom=true; controls.enablePan=true; controls.rotateSpeed=1;
   if(back) tween={p0:camera.position.clone(),t0:controls.target.clone(),p1:new THREE.Vector3(...pv[0]),t1:new THREE.Vector3(...pv[1]),s:performance.now(),d:reduce?1:1200};
@@ -1536,7 +1543,7 @@ renderer.domElement.addEventListener('pointerup',e=>{
 let cut=0;
 function setCut(c){
   if(inSpot&&c!==inSpot.i+1) leaveSpot(false);
-  cut=c; trackFloor(); $('#bArea').hidden=c===0;   /* room sizes only matter in the floor views */
+  cut=c; trackFloor(); if(c&&!touring&&!walking) spotHintOnce(); $('#bArea').hidden=c===0;   /* room sizes only matter in the floor views */
   document.querySelectorAll('#seg button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.cut===c)));
   const top=c===0?2:c-1;
   for(const n in units) units[n].lv.forEach((L,i)=>{
@@ -1620,6 +1627,7 @@ const TOUR=[
   {t:'Drive in: internal garage, front door, deck above',v:'driveway',sel:'joal',cut:0,rot:-0.9,zoom:0.75,d:12000},
   {t:'Ground floor: a suite with its own ensuite, for guests, grandparents or a home office',sel:'lot3',cut:1,d:9000,rot:-0.5},
   {t:'Level 1: cook, eat and relax, opening onto the deck',sel:'lot3',cut:2,d:9000,rot:-0.5},
+  {t:'Stand in the living room, kitchen and dining beyond',sel:'lot3',cut:2,spot:'living',rot:0,d:7000},
   {t:'Level 2: three bedrooms, away from the living',sel:'lot3',cut:3,d:9000,rot:-0.5},
   {t:'A fenced backyard for each home',v:'yards',sel:'site',cut:0,d:6000},
   {t:'Train, bus and Woolworths, all close by',v:'landmarks',sel:'site',cut:0,d:7000},
@@ -1629,7 +1637,7 @@ const DWELL=10000, FLY=2400;
 let touring=false, step=-1, stepStart=0;
 function goStep(i,now){
   step=i%TOUR.length; stepStart=now; const s=TOUR[step];
-  setCut(s.cut); render(s.sel,/^lot\d$/.test(s.sel)?null:'site'); resetSky(); setNight(!!s.night); controls.autoRotateSpeed=s.rot??0.5; if(firstFly&&step===0&&!reduce){ firstFly=false; const [p,t]=poseFor(s.v); settle={s:now,base:Math.hypot(p[0]-t[0],p[1]-t[1],p[2]-t[2])}; tween=null; panT0=now; } else fly(s.cut?lotView(3,s.cut):s.v,FLY,!!s.cut&&step>0,s.flipPan?(s.rot??0.5)*Math.PI/30*(s.d-FLY)/1000:0);   /* flipPan: begin where the pan would have ended and pan back to the usual view */ if(s.car&&lifeOn) carToDriveway();
+  setCut(s.cut); render(s.sel,/^lot\d$/.test(s.sel)?null:'site'); resetSky(); setNight(!!s.night); controls.autoRotateSpeed=s.rot??0.5; if(firstFly&&step===0&&!reduce){ firstFly=false; const [p,t]=poseFor(s.v); settle={s:now,base:Math.hypot(p[0]-t[0],p[1]-t[1],p[2]-t[2])}; tween=null; panT0=now; } else if(s.spot){ const sp=units[3].lv[s.cut-1].spots.find(q=>q.slug===s.spot); if(sp) enterSpot(3,s.cut-1,sp,true); } else fly(s.cut?lotView(3,s.cut):s.v,FLY,!!s.cut&&step>0,s.flipPan?(s.rot??0.5)*Math.PI/30*(s.d-FLY)/1000:0);   /* flipPan: begin where the pan would have ended and pan back to the usual view */ if(s.car&&lifeOn) carToDriveway();
   $('#tourn').textContent=(step+1)+'/'+TOUR.length; $('#tourt').textContent=s.t;
 }
 const ICON_PLAY='<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg>', ICON_PAUSE='<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z" fill="currentColor"/></svg>';
@@ -1640,7 +1648,7 @@ function walkThrough(n){   // the selected home floor by floor: GF, L1, L2
   stopTour(); const tok=++walkTok; walking=true; render('lot'+n); sceneEl.scrollIntoView({behavior:reduce?'auto':'smooth',block:'center'});
   [1,2,3].forEach((c,k)=>setTimeout(()=>{ if(tok!==walkTok) return; setCut(c); render('lot'+n); fly(lotView(n,c),k?1800:1400); },k*5200));
 }
-function stopTour(){touched=true;firstFly=false;settle=null;walkTok++;walking=false;if(!touring)return;touring=false;controls.autoRotate=false;$('#bTour').setAttribute('aria-pressed','false');$('#bTour').innerHTML=ICON_PLAY;$('#bTour').setAttribute('aria-label','Play tour');$('#bTour').title='Play tour';$('#tourcap').hidden=true;}
+function stopTour(){touched=true;firstFly=false;settle=null;walkTok++;walking=false;if(!touring)return;if(inSpot) showSpotBar();   /* stopped while the tour stands in a room: stay, with Back */touring=false;controls.autoRotate=false;$('#bTour').setAttribute('aria-pressed','false');$('#bTour').innerHTML=ICON_PLAY;$('#bTour').setAttribute('aria-label','Play tour');$('#bTour').title='Play tour';$('#tourcap').hidden=true;}
 $('#bTour').onclick=()=>{if(touring)stopTour();else{if(sunOn)setSun(false);startTour();}};
 
 /* compass: needle shows where north is on screen; tap to turn the view north-up like a map */
