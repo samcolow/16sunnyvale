@@ -768,8 +768,8 @@ function unit(n,x){
       win(-0.7,1.5,0.05,2.4,G.shell); bx(-4.0,-3.0,0,0.15,-0.1,0.9,M.concrete,G.ext);
                                                  // shower room
       // level 1: dining bay window projecting from the street wall, slim window, corner stair glazing, WC
-      win(-0.7,1.5,3.45,5.7,L1.shell);                                              // dining window, in line with the sliders
-      bx(-3.2,-3.12,3.6,4.5,-0.75,1.55,balGlass,L1.shell); bx(-3.22,-3.12,4.45,4.53,-0.75,1.55,M.black,L1.shell);   // Juliet balustrade
+      win(-0.7,1.5,3.05,5.4,L1.shell); bx(-3.13,-3.08,3.05,5.4,0.38,0.42,M.black,L1.shell);   /* dining sliding door, in line with the GF sliders */
+      bx(-3.2,-3.12,3.05,4.05,-0.75,1.55,tintGlass,L1.shell); bx(-3.22,-3.12,4.02,4.1,-0.75,1.55,M.black,L1.shell);   /* dark-tinted Juliet balustrade */
       win(-2.25,-1.7,4.2,5.3,L1.shell); win(-4.56,-3.7,cy[0],cy[1],L1.shell,voidGlass);
       // level 2: window in line below, louvred half toward the rear; slim window over the door; corner glazing; rear-strip window
       win(-0.7,1.5,6.8,8.3,L2.shell); for(let k=0;k<7;k++) bx(-3.16,-3.12,6.9+k*0.2,6.98+k*0.2,0.45,1.45,M.black,L2.shell);
@@ -924,7 +924,7 @@ const PLANS1=[
     walls:[
       ['w',110,435,110,1148],['w',110,435,170,435],['sl',170,435,465,435],['w',465,435,520,435],
       ['w',520,265,520,435],['i',520,435,520,525],['w',520,265,671,265],['win',671,265,770,265,[0.48,2.22]],   /* 16A windows positioned and sized from the elevations */
-      ['win',770,265,770,350,[0.48,2.22]],['w',770,350,770,504],['win',770,504,770,563,[1.27,2.23]],['w',770,563,770,669],['win',770,669,770,903,[0.52,2.62]],['w',770,903,770,1148],
+      ['win',770,265,770,350,[0.48,2.22]],['w',770,350,770,504],['win',770,504,770,563,[1.27,2.23]],['w',770,563,770,669],['sl',770,669,770,903],['w',770,903,770,1148],
       ['w',110,1148,178,1148],['win',178,1148,316,1148,[1.18,2.06]],['w',316,1148,496,1148],['win',496,1148,580,1148,[1.18,2.06]],['w',580,1148,649,1148],['win',649,1148,720,1148,[1.18,2.06]],['w',720,1148,770,1148],
       ['i',488,1055,488,1148],['i',590,1012,770,1012],['i',590,1100,590,1148]
     ],
