@@ -830,7 +830,7 @@ const PLANS=[
       ['i',254,440,254,815],['slat',254,440,254,995],   /* oak slat feature wall on the living side, wrapping over the stair opening */
       ['i',36,1003,375,1003],['i',368,1003,368,1040],['i',368,1188,368,1215],['i',36,1215,375,1215]
     ],
-    fix:[['bench',46,1225,165,1700],['bench',165,1225,376,1350],['bench',46,1695,730,1825],['hob',50,1465,160,1575],['sink',265,1708,432,1765]],
+    fix:[['bench',46,1225,165,1700],['bench',165,1225,376,1350],['bench',46,1695,610,1825],['hob',50,1465,160,1575],['sink',265,1708,432,1765]],
     stairs:[{x0:46,x1:254,steps:[[440,506,2],[506,568,3],[568,630,4],[630,692,5],[692,754,6],[754,815,7],[815,995,8]]}]
   },
   { // Level 2
@@ -1109,9 +1109,11 @@ function interior(i,y0,L,x,mir,P,FU,endHome){
   });
   if(P===PLANS&&i===1){   /* kitchen, as built: black stick-mosaic splashback around the window, oak overhead cupboards to the ceiling (eye level) */
     const splash=(a,b,c,d)=>{ const [X0,X1,Z0,Z1]=ext(a,b,c,d), me=bx(X0,X1,y0+1.05,y0+1.2,Z0,Z1,M.mosaic,L.cut); L.tall.push({me,yb:y0+1.05,h:0.15,gap:0.9}); };
-    splash(36,1812,149,1816); splash(516,1812,730,1816); splash(52,1225,56,1816);
+    splash(36,1812,149,1816); splash(516,1812,610,1816); splash(52,1225,56,1816);
     const over=(a,b,c,d)=>{ const [X0,X1,Z0,Z1]=ext(a,b,c,d); bx(X0,X1,y0+1.77,y0+0.12+RH,Z0,Z1,M.oakCab,L.doors); bx(X0,X1,y0+1.76,y0+1.77,Z0,Z1,M.black,L.doors); };
-    over(46,1750,730,1816); over(52,1225,122,1750);
+    over(46,1750,610,1816);
+    { const [X0,X1,Z0,Z1]=ext(612,1695,730,1825), me=bx(X0,X1,y0+0.15,y0+1.2,Z0,Z1,M.bench,L.cut); L.tall.push({me,yb:y0+0.15,h:1.05,gap:0});   /* tower pantry at the end of the run, floor to ceiling */
+      bx(X0+0.01,X1-0.01,y0+0.15,y0+0.27,Z0+0.03,Z0+0.04,M.black,L.cut); } over(52,1225,122,1750);
   }
   (f.stairs||[]).forEach(st=>st.steps.forEach(([a,b,k,xa,xb])=>{
     const [X0,X1,Z0,Z1]=ext(xa??st.x0,a,xb??st.x1,b), h=k*0.19;
