@@ -1154,6 +1154,32 @@ function interior(i,y0,L,x,mir,P,FU,endHome){
     if(P===PLANS) over(46,1750,610,1816); else{ over(120,1101,485,1138); over(120,1068,158,1101); }
     if(P===PLANS){ const [X0,X1,Z0,Z1]=ext(612,1695,730,1825), me=bx(X0,X1,y0+0.15,y0+CUT,Z0,Z1,M.bench,L.cut); L.tall.push({me,yb:y0+0.15,h:CUT-0.15,gap:0});   /* tower pantry at the end of the run, floor to ceiling */
       bx(X0+0.01,X1-0.01,y0+0.15,y0+0.27,Z0+0.03,Z0+0.04,M.black,L.cut); over(52,1225,122,1750); }
+    /* eye level: cabinet fronts with their lines, as built: oven under the hob, dishwasher beside the sink run, drawer stacks with black pull handles, oak overhead door joints */
+    const slab=f.slab.map(q=>m(...q)), pip=(px,pz)=>{let c=false; for(let a=0,b=slab.length-1;a<slab.length;b=a++){const [xa,za]=slab[a],[xb,zb]=slab[b]; if((za>pz)!==(zb>pz)&&px<(xb-xa)*(pz-za)/(zb-za)+xa) c=!c;} return c;};
+    const benches=(f.fix||[]).filter(q=>q[0]==='bench').map(q=>ext(...q.slice(1))), items=(f.fix||[]).filter(q=>q[0]!=='bench').map(q=>[q[0],ext(...q.slice(1))]);
+    const inBench=(px,pz,self)=>benches.some(r=>r!==self&&px>r[0]-0.05&&px<r[1]+0.05&&pz>r[2]-0.05&&pz<r[3]+0.05);
+    const ovenM=M.black, steelM=M.steel, lineM=M.black, G=0.006;
+    const fronts=(R,overhead)=>{ const [X0,X1,Z0,Z1]=R, alongX=(X1-X0)>=(Z1-Z0);
+      const faces=alongX?[[Z0,-1],[Z1,1]]:[[X0,-1],[X1,1]];
+      faces.forEach(([pl,sg])=>{ const ox=alongX?(X0+X1)/2:pl+sg*0.35, oz=alongX?pl+sg*0.35:(Z0+Z1)/2; if(!pip(ox,oz)||(!overhead&&inBench(ox,oz,R))) return;
+        const a0=alongX?X0:Z0, a1=alongX?X1:Z1, F=pl+sg*0.004;
+        const panel=(u0,u1,yb,yt,mm,th)=>{ const t=th||0.008; if(alongX) bx(u0,u1,y0+yb,y0+yt,Math.min(F,F+sg*t),Math.max(F,F+sg*t),mm,L.doors); else bx(Math.min(F,F+sg*t),Math.max(F,F+sg*t),y0+yb,y0+yt,u0,u1,mm,L.doors); };
+        const vline=(u,yb,yt)=>panel(u-G/2,u+G/2,yb,yt,lineM,0.01), hline=(u0,u1,y)=>panel(u0,u1,y-G/2,y+G/2,lineM,0.01), handle=(u0,u1,y)=>panel((u0+u1)/2-0.12,(u0+u1)/2+0.12,y-0.012,y+0.012,lineM,0.03);
+        if(overhead){ const n=Math.max(1,Math.round((a1-a0)/0.45)); for(let k=1;k<n;k++) vline(a0+(a1-a0)*k/n,1.77,0.12+RH); return; }
+        const on=t=>items.filter(([k,r])=>k===t&&(alongX?(r[0]<X1&&r[1]>X0):(r[2]<Z1&&r[3]>Z0))&&(alongX?(r[2]<Z1+0.05&&r[3]>Z0-0.05):(r[0]<X1+0.05&&r[1]>X0-0.05))).map(([,r])=>alongX?(r[0]+r[1])/2:(r[2]+r[3])/2);
+        const units=[]; on('hob').forEach(c=>units.push([Math.max(a0,c-0.3),Math.min(a1,c+0.3),'oven']));
+        on('sink').forEach(c=>{ const u0=Math.max(a0,c-0.45), u1=Math.min(a1,c+0.45); units.push([u0,u1,'sink']); const room0=u0-a0, room1=a1-u1; if(Math.max(room0,room1)>=0.6) units.push(room1>=room0?[a1-0.6,a1,'dw']:[a0,a0+0.6,'dw']); });
+        units.sort((p,q)=>p[0]-q[0]); const all=[]; let cur=a0;
+        units.forEach(([u0,u1,k])=>{ if(u0-cur>0.15){ const n=Math.max(1,Math.round((u0-cur)/0.6)); for(let j=0;j<n;j++) all.push([cur+(u0-cur)*j/n,cur+(u0-cur)*(j+1)/n,'drw']); } if(u0>=cur-0.01){ all.push([Math.max(u0,cur),u1,k]); cur=u1; } });
+        if(a1-cur>0.15){ const n=Math.max(1,Math.round((a1-cur)/0.6)); for(let j=0;j<n;j++) all.push([cur+(a1-cur)*j/n,cur+(a1-cur)*(j+1)/n,'drw']); }
+        all.forEach(([u0,u1,k],j)=>{ if(j) vline(u0,0.27,1.02);
+          if(k==='oven'){ panel(u0+0.02,u1-0.02,0.84,0.98,steelM); panel(u0+0.03,u1-0.03,0.36,0.82,ovenM); panel(u0+0.06,u1-0.06,0.76,0.785,steelM,0.035); hline(u0,u1,0.34); handle(u0,u1,0.3); }
+          else if(k==='dw'){ panel(u0+0.01,u1-0.01,0.28,1.0,steelM); panel(u0+0.08,u1-0.08,0.9,0.95,M.black,0.012); }
+          else if(k==='sink'){ hline(u0,u1,0.64); handle(u0,u1,0.97); handle(u0,u1,0.6); }
+          else { hline(u0,u1,0.77); hline(u0,u1,0.52); handle(u0,u1,0.97); handle(u0,u1,0.73); handle(u0,u1,0.48); } });
+      }); };
+    benches.forEach(R=>fronts(R,false));
+    (P===PLANS?[[46,1750,610,1816],[52,1225,122,1750]]:[[120,1101,485,1138],[120,1068,158,1101]]).forEach(q=>fronts(ext(...q),true));
   }
   (f.stairs||[]).forEach(st=>st.steps.forEach(([a,b,k,xa,xb])=>{
     const [X0,X1,Z0,Z1]=ext(xa??st.x0,a,xb??st.x1,b), h=k*0.19;
