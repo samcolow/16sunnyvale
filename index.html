@@ -295,7 +295,7 @@ dialog.share p{font-size:13px;color:var(--muted);margin:0 0 12px}
       <button id="bLife" class="opt" aria-pressed="true">People &amp; cars</button>
       <button id="bSun" class="opt" aria-pressed="false">A day here</button>
       <div class="seg" id="seg" role="group" aria-label="Floor"><button data-cut="0" aria-pressed="true">Outside</button><button data-cut="1">GF</button><button data-cut="2">L1</button><button data-cut="3">L2</button></div>
-      <button id="bArea" class="opt" aria-pressed="true" hidden title="Show or hide room sizes">Room sizes</button>
+      <button id="bArea" class="opt" aria-pressed="false" hidden title="Show or hide room sizes">Room sizes</button>
       <span class="spacer"></span>
       <button id="bNorth" class="compass" aria-label="Turn the view so north is up" title="North up"><svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true"><g id="needle"><path d="M16 3 L21 16 L11 16 Z" fill="#d6452f"/><path d="M16 29 L21 16 L11 16 Z" fill="currentColor" opacity=".45"/><text x="16" y="13.5" text-anchor="middle" font-size="7" font-weight="700" fill="#fff" font-family="IBM Plex Mono,monospace">N</text></g></svg></button>
       <button id="bReset" class="opt">Reset</button>
@@ -797,8 +797,10 @@ function unit(n,x){
       const mul=(y0,y1,par)=>bx(-3.13,-3.08,y0,y1,2.32,2.36,M.black,par);
       win(1.39,3.31,1.68,2.41,G.shell); mul(1.68,2.41,G.shell); win(-1.44,-0.73,1.1,2.09,G.shell);   /* W103 bedroom, W107 ensuite */
       win(1.39,3.31,FH+1.11,FH+2.01,L1.shell); mul(FH+1.11,FH+2.01,L1.shell); win(-0.17,0.57,FH+1.19,FH+2.52,L1.shell);   /* W205 kitchen over the hob bench, W204 */
-      win(-3.93,-3.0,5.11,6.02,L1.shell,voidGlass); win(-3.93,-3.0,5.95,8.57,L2.shell,voidGlass);   /* W203: five-pane stair glazing */
-      [5.81].forEach(y=>bx(-3.13,-3.08,y-0.03,y+0.03,-3.93,-3.0,M.black,L1.shell)); [6.49,7.2,7.83].forEach(y=>bx(-3.13,-3.08,y-0.03,y+0.03,-3.93,-3.0,M.black,L2.shell));
+      /* W203: one five-pane stair window spanning Level 1 into Level 2, split at the floor line only so each floor view keeps its half; equal panes, no doubled frame */
+      bx(-3.1,-3.06,5.11,2*FH,-3.93,-3.0,M.black,L1.shell); bx(-3.12,-3.1,5.18,2*FH,-3.86,-3.07,voidGlass,L1.shell);
+      bx(-3.1,-3.06,2*FH,8.57,-3.93,-3.0,M.black,L2.shell); bx(-3.12,-3.1,2*FH,8.5,-3.86,-3.07,voidGlass,L2.shell);
+      [5.80,6.49,7.19,7.88].forEach(y=>bx(-3.13,-3.08,y-0.03,y+0.03,-3.93,-3.0,M.black,y<2*FH?L1.shell:L2.shell));
       win(-1.44,-0.73,2*FH+1.26,2*FH+2.6,L2.shell); win(1.39,3.31,2*FH+1.83,2*FH+2.62,L2.shell); mul(2*FH+1.83,2*FH+2.62,L2.shell);   /* W303, W304 */
     }
   }
@@ -1432,7 +1434,7 @@ function leaveSpot(back){ if(!inSpot) return; const pv=inSpot.prev; roomMode(inS
   if(back) tween={p0:camera.position.clone(),t0:controls.target.clone(),p1:new THREE.Vector3(...pv[0]),t1:new THREE.Vector3(...pv[1]),s:performance.now(),d:reduce?1:1200};
   syncHash(); }
 $('#spotBack').onclick=()=>leaveSpot(true);
-let showAreas=true;   /* room sizes on the floor-view labels, toggled by the Room sizes button */
+let showAreas=false;   /* off by default; room sizes on the floor-view labels, toggled by the Room sizes button */
 function applyAreas(){ labels.forEach(l=>{ if(l.room) l.el.textContent=l.name+(showAreas&&l.area?' · '+l.area:''); }); $('#bArea').setAttribute('aria-pressed',String(showAreas)); }
 applyAreas(); $('#bArea').onclick=()=>{ showAreas=!showAreas; applyAreas(); if(showAreas) track('room-sizes',{unit:curUnit()}); };
 /* Stria grooves: map the texture in site coordinates so grooves line up across separate panels and floors */
