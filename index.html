@@ -338,7 +338,7 @@ dialog.share p{font-size:13px;color:var(--muted);margin:0 0 12px}
       <div><h4>Bathrooms</h4><ul><li>Full-height tiling: Sand Light Grey walls, Gem Ash Grey floors</li><li>Plumbline Como brushed gunmetal PVD tapware and showers</li><li>Wall-hung vanities · LED backlit mirror in the main bathroom</li><li>Rain shower heads throughout · separate guest WC</li></ul></div>
       <div><h4>Heating and comfort</h4><ul><li>Heat pump in the living area</li><li>Bedrooms pre-piped for heat pumps · 16C &amp; 16D have heat pumps installed in every bedroom</li><li>Underfloor heating and heated towel rails on Wi-Fi touchscreen thermostats</li><li>Low-E double glazing · well-insulated roof and walls (R7.0 and R2.4)</li></ul></div>
       <div><h4>Smart home and connectivity</h4><ul><li>Keyless smart lock (PIN and app)</li><li>Wired data to every level for fast, reliable Wi-Fi throughout</li><li>16C &amp; 16D: Smart home control of lighting scenes, climate, smart alarm and video doorbell</li></ul></div>
-      <div><h4>Build and outdoor</h4><ul><li>GIB intertenancy walls between homes: fire rated and sound insulated</li><li>Fully fenced courtyard with artificial turf · private Level 1 deck</li><li>EV charger-ready garage · shared parcel lockers</li><li>David Trubridge pendant in the stairwell</li></ul></div>
+      <div><h4>Build and outdoor</h4><ul><li>GIB intertenancy walls between homes: fire rated and sound insulated</li><li>Fully fenced courtyard with artificial turf · private Level 1 deck</li><li>EV charger-ready garage · shared parcel lockers</li><li>Natural grey permeable paving from the shared driveway to each garage and front door</li><li>David Trubridge pendant in the stairwell</li></ul></div>
       <div><h4>Exterior materials</h4><ul class="mats"><li><i class="sw" style="background:#34373a"></i>James Hardie Stria, vertical: Resene Baltic Sea</li><li><i class="sw" style="background:#eeeae2"></i>James Hardie Oblique, horizontal: Resene Black White · soffits to match</li><li><i class="sw" style="background:#585c61"></i>Brick: Austral Bricks Industry range in Platinum, a graphite glazed brick with a metallic sheen</li><li><i class="sw" style="background:#1d1e20"></i>Roof: Metalcraft · Colorsteel Ebony</li><li><i class="sw" style="background:#151617"></i>Joinery, garage doors, fascia, gutters and louvres: Matt black aluminium · black uPVC downpipes</li></ul></div>
     </div>
   </details>
@@ -479,6 +479,17 @@ const oakTex=floorTex('#c3a17a',x=>{for(let r=0;r<5;r++){const y=r*51.2, off=(r*
     x.fillStyle='#8f7254'; x.fillRect(0,y+50,256,1.4); x.fillRect(off%256,y,1.4,51);}});
 const carpetTex=floorTex('#8a8680',x=>speck(x,'rgba(255,255,255,.22)','rgba(60,58,54,.25)',2600));   // Feltex Okiwi Bay 'Stone': mid warm grey
 const tileTex=floorTex('#a9acaa',x=>{speck(x,'rgba(255,255,255,.18)','rgba(60,62,64,.15)',900); x.fillStyle='#8c8f8e'; [0,154].forEach(v=>{x.fillRect(v,0,2,256); x.fillRect(0,v,256,2);});});
+/* natural grey permeable pavers, 200 x 100 in a 90° herringbone of mixed greys (the aprons between the concrete driveway and the garages).
+   The canvas spans 1.2 m and tiles seamlessly: bricks sit on the herringbone lattice, so each copy keeps its colour across the seam */
+const paveTex=floorTex('#2c2e31',x=>{ const N=12, c=256/N, G=['#4a4d51','#56595d','#62656a','#6e7175','#7a7d80','#5c5f63','#85878a','#515458'];
+  const col=(i,k)=>{ const q=Math.floor(i/6), i0=i-6*q, k0=(((k-3*q)%6)+6)%6; return G[(i0*7+k0*13+((i0*k0)%5))%G.length]; };
+  for(let k=-8;k<=8;k++) for(let i=-14;i<=26;i++){ const hx=i+2*k, hy=i-2*k;
+    if(hx<-3||hx>N+1||hy<-3||hy>N+1) continue;
+    x.fillStyle=col(i,k); x.fillRect(hx*c+1,hy*c+1,2*c-2,c-2);            // stretcher across
+    x.fillRect(hx*c+1,(hy+1)*c+1,c-2,2*c-2); }                             // stretcher along
+  speck(x,'rgba(255,255,255,.10)','rgba(0,0,0,.14)',1800); });
+paveTex.repeat.set(1/1.2,1/1.2);
+const paveM=new THREE.MeshLambertMaterial({map:paveTex});
 const garageTex=floorTex('#46494c',x=>speck(x,'rgba(255,255,255,.12)','rgba(0,0,0,.25)',2400));
 const floorMat={...roomMat};
 const oakM=new THREE.MeshLambertMaterial({map:oakTex}), carpetM=new THREE.MeshLambertMaterial({map:carpetTex}), tileM=new THREE.MeshLambertMaterial({map:tileTex});
@@ -700,10 +711,10 @@ function unit(n,x){
   bx(0.15,2.8,-2.25,0,-2.96,-2.9,M.garage,gdoor);
   for(let k=0;k<5;k++) bx(0.15,2.8,0.3+k*0.45-2.25,0.33+k*0.45-2.25,-2.98,-2.96,M.black,gdoor);
   gdoor.userData.open=0; gdoor.userData.target=0;
-  if(n!==1) prism([[-1.14,-4.62],[-0.04,-4.62],[-0.04,-2.7]],0,0.07,M.joal,G.ext);
-  bx(-3,3,0,0.07,-4.62,-4.49,M.joal,G.ext);   // close the strip between the shared driveway and the front wall, so no ground shows at the base   // driveway paving runs right up to the angled front door
-  // garage driveway: darker paved pad from the garage door out to the JOAL, with saw-cut joints
-  bx(-0.06,3,0,0.07,-4.6,-2.9,M.joal,G.ext);   // driveway surface runs straight to the garage door
+  /* permeable paving apron: from the edge of the concrete driveway (a straight line parallel to the boundary) to the garage door and the front entry */
+  if(n!==1) prism([[-1.14,-4.62],[-0.04,-4.62],[-0.04,-2.7]],0,0.07,paveM,G.ext);
+  prism([[-3,-4.62],[3,-4.62],[3,-4.49],[-3,-4.49]],0,0.069,paveM,G.ext);
+  prism([[-0.06,-4.6],[3,-4.6],[3,-2.9],[-0.06,-2.9]],0,0.07,paveM,G.ext);   // up to the garage door
   // level 1: sliders from the lounge to a recessed deck (line and width from the floor plan); stair-void glazing L1–L2
   bx(-0.52,2.53,3.15,5.6,-2.96,-2.9,M.black,L1.shell); bx(-0.42,2.43,3.25,5.5,-2.98,-2.96,glass,L1.shell);
   const sx=n===1?[-3.06,-2.1]:[-2.84,-1.95];   // 16A: stair glazing wraps the street corner; others W202 per the elevation
