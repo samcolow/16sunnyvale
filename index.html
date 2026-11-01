@@ -53,10 +53,10 @@ h1{font:700 clamp(28px,5vw,44px)/1.02 var(--f-display);letter-spacing:-.02em;mar
 .stat b{font:500 18px/1.2 var(--f-mono);font-variant-numeric:tabular-nums}
 .stat span{font-size:12px;color:var(--muted)}
 .scene-band{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
-.startgate{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;pointer-events:none;z-index:4}
+.startgate{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;pointer-events:none;z-index:4;background:rgba(251,251,247,.72);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}   /* soft white veil so the button reads cleanly over the model */
 .startgate button{pointer-events:auto;display:inline-flex;align-items:center;gap:10px;font:600 17px/1 var(--f-body);background:#1d2a44;color:#ffffff;border:0;border-radius:999px;padding:16px 26px 16px 22px;box-shadow:0 6px 24px rgba(16,24,40,.28);cursor:pointer;transition:transform .15s}
 .startgate button:hover{transform:scale(1.04)} .startgate button:focus-visible{outline:3px solid #ffffff;outline-offset:3px}
-.startgate small{pointer-events:none;font:500 12px/1 var(--f-body);color:#1d2a44;background:rgba(251,251,247,.85);padding:4px 9px;border-radius:999px}
+.startgate small{pointer-events:none;font:500 12.5px/1 var(--f-body);color:#55607a}
 @media (prefers-reduced-motion:reduce){.startgate button{transition:none}}
 .loading{position:absolute;inset:0;display:flex;flex-direction:column;gap:12px;align-items:center;justify-content:center;font:500 13px/1.3 var(--f-body);color:#55607a;background:#cfdde4;z-index:5;transition:opacity .4s}
 .loading span{width:28px;height:28px;border-radius:50%;border:3px solid rgba(29,42,68,.18);border-top-color:#1d2a44;animation:spin 1s linear infinite}
