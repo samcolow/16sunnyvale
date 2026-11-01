@@ -1142,13 +1142,15 @@ function interior(i,y0,L,x,mir,P,FU,endHome){
     else if(t==='scr'){ const me=ws(y0+0.15,1.0,0.02,balGlass); L.eyeFix.push({me,a:[y0+0.15,1.0],b:[y0+0.15,2.0]}); }   // shower screen (2 m at eye level)
     else if(t==='sdoor'){ const dh=e||0.95; ws(y0+0.12,dh,0.025,M.part); ws(y0+0.12+dh,0.012,0.03,M.gunmetal); }   // under-stair storage door: white like the wall, fine head line
   });
-  { const segs=f.walls.filter(w=>['w','i','robe','sdoor','win'].includes(w[0])).map(([t,a,b,c,d])=>{const [x0,z0]=m(a,b),[x1,z1]=m(c,d); return {x0,z0,x1,z1,th:t==='w'||t==='win'?0.18:0.1};});
+  { const segs=f.walls.filter(w=>['w','i','robe','sdoor','win'].includes(w[0])).map(([t,a,b,c,d])=>{const [x0,z0]=m(a,b),[x1,z1]=m(c,d); return {t,x0,z0,x1,z1,th:t==='w'||t==='win'?0.18:0.1};});
+    const glazed=(hz,c,u)=>segs.some(W=>(hz?Math.abs(W.z0-c)<0.06&&u>Math.min(W.x0,W.x1)&&u<Math.max(W.x0,W.x1):Math.abs(W.x0-c)<0.06&&u>Math.min(W.z0,W.z1)&&u<Math.max(W.z0,W.z1)));   /* a gap already filled by a window or another wall run is not a doorway */
     L.doors.visible=false; L.cut.add(L.doors); const seen=new Set();
     segs.forEach(A=>segs.forEach(B=>{ if(A===B) return;
       const hz=Math.abs(A.z0-A.z1)<0.02&&Math.abs(B.z0-B.z1)<0.02&&Math.abs(A.z0-B.z0)<0.06, vt=Math.abs(A.x0-A.x1)<0.02&&Math.abs(B.x0-B.x1)<0.02&&Math.abs(A.x0-B.x0)<0.06;
       if(!hz&&!vt) return; const a1=hz?Math.max(A.x0,A.x1):Math.max(A.z0,A.z1), b0=hz?Math.min(B.x0,B.x1):Math.min(B.z0,B.z1), gap=b0-a1;
       if(gap<0.55||gap>1.1) return; const key=(hz?'h':'v')+(hz?A.z0:A.x0).toFixed(2)+':'+a1.toFixed(2); if(seen.has(key)) return; seen.add(key);
       const c=hz?A.z0:A.x0, th=Math.min(A.th,B.th), H=0.12+RH-2.05;
+      if(glazed(hz,c,(a1+b0)/2)) return;
       const bathPts=f.rooms.filter(([k,poly])=>k==='bath'&&poly).map(([,poly])=>poly.map(q=>m(...q))), inBath=(px,pz)=>bathPts.some(pts=>{let cc=false; for(let a=0,b=pts.length-1;a<pts.length;b=a++){const [xa,za]=pts[a],[xb,zb]=pts[b]; if((za>pz)!==(zb>pz)&&px<(xb-xa)*(pz-za)/(zb-za)+xa) cc=!cc;} return cc;});
       const sg=(hz?inBath(a1+0.1,c+gap/2):inBath(c+gap/2,a1+0.1))?-1:1;   /* leaves swing out of bathrooms, clear of the fittings */
       if(hz){ bx(a1,b0,y0+2.05,y0+2.05+H,c-th/2,c+th/2,M.part,L.doors); bx(a1,a1+0.04,y0+0.12,y0+2.04,Math.min(c,c+sg*(gap-0.05)),Math.max(c,c+sg*(gap-0.05)),M.idoor,L.doors); }   /* head over the opening; leaf swung open against the wall */
@@ -1232,7 +1234,12 @@ function interior(i,y0,L,x,mir,P,FU,endHome){
       Carpeted treads and risers over a white closed understair; treads above the cut appear only at eye level, so the floor view stays a clean section */
     const rise=FH/16, F=y0+0.12, Pv=[645,375], BX=[525,765,265,375], whiteM=new THREE.MeshLambertMaterial({color:0xebe9e5,emissive:0x3a3936});
     const put=(pts,k)=>{ const top=k*rise, par=top>CUT-0.05?L.doors:L.cut, q=pts.map(p=>m(...p));
-      if(k<=4){ if(k>1) prism(q,F,top-rise,whiteM,par); } else if(k<=12) prism(q,F+0.6,top-rise-0.6,whiteM,par);   // left flight sits on the floor; the winders close down to a flat plastered ceiling over the lower winders; the right flight gets a smooth sloped soffit (below)
+      if(k<=4){ if(k>1) prism(q,F,top-rise,whiteM,par); } else if(k<=12){ const me=prism(q,F,top-rise,whiteM,par), pa=me.geometry.attributes.position, pv=m(...Pv), y0w=me.position.y;   // winders: plastered soffit that keeps descending around the turn, continuous with the flight soffit
+        const c0=pv, a0=Math.atan2(m(525,375)[1]-c0[1],m(525,375)[0]-c0[0]), af=Math.atan2(m(645,265)[1]-c0[1],m(645,265)[0]-c0[0]), sg=Math.sin(af-a0)>0?1:-1, tm=(k-4.5)/8;
+        for(let v=0;v<pa.count;v++) if(pa.getY(v)<1e-4){ const dx=pa.getX(v)-c0[0], dz=pa.getZ(v)-c0[1]; let t=tm;
+          if(Math.hypot(dx,dz)>1e-3){ let d=(Math.atan2(dz,dx)-a0)*sg; d=((d%(2*Math.PI))+2*Math.PI)%(2*Math.PI); if(d>1.5*Math.PI) d=0; t=Math.min(1,Math.max(0,d/Math.PI)); }
+          pa.setY(v,F+(4+8*t)*rise-0.35-y0w); }
+        pa.needsUpdate=true; me.geometry.computeVertexNormals(); }   // left flight sits on the floor; the winders close down to a flat plastered ceiling over the lower winders; the right flight gets a smooth sloped soffit (below)
       prism(q,F+top-rise,rise,carpetM,par); };
     const Fb=F-2.3, low=(pts,k)=>{ const top=(k-16)*rise, q=pts.map(p=>m(...p)); prism(q,Fb,top-rise-(Fb-F),whiteM,L.cut); prism(q,F+top-rise,rise,carpetM,L.cut); };   // the flight up from the ground floor, seen down the stairwell
     for(let j=1;j<=3;j++) low([[645,375+37.5*(j-1)],[765,375+37.5*(j-1)],[765,375+37.5*j],[645,375+37.5*j]],12+j);
@@ -1248,8 +1255,8 @@ function interior(i,y0,L,x,mir,P,FU,endHome){
       for(let v=0;v<pa.count;v++) if(pa.getY(v)>0){ const z=pa.getZ(v)+cz, f=(z-zA)/(zB-zA); pa.setY(v,hi+(lo-hi)*f-cy); }
       pa.needsUpdate=true; me.geometry.computeVertexNormals(); }
     for(let j=1;j<=4;j++) put([[645,375+37.5*(j-1)],[765,375+37.5*(j-1)],[765,375+37.5*j],[645,375+37.5*j]],12+j);   // right flight, back towards the dining, arriving at Level 2
-    { const [X0,X1,Z0,Z1]=ext(645,375,765,525), zA=m(645,375)[1], zB=m(645,525)[1], me=bx(X0,X1,F+12*rise-0.3,F+16*rise,Z0,Z1,whiteM,L.doors), pa=me.geometry.attributes.position, cy=me.position.y, cz=me.position.z;   // GIB-lined sloping soffit under the right flight: no steps visible from the stairwell below
-      for(let v=0;v<pa.count;v++){ const f=((pa.getZ(v)+cz)-zA)/(zB-zA), top=F+(12+4*f)*rise; pa.setY(v,(pa.getY(v)>0?top:top-0.3)-cy); } pa.needsUpdate=true; me.geometry.computeVertexNormals(); }
+    { const [X0,X1,Z0,Z1]=ext(645,375,765,525), zA=m(645,375)[1], zB=m(645,525)[1], me=bx(X0,X1,F+12*rise-0.35,F+16*rise,Z0,Z1,whiteM,L.doors), pa=me.geometry.attributes.position, cy=me.position.y, cz=me.position.z;   // GIB-lined sloping soffit under the right flight: no steps visible from the stairwell below
+      for(let v=0;v<pa.count;v++){ const f=((pa.getZ(v)+cz)-zA)/(zB-zA), top=F+(12+4*f)*rise; pa.setY(v,(pa.getY(v)>0?top:top-0.35)-cy); } pa.needsUpdate=true; me.geometry.computeVertexNormals(); }
     const rail=(a,b,c,d,h0,h1)=>{ const [x0,z0]=m(a,b),[x1,z1]=m(c,d), v=new THREE.Vector3(x1-x0,h1-h0,z1-z0), len=v.length(), me=new THREE.Mesh(new THREE.BoxGeometry(len,0.04,0.04),M.black);
       me.position.set((x0+x1)/2,(h0+h1)/2,(z0+z1)/2); me.rotation.order='YZX'; me.rotation.y=Math.atan2(-v.z,v.x); me.rotation.z=Math.atan2(v.y,Math.hypot(v.x,v.z)); L.doors.add(me); };
     rail(528,525,528,375,F+0.9+rise*0.5,F+0.9+rise*4.5); rail(762,375,762,525,F+0.9+rise*12.5,F+0.9+rise*16);   // black wall-mounted handrails, 900 above the nosings
