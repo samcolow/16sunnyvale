@@ -314,7 +314,7 @@ dialog.share p{font-size:13px;color:var(--muted);margin:0 0 12px}
     <div class="spotbar" id="spotBar" hidden><div><span class="sb-eye" aria-hidden="true">◉</span><span id="spotName"></span><span class="sb-hint">Drag to look around</span><button id="spotBack" type="button">Back</button></div></div>
     <div class="jump" id="jump"></div>
   </div>
-  <button class="cue" id="cue" type="button">Scroll for features and contact <span aria-hidden="true">⌄</span></button>
+  <button class="cue" id="cue" type="button" data-track="Scroll for features">Scroll for features and contact <span aria-hidden="true">⌄</span></button>
 </div>
 
 <section class="wrap features" aria-label="Key features">
@@ -332,7 +332,7 @@ dialog.share p{font-size:13px;color:var(--muted);margin:0 0 12px}
 
 <section class="wrap spec" aria-label="Full specification">
   <details>
-    <summary><b>Full specification</b><span>Industrial Cool design theme · Interiors by Nicola Manning Design · Built by Reco Construction</span></summary>
+    <summary data-track="Full specification"><b>Full specification</b><span>Industrial Cool design theme · Interiors by Nicola Manning Design · Built by Reco Construction</span></summary>
     <div class="spec-grid">
       <div><h4>Design and build</h4><ul><li>Industrial Cool design theme: monochrome accents, natural timber tones and brushed metal hardware</li><li>Interiors by Nicola Manning Design: kitchens, bathrooms, bedrooms, materials and colours</li><li>Oak acoustic slat feature wall to the Level 1 stairwell (16B–16F) · David Trubridge pendant in the stairwell</li><li>Linen sheers and blackout curtains in every room</li><li>Built by Reco Construction · Master Builders 10-year guarantee · Code Compliance Certificate issued</li><li>Fire-rated, sound-insulated walls between homes</li></ul></div>
       <div><h4>Kitchen</h4><ul><li>30 mm engineered stone benchtops</li><li>Bosch 60 cm induction cooktop, built-in oven, integrated rangehood and dishwasher</li><li>Mosaicfx Kit Kat Nero stacked mosaic splashback</li></ul></div>
@@ -372,6 +372,18 @@ const $=s=>document.querySelector(s);
 const trackQ=[]; const track=(n,d)=>{try{if(window.umami&&umami.track)umami.track(n,d);else trackQ.push([n,d]);}catch(e){}};
 const umEl=document.getElementById('umami-tracker'); if(umEl) umEl.addEventListener('load',()=>{trackQ.splice(0).forEach(([n,d])=>track(n,d));});
 const unitName=id=>'16'+'ABCDEF'[+id[3]-1], viewed=new Set();
+/* every button, link and tappable tag is counted as a 'click' event: what was pressed, where on the page, and which home was in view.
+   The named events (unit-view, floor-view, stand-here, enquiry, share …) stay as they are for the funnel; this one shows what people play with */
+document.addEventListener('click',e=>{ try{
+  const el=e.target.closest('button,a,summary,[role=button],.lbl.spot'); if(!el) return;
+  const href=el.getAttribute&&el.getAttribute('href')||'';
+  let control=el.dataset.track||(href.startsWith('mailto:')?'Email link':href.startsWith('tel:')?'Phone link':'')||el.getAttribute('aria-label')||(el.textContent||'').trim()||el.id||'unnamed';
+  if(el.classList.contains('spot')) control='Room marker';
+  control=control.replace(/\s+/g,' ').slice(0,60);
+  const grp=el.parentElement&&el.parentElement.closest('[aria-label],[id]'), area=grp?(grp.getAttribute('aria-label')||grp.id):'page';
+  const sel=typeof selected==='string'&&/^lot\d$/.test(selected)?unitName(selected):'none';
+  track('click',{control,area:String(area).slice(0,40),unit:sel});
+}catch(err){} },true);
 const trackFloor=()=>{try{ if(touring||!cut||!/^lot\d$/.test(selected)) return; const k=selected+'-'+cut; if(viewed.has(k)) return; viewed.add(k); track('floor-view',{unit:unitName(selected),floor:['','GF','L1','L2'][cut]}); }catch(e){}};
 var SPOT_FOV=0; const RH=2.55, SECT=1.5;   /* SECT: where the floor views slice the walls (above the slab), so 0.9 m benches read at their true height */   /* stud height used when standing in a room */   /* wide lens while standing in a room, like a property photographer's */
 const sceneEl=$('#scene'), labelsEl=$('#labels');
