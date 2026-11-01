@@ -275,7 +275,7 @@ dialog.share p{font-size:13px;color:var(--muted);margin:0 0 12px}
   <div>
     <div class="eyebrow">Greenlane · Auckland · Double Grammar Zone</div>
     <h1>16 Sunnyvale Road</h1>
-    <p class="tagline">Brand new, freehold and ready to move into.</p>
+    <p class="tagline">Explore all six homes in 3D: walk the site, step inside each floor and watch the sun move.</p>
   </div>
   <div class="stats" aria-label="Summary">
     <div class="stat"><b>6 homes</b><span>3-storey terraces</span></div>
@@ -316,11 +316,11 @@ dialog.share p{font-size:13px;color:var(--muted);margin:0 0 12px}
 </div>
 
 <section class="wrap features" aria-label="Key features">
-  <p class="ribbon"><b>16C &amp; 16D for sale</b><span>Upgraded with smart home control and a heat pump in every bedroom and the living area. Open home to be confirmed.</span></p>
+  <p class="ribbon"><b>16C &amp; 16D for sale</b><span>Upgraded with smart home control and a heat pump in every bedroom and the living area.</span></p>
   <p class="ribbon rent"><b>16A, 16B, 16E &amp; 16F for rent</b><span>Available from Monday 9 November</span></p>
   <ul>
     <li><b>Top school zones</b><span>Auckland Grammar · Epsom Girls Grammar · Remuera Intermediate · Cornwall Park District School</span></li>
-    <li><b>Convenient location</b><span>Woolworths, bus and train close by · SH1 2 min · Westfield Newmarket 7 min · Cornwall Park 13 min</span></li>
+    <li><b>Convenient location</b><span>Greenlane station 12 min walk · Woolworths 8 min walk · SH1 2 min drive · Newmarket 7 min drive</span></li>
     <li><b>Freehold and brand new</b><span>No body corporate · CCC issued · Master Builders 10-year guarantee</span></li>
     <li><b>Sunny living and deck</b><span>Open-plan living opening onto a private north-east-facing deck</span></li>
     <li><b>Warm and connected</b><span>Heat pump · double glazing · underfloor-heated bathrooms · wired data to every level</span></li>
@@ -336,9 +336,9 @@ dialog.share p{font-size:13px;color:var(--muted);margin:0 0 12px}
       <div><h4>Kitchen</h4><ul><li>30 mm engineered stone island benchtop</li><li>Bosch 60 cm induction cooktop, built-in oven, integrated rangehood and dishwasher</li><li>Mosaicfx Kit Kat Nero stacked mosaic splashback</li></ul></div>
       <div><h4>Flooring</h4><ul><li>Desert Oak SPC flooring across Level 1 living, dining and kitchen</li><li>Feltex Okiwi Bay plush carpet in Stone on stairs and bedrooms</li><li>Charcoal marine-grade carpet in the garage</li></ul></div>
       <div><h4>Bathrooms</h4><ul><li>Full-height tiling: Sand Light Grey walls, Gem Ash Grey floors</li><li>Plumbline Como brushed gunmetal PVD tapware and showers</li><li>Wall-hung vanities · LED backlit mirror in the main bathroom</li><li>Rain shower heads throughout · separate guest WC</li></ul></div>
-      <div><h4>Heating and comfort</h4><ul><li>Heat pump in the living area</li><li>Bedrooms pre-piped for heat pumps · 16C &amp; 16D have heat pumps installed in every bedroom</li><li>Underfloor heating and heated towel rails on Wi-Fi touchscreen thermostats</li><li>Low-E double glazing · well-insulated roof and walls (R7.0 and R2.4)</li></ul></div>
+      <div><h4>Heating and comfort</h4><ul><li>Heat pump in the living area</li><li>Bedrooms pre-piped for heat pumps · 16C &amp; 16D have heat pumps installed in every bedroom</li><li>Bathroom underfloor heating and heated towel rails on Wi-Fi touchscreen thermostats</li><li>Low-E double glazing · well-insulated roof and walls (R7.0 and R2.4)</li></ul></div>
       <div><h4>Smart home and connectivity</h4><ul><li>Keyless smart lock (PIN and app)</li><li>Wired data to every level for fast, reliable Wi-Fi throughout</li><li>16C &amp; 16D: Smart home control of lighting scenes, climate, smart alarm and video doorbell</li></ul></div>
-      <div><h4>Build and outdoor</h4><ul><li>GIB intertenancy walls between homes: fire rated and sound insulated</li><li>Fully fenced courtyard with artificial turf · private Level 1 deck</li><li>EV charger-ready garage · shared parcel lockers</li><li>Natural grey permeable paving from the shared driveway to each garage and front door</li><li>David Trubridge pendant in the stairwell</li></ul></div>
+      <div><h4>Build and outdoor</h4><ul><li>GIB intertenancy walls between homes: fire rated and sound insulated</li><li>Fully fenced backyard with artificial turf · private Level 1 deck</li><li>EV charger-ready garage · shared parcel lockers</li><li>Natural grey permeable paving from the shared driveway to each garage and front door</li><li>David Trubridge pendant in the stairwell</li></ul></div>
       <div><h4>Exterior materials</h4><ul class="mats"><li><i class="sw" style="background:#34373a"></i>James Hardie Stria, vertical: Resene Baltic Sea</li><li><i class="sw" style="background:#eeeae2"></i>James Hardie Oblique, horizontal: Resene Black White · soffits to match</li><li><i class="sw" style="background:#585c61"></i>Brick: Austral Bricks Industry range in Platinum, a graphite glazed brick with a metallic sheen</li><li><i class="sw" style="background:#1d1e20"></i>Roof: Metalcraft · Colorsteel Ebony</li><li><i class="sw" style="background:#151617"></i>Joinery, garage doors, fascia, gutters and louvres: Matt black aluminium · black uPVC downpipes</li></ul></div>
     </div>
   </details>
@@ -389,7 +389,7 @@ const STATUS={1:'lease',2:'lease',3:'sale',4:'sale',5:'lease',6:'lease'};
 const AVAILABLE={lease:'From Monday 9 November 2026'};
 const AVAIL_NOW=Date.now()>=Date.parse('2026-11-09T00:00:00+13:00');   /* from 9 November the rentals read "Available now" */
 if(AVAIL_NOW){ AVAILABLE.lease='Now'; const rb=document.querySelector('.ribbon.rent span'); if(rb) rb.textContent='Available now'; }
-const OPEN_HOME={sale:'To be confirmed'};   // update with day and time once set (also the sale banner below the model)
+const OPEN_HOME={};   // open homes are published on the listing; add e.g. {sale:'Sat 2–2.30 pm'} to show one on the home cards
 const CAT={sale:['For sale','--sale'],lease:['For rent','--lease'],sold:['Sold','--dev'],leased:['Rented','--dev'],dev:['Overview','--dev']};
 const lot=n=>{
   const st=STATUS[n], sale=st==='sale';
@@ -400,7 +400,7 @@ const lot=n=>{
     ['Layout','4 bed · 2.5 bath · single internal garage'],
     ['Floor area',{1:'148.2 m²',6:'141.2 m²'}[n]||'141.0 m²'],
     ...(n===1?[['GF','Foyer, bedroom (8.6 m²) with shower room (4.0 m²), internal garage (18.4 m²)'],['Level 1','Open-plan lounge, dining and kitchen with island, WC, deck'],['Level 2','Primary (10.7 m²), bedrooms of 10.1 m² and 7.1 m², bathroom, robes']]:[
-      ['GF','Foyer · guest suite with ensuite, opening to the courtyard (home office or teen retreat) · internal garage'],
+      ['GF','Foyer · guest suite with ensuite, opening to the backyard (home office or teen retreat) · internal garage'],
       ['Level 1','Open-plan lounge, dining and kitchen · WC · 7.9 m² deck'],
       ['Level 2','Primary bedroom and two bedrooms · bathroom with shower · linen']]),
     ['Outdoor',n===1?'Level 1 deck and 24.4 m² outdoor living space':'7.9 m² deck and 18 m² fenced backyard'],
