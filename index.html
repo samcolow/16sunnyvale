@@ -306,7 +306,7 @@ dialog.share p{font-size:13px;color:var(--muted);margin:0 0 12px}
       <button id="bLife" class="opt" aria-pressed="true" title="Show or hide people, cars and buses">Activity</button>
       <button id="bSun" class="opt" aria-pressed="false">A day here</button>
       <button id="audioToggleBtn" class="opt audio-pill-btn" aria-pressed="false" aria-label="Toggle ambient soundtrack" title="Play or stop the soundtrack"><span class="sound-wave-icon" aria-hidden="true"><span class="sound-bar"></span><span class="sound-bar"></span><span class="sound-bar"></span></span><span id="audioStatusText">Sound: Off</span></button>
-      <audio id="ambientTrack" loop preload="none"><source src="./audio/ambient-loop.webm" type="audio/webm"><source src="./audio/ambient-loop.m4a" type="audio/mp4"></audio>   <!-- fetched only when Sound is switched on -->
+      <audio id="ambientTrack" loop preload="none"><source src="./audio/ambient-loop.webm" type="audio/webm"><source src="./audio/ambient-loop.mp4" type="audio/mp4"></audio>   <!-- fetched only when Sound is switched on -->
       <div class="seg" id="seg" role="group" aria-label="Floor"><button data-cut="0" aria-pressed="true">Outside</button><button data-cut="1">GF</button><button data-cut="2">L1</button><button data-cut="3">L2</button></div>
       <button id="bArea" class="opt" aria-pressed="false" hidden title="Show or hide room sizes">Room sizes</button>
       <span class="spacer"></span>
@@ -1923,7 +1923,7 @@ $('#sunPlay').onclick=playDay;
    falls back to the <audio> element if decoding isn't available. Pauses while the tab is hidden */
 { const btn=$('#audioToggleBtn'), lbl=$('#audioStatusText'), el=$('#ambientTrack'), VOL=0.35;
   let on=false, ctx=null, gain=null, src=null, loading=false, fallback=false;
-  const pick=()=>{ const a=document.createElement('audio'); return a.canPlayType('audio/webm; codecs="opus"')?'./audio/ambient-loop.webm':'./audio/ambient-loop.m4a'; };
+  const pick=()=>{ const a=document.createElement('audio'); return a.canPlayType('audio/webm; codecs="opus"')?'./audio/ambient-loop.webm':'./audio/ambient-loop.mp4'; };
   const show=(t)=>{ lbl.textContent=t; btn.setAttribute('aria-pressed',String(on)); };
   async function start(){
     if(fallback){ el.volume=VOL; try{ await el.play(); }catch(e){ on=false; show('Sound: Off'); } return; }
