@@ -2057,7 +2057,7 @@ addEventListener('hashchange',()=>{stopTour();openDeepLink(location.hash);});
 { const gate=$('#startGate');
   if(!deep&&!timeLinked){ gate.hidden=false; if(!reduce){ controls.autoRotate=true; controls.autoRotateSpeed=0.35; }
     const close=()=>{ gate.hidden=true; EV.forEach(t=>document.removeEventListener(t,away,true)); }, EV=['pointerdown','wheel','keydown'];
-    function away(e){ if(e.target.closest&&e.target.closest('#startGate')) return; close(); controls.autoRotate=false; }
+    function away(e){ if(e.type==='keydown'?!sceneEl.contains(document.activeElement):!(e.target.closest&&sceneEl.contains(e.target))) return; if(e.target.closest&&e.target.closest('#startGate')) return; close(); controls.autoRotate=false; }   // only taps, drags or keys inside the 3D panel dismiss it; the rest of the page leaves it in place
     EV.forEach(t=>document.addEventListener(t,away,true));
     $('#bStart').addEventListener('click',()=>{ close(); touched=false; startTour(); if(startSound) startSound(); track('start-tour',{}); });
   } }
