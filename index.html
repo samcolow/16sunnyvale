@@ -305,7 +305,7 @@ dialog.share p{font-size:13px;color:var(--muted);margin:0 0 12px}
       <button id="bTour" class="icon" aria-pressed="false" aria-label="Play tour" title="Play tour"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg></button>
       <button id="bLife" class="opt" aria-pressed="true" title="Show or hide people, cars and buses">Activity</button>
       <button id="bSun" class="opt" aria-pressed="false">A day here</button>
-      <button id="audioToggleBtn" class="opt audio-pill-btn" aria-pressed="true" aria-label="Toggle ambient soundtrack" title="Play or stop the soundtrack"><span class="sound-wave-icon" aria-hidden="true"><span class="sound-bar"></span><span class="sound-bar"></span><span class="sound-bar"></span></span><span id="audioStatusText">Sound: On</span></button>
+      <button id="audioToggleBtn" class="opt audio-pill-btn" aria-pressed="false" aria-label="Toggle ambient soundtrack" title="Play or stop the soundtrack"><span class="sound-wave-icon" aria-hidden="true"><span class="sound-bar"></span><span class="sound-bar"></span><span class="sound-bar"></span></span><span id="audioStatusText">Sound: Off</span></button>
       <audio id="ambientTrack" loop preload="none"><source src="./audio/ambient-loop.webm" type="audio/webm"><source src="./audio/ambient-loop.mp4" type="audio/mp4"></audio>   <!-- fetched only when Sound is switched on -->
       <div class="seg" id="seg" role="group" aria-label="Floor"><button data-cut="0" aria-pressed="true">Outside</button><button data-cut="1">GF</button><button data-cut="2">L1</button><button data-cut="3">L2</button></div>
       <button id="bArea" class="opt" aria-pressed="false" hidden title="Show or hide room sizes">Room sizes</button>
@@ -1919,33 +1919,25 @@ $('#bSun').onclick=()=>setSun(!sunOn);
 $('#sunT').oninput=()=>{stopDay(); applySun();};
 $('#sunT').onchange=()=>syncTime();
 $('#sunPlay').onclick=playDay;
-/* ambient soundtrack: on by default. Browsers only allow sound after the visitor interacts, so it starts on their first tap, click or key press anywhere (unless that tap is on Sound itself, which turns it off). Played through Web Audio so the loop is gapless, with a soft fade in and out;
-   falls back to the <audio> element if decoding isn't available. Pauses while the tab is hidden */
-{ const btn=$('#audioToggleBtn'), lbl=$('#audioStatusText'), el=$('#ambientTrack'), VOL=0.35;
-  let on=true, ctx=null, gain=null, src=null, loading=false, fallback=false;
-  const pick=()=>{ const a=document.createElement('audio'); return a.canPlayType('audio/webm; codecs="opus"')?'./audio/ambient-loop.webm':'./audio/ambient-loop.mp4'; };
-  const show=(t)=>{ lbl.textContent=t; btn.setAttribute('aria-pressed',String(on)); };
-  async function start(){
-    if(fallback){ el.volume=VOL; try{ await el.play(); }catch(e){ on=false; show('Sound: Off'); } return; }
-    try{
-      if(!ctx){ const AC=window.AudioContext||window.webkitAudioContext; ctx=new AC(); gain=ctx.createGain(); gain.gain.value=0; gain.connect(ctx.destination); }
-      if(ctx.state==='suspended') await ctx.resume();
-      if(!src){ loading=true; show('Sound: Loading…'); const buf=await ctx.decodeAudioData(await (await fetch(pick())).arrayBuffer()); loading=false;
-        src=ctx.createBufferSource(); src.buffer=buf; src.loop=true; src.connect(gain); src.start(); }
-      const t=ctx.currentTime; gain.gain.cancelScheduledValues(t); gain.gain.setValueAtTime(gain.gain.value,t); gain.gain.linearRampToValueAtTime(on?VOL:0,t+1.5);
-      show(on?'Sound: On':'Sound: Off');
-    }catch(e){ loading=false; fallback=true; on&&start(); }
-  }
-  function stop(){
-    if(fallback){ el.pause(); return; }
-    if(!ctx) return; const t=ctx.currentTime; gain.gain.cancelScheduledValues(t); gain.gain.setValueAtTime(gain.gain.value,t); gain.gain.linearRampToValueAtTime(0,t+0.6);
-    setTimeout(()=>{ if(!on&&ctx&&ctx.state==='running') ctx.suspend(); },700);
-  }
-  const first=e=>{ ['pointerdown','keydown','touchend'].forEach(t=>document.removeEventListener(t,first,true)); if(on&&!btn.contains(e.target)) start(); };
-  ['pointerdown','keydown','touchend'].forEach(t=>document.addEventListener(t,first,true));
-  btn.addEventListener('click',()=>{ if(loading) return; on=!on; show(on?'Sound: On':'Sound: Off'); on?start():stop(); track('sound',{on}); });
-  document.addEventListener('visibilitychange',()=>{ if(!on) return; if(document.hidden){ fallback?el.pause():ctx&&ctx.suspend(); } else start(); });
+/* ambient soundtrack: plays from page load alongside the tour. Links that open a particular home or time (#16c, ?time=) start with it off.
+   Browsers often refuse sound before the visitor interacts; if so it starts on their first tap, click or key press (unless that tap is on Sound itself).
+   Uses the plain <audio> element so it also plays on iPhones in silent mode; the file is mastered at background level, so fades are a nicety where supported */
+{ const btn=$('#audioToggleBtn'), lbl=$('#audioStatusText'), el=$('#ambientTrack'), EV=['pointerdown','keydown','touchend'];
+  const pre=/^#?16[a-f]/i.test(INIT_HASH||'')||new URLSearchParams(location.search).has('time');
+  let on=!pre, fadeRaf=0;
+  const show=()=>{ lbl.textContent=on?'Sound: On':'Sound: Off'; btn.setAttribute('aria-pressed',String(on)); };
+  const fade=(to,ms,done)=>{ cancelAnimationFrame(fadeRaf); const from=el.volume, t0=performance.now();
+    const step=now=>{ const k=Math.min(1,(now-t0)/ms); try{ el.volume=from+(to-from)*k; }catch(e){} if(k<1) fadeRaf=requestAnimationFrame(step); else if(done) done(); }; fadeRaf=requestAnimationFrame(step); };
+  const play=()=>{ if(!on||!el.paused) return Promise.resolve(); try{ el.volume=0; }catch(e){} const p=el.play(); fade(1,1500); return p||Promise.resolve(); };
+  const disarm=()=>EV.forEach(t=>document.removeEventListener(t,firstTap,true));
+  function firstTap(e){ disarm(); if(on&&!btn.contains(e.target)) play().catch(()=>{}); }
+  const arm=()=>EV.forEach(t=>document.addEventListener(t,firstTap,true));
+  show();
+  if(on) play().then(()=>{ if(el.paused) arm(); }).catch(()=>arm());   // autoplay allowed: playing now; otherwise wait for the first interaction
+  btn.addEventListener('click',()=>{ on=!on; show(); disarm(); if(on) play().catch(()=>{}); else fade(0,600,()=>el.pause()); track('sound',{on}); });
+  document.addEventListener('visibilitychange',()=>{ if(!on) return; if(document.hidden) el.pause(); else play().catch(()=>arm()); });
 }
+
 let moment=null;   /* last picked popular time: re-applied when the season changes, since golden hour and evening move with sunset */
 const markMoment=()=>document.querySelectorAll('#moments button').forEach(x=>x.setAttribute('aria-pressed',String(x.dataset.m===moment)));
 document.querySelectorAll('#moments button').forEach(b=>b.onclick=()=>{ stopDay(); moment=b.dataset.m; setClock(parseTime(moment)); markMoment(); syncTime(); track('day-moment',{moment,unit:curUnit()}); });
