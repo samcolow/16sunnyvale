@@ -53,6 +53,11 @@ h1{font:700 clamp(28px,5vw,44px)/1.02 var(--f-display);letter-spacing:-.02em;mar
 .stat b{font:500 18px/1.2 var(--f-mono);font-variant-numeric:tabular-nums}
 .stat span{font-size:12px;color:var(--muted)}
 .scene-band{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.startgate{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;pointer-events:none;z-index:4}
+.startgate button{pointer-events:auto;display:inline-flex;align-items:center;gap:10px;font:600 17px/1 var(--f-body);background:#1d2a44;color:#ffffff;border:0;border-radius:999px;padding:16px 26px 16px 22px;box-shadow:0 6px 24px rgba(16,24,40,.28);cursor:pointer;transition:transform .15s}
+.startgate button:hover{transform:scale(1.04)} .startgate button:focus-visible{outline:3px solid #ffffff;outline-offset:3px}
+.startgate small{pointer-events:none;font:500 12px/1 var(--f-body);color:#1d2a44;background:rgba(251,251,247,.85);padding:4px 9px;border-radius:999px}
+@media (prefers-reduced-motion:reduce){.startgate button{transition:none}}
 .loading{position:absolute;inset:0;display:flex;flex-direction:column;gap:12px;align-items:center;justify-content:center;font:500 13px/1.3 var(--f-body);color:#55607a;background:#cfdde4;z-index:5;transition:opacity .4s}
 .loading span{width:28px;height:28px;border-radius:50%;border:3px solid rgba(29,42,68,.18);border-top-color:#1d2a44;animation:spin 1s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -301,6 +306,7 @@ dialog.share p{font-size:13px;color:var(--muted);margin:0 0 12px}
   <div class="scene" id="scene">
     <div class="loading" id="loading" aria-live="polite"><span></span>Loading the 3D model…</div>
     <div class="labels" id="labels"></div>
+    <div class="startgate" id="startGate" hidden><button id="bStart" type="button"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg>Start the tour</button><small>with sound</small></div>
     <div class="ctrls">
       <button id="bTour" class="icon" aria-pressed="false" aria-label="Play tour" title="Play tour"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg></button>
       <button id="bLife" class="opt" aria-pressed="true" title="Show or hide people, cars and buses">Activity</button>
@@ -1919,26 +1925,21 @@ $('#bSun').onclick=()=>setSun(!sunOn);
 $('#sunT').oninput=()=>{stopDay(); applySun();};
 $('#sunT').onchange=()=>syncTime();
 $('#sunPlay').onclick=playDay;
-/* ambient soundtrack: plays from page load alongside the tour. Links that open a particular home or time (#16c, ?time=) start with it off.
-   Browsers often refuse sound before the visitor interacts; if so it starts on their first tap, click or key press (unless that tap is on Sound itself).
-   Uses the plain <audio> element so it also plays on iPhones in silent mode; the file is mastered at background level, so fades are a nicety where supported */
-{ const btn=$('#audioToggleBtn'), lbl=$('#audioStatusText'), el=$('#ambientTrack'), EV=['pointerup','touchend','click','keydown'];   // events every browser accepts as permission to play sound
-  const pre=/^#?16[a-f]/i.test(INIT_HASH||'')||new URLSearchParams(location.search).has('time');
-  let on=!pre, fadeRaf=0;
-  const show=()=>{ lbl.textContent=!on?'Sound: Off':el.paused?'Tap for sound':'Sound: On'; btn.setAttribute('aria-pressed',String(on)); };
-  el.addEventListener('playing',show); el.addEventListener('pause',show);
+let startSound=null;
+/* ambient soundtrack: starts with "Start the tour" (a tap, so every browser allows sound), or from the Sound button.
+   Plain <audio> playback so it also plays on iPhones in silent mode; the file is mastered at background level, so fades are a nicety where supported */
+{ const btn=$('#audioToggleBtn'), lbl=$('#audioStatusText'), el=$('#ambientTrack');
+  let on=false, fadeRaf=0;
+  const show=()=>{ lbl.textContent=on?'Sound: On':'Sound: Off'; btn.setAttribute('aria-pressed',String(on)); };
   const fade=(to,ms,done)=>{ cancelAnimationFrame(fadeRaf); const from=el.volume, t0=performance.now();
     const step=now=>{ const k=Math.min(1,(now-t0)/ms); try{ el.volume=from+(to-from)*k; }catch(e){} if(k<1) fadeRaf=requestAnimationFrame(step); else if(done) done(); }; fadeRaf=requestAnimationFrame(step); };
-  const play=()=>{ if(!on||!el.paused) return Promise.resolve(); try{ el.volume=0; }catch(e){} const p=el.play(); fade(1,1500); return p||Promise.resolve(); };
-  const disarm=()=>EV.forEach(t=>document.removeEventListener(t,firstTap,true));
-  function firstTap(e){ if(!on||btn.contains(e.target)) return; play().then(()=>{ if(!el.paused) disarm(); }).catch(()=>{}); }   // stays armed until playback actually starts
-  const arm=()=>EV.forEach(t=>document.addEventListener(t,firstTap,true));
+  const play=()=>{ try{ el.volume=0; }catch(e){} const p=el.play(); fade(1,1500); return (p||Promise.resolve()).catch(()=>{ on=false; show(); }); };
+  startSound=()=>{ on=true; show(); try{ el.currentTime=0; }catch(e){} play(); };   // from the top of the song, in step with the tour
   show();
-  if(on) play().then(()=>{ if(el.paused) arm(); }).catch(()=>arm());   // autoplay allowed: playing now; otherwise wait for the first interaction
-  btn.addEventListener('click',()=>{ if(on&&el.paused){ play().then(disarm).catch(()=>{}); track('sound',{on:true}); return; }   // 'Tap for sound' starts it rather than switching off
-    on=!on; show(); disarm(); if(on) play().catch(()=>{}); else fade(0,600,()=>el.pause()); track('sound',{on}); });
-  document.addEventListener('visibilitychange',()=>{ if(!on) return; if(document.hidden) el.pause(); else play().catch(()=>arm()); });
+  btn.addEventListener('click',()=>{ on=!on; show(); if(on) play(); else fade(0,600,()=>el.pause()); track('sound',{on}); });
+  document.addEventListener('visibilitychange',()=>{ if(!on) return; if(document.hidden) el.pause(); else play(); });
 }
+
 
 let moment=null;   /* last picked popular time: re-applied when the season changes, since golden hour and evening move with sunset */
 const markMoment=()=>document.querySelectorAll('#moments button').forEach(x=>x.setAttribute('aria-pressed',String(x.dataset.m===moment)));
@@ -2051,7 +2052,15 @@ $('#bShare').addEventListener('click',()=>track('share',{action:'open',unit:curU
 $('#bCopy').addEventListener('click',()=>track('share',{action:'copy',unit:curUnit()}));
 const spec=document.querySelector('details'); if(spec) spec.addEventListener('toggle',()=>{ if(spec.open&&!viewed.has('spec')){viewed.add('spec'); track('spec-open',{unit:curUnit()});} });
 addEventListener('hashchange',()=>{stopTour();openDeepLink(location.hash);});
-if(!reduce&&!deep&&!timeLinked) setTimeout(()=>{if(!touched)startTour();},60);   /* moving from the first frame, under the loader fade */
+/* plain links (no home or time selected): the model shows straight away with a slow drift, and "Start the tour" starts the guided tour and the soundtrack together.
+   Dragging, zooming or tapping anything else dismisses it and leaves the visitor to explore, sound off. Links to a home or time skip it */
+{ const gate=$('#startGate');
+  if(!deep&&!timeLinked){ gate.hidden=false; if(!reduce){ controls.autoRotate=true; controls.autoRotateSpeed=0.35; }
+    const close=()=>{ gate.hidden=true; EV.forEach(t=>document.removeEventListener(t,away,true)); }, EV=['pointerdown','wheel','keydown'];
+    function away(e){ if(e.target.closest&&e.target.closest('#startGate')) return; close(); controls.autoRotate=false; }
+    EV.forEach(t=>document.addEventListener(t,away,true));
+    $('#bStart').addEventListener('click',()=>{ close(); touched=false; startTour(); if(startSound) startSound(); track('start-tour',{}); });
+  } }
 })();
 </script>
 
