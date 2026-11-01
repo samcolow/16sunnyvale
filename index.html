@@ -1232,7 +1232,7 @@ function interior(i,y0,L,x,mir,P,FU,endHome){
   }
   if(P===PLANS1&&i===1){   /* 16A Level 1 to Level 2, as on the Lot 1 plan: a U-stair of 16 risers, 4 up the left flight from the dining, 8 winders against the street-front wall, 4 back along the right flight to Level 2.
       Carpeted treads and risers over a white closed understair; treads above the cut appear only at eye level, so the floor view stays a clean section */
-    const rise=FH/16, F=y0+0.12, Pv=[645,375], BX=[525,765,265,375], whiteM=new THREE.MeshLambertMaterial({color:0xebe9e5,emissive:0x3a3936});
+    const rise=FH/16, F=y0+0.12, Pv=[645,375], BX=[525,765,265,375], whiteM=M.part;   // stairwell linings, dividing wall and soffits in the same plaster finish as the room walls
     const put=(pts,k)=>{ const top=k*rise, par=top>CUT-0.05?L.doors:L.cut, q=pts.map(p=>m(...p));
       if(k<=4){ if(k>1) prism(q,F,top-rise,whiteM,par); } else if(k<=12){ const me=prism(q,F,top-rise,whiteM,par), pa=me.geometry.attributes.position, pv=m(...Pv), y0w=me.position.y;   // winders: plastered soffit that keeps descending around the turn, continuous with the flight soffit
         const c0=pv, a0=Math.atan2(m(525,375)[1]-c0[1],m(525,375)[0]-c0[0]), af=Math.atan2(m(645,265)[1]-c0[1],m(645,265)[0]-c0[0]), sg=Math.sin(af-a0)>0?1:-1, tm=(k-4.5)/8;
