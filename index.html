@@ -1926,6 +1926,9 @@ $('#sunT').oninput=()=>{stopDay(); applySun();};
 $('#sunT').onchange=()=>syncTime();
 $('#sunPlay').onclick=playDay;
 let startSound=null;
+const SOUND_ON=false;   /* soundtrack switched off for now: set to true to bring back the Sound button, the music on Start the tour and the 'with sound' note */
+if(!SOUND_ON){ $('#audioToggleBtn').remove(); $('#ambientTrack').remove(); const n=document.querySelector('#startGate small'); if(n) n.remove(); }
+else
 /* ambient soundtrack: starts with "Start the tour" (a tap, so every browser allows sound), or from the Sound button.
    Plain <audio> playback so it also plays on iPhones in silent mode; the file is mastered at background level, so fades are a nicety where supported */
 { const btn=$('#audioToggleBtn'), lbl=$('#audioStatusText'), el=$('#ambientTrack');
