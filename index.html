@@ -256,6 +256,7 @@ dd{font:400 13.5px/1.5 var(--f-body);min-width:0}
 .sunbar .sunnote{font-size:11.5px;color:var(--muted)}
 .sunbar input[type=range]{width:min(260px,52vw);accent-color:#e0a020}
 .sunbar .seg{box-shadow:none}
+.sunbar .moments{flex-basis:100%;justify-content:center;flex-wrap:wrap}   /* one-tap popular times, on their own row */
 /* share dialog */
 dialog.share{border:1px solid var(--line);border-radius:14px;background:var(--surface);color:var(--fg);padding:18px;max-width:min(360px,calc(100vw - 32px))}
 dialog.share::backdrop{background:rgba(10,14,24,.45)}
@@ -307,6 +308,7 @@ dialog.share p{font-size:13px;color:var(--muted);margin:0 0 12px}
       <button id="sunPlay" class="icon" aria-label="Play the day" title="Play the day"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg></button><output id="sunlbl" for="sunT">1:00 pm</output><span class="sunmoment" id="sunMoment"></span>
       <input type="range" id="sunT" min="0" max="1000" value="500" aria-label="Time of day">
       <div class="seg" id="season" role="group" aria-label="Season"><button data-s="sum" aria-pressed="true">Summer</button><button data-s="eq" aria-pressed="false">Spring/Autumn</button><button data-s="win" aria-pressed="false">Winter</button></div>
+      <div class="seg moments" id="moments" role="group" aria-label="Jump to a time"><button data-m="morning" aria-pressed="false">Morning</button><button data-m="midday" aria-pressed="false">Midday</button><button data-m="afternoon" aria-pressed="false">Afternoon</button><button data-m="golden" aria-pressed="false">Golden hour</button><button data-m="evening" aria-pressed="false">Evening</button></div>
     </div></div>
     <div class="spothint" id="spotHint" hidden>Tap <b>◉</b> to stand in a room</div>
     <div class="spotbar" id="spotBar" hidden><div><span class="sb-eye" aria-hidden="true">◉</span><span id="spotName"></span><span class="sb-hint">Drag to look around</span><button id="spotBack" type="button">Back</button></div></div>
@@ -1893,7 +1895,11 @@ $('#bSun').onclick=()=>setSun(!sunOn);
 $('#sunT').oninput=()=>{stopDay(); applySun();};
 $('#sunT').onchange=()=>syncTime();
 $('#sunPlay').onclick=playDay;
-document.querySelectorAll('#season button').forEach(b=>b.onclick=()=>{season=b.dataset.s;document.querySelectorAll('#season button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));applySun();syncTime();});
+let moment=null;   /* last picked popular time: re-applied when the season changes, since golden hour and evening move with sunset */
+const markMoment=()=>document.querySelectorAll('#moments button').forEach(x=>x.setAttribute('aria-pressed',String(x.dataset.m===moment)));
+document.querySelectorAll('#moments button').forEach(b=>b.onclick=()=>{ stopDay(); moment=b.dataset.m; setClock(parseTime(moment)); markMoment(); syncTime(); track('day-moment',{moment,unit:curUnit()}); });
+$('#sunT').addEventListener('input',()=>{ moment=null; markMoment(); });
+document.querySelectorAll('#season button').forEach(b=>b.onclick=()=>{season=b.dataset.s;document.querySelectorAll('#season button').forEach(x=>x.setAttribute('aria-pressed',String(x===b))); if(moment) setClock(parseTime(moment)); else applySun(); syncTime();});
 
 /* share: copy link */
 const dlg=$('#shareDlg');
