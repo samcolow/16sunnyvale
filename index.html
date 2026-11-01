@@ -2007,7 +2007,7 @@ function parseTime(v){ const S=SEASON[season], ss=sunsetOf(S), sr=sunriseOf(S);
 function setClock(t){ const S=SEASON[season]; $('#sunT').value=Math.round(Math.max(0,Math.min(1,(t-S.t0)/(S.t1-S.t0)))*1000); applySun(); }
 function clockNow(){ const S=SEASON[season]; return S.t0+(S.t1-S.t0)*(+$('#sunT').value/1000); }
 function timeQuery(){ if(!sunOn) return ''; const t=clockNow(), h=Math.floor(t), mi=Math.round((t-h)*60)%60; return '?time='+String(h+(Math.round((t-h)*60)===60?1:0)).padStart(2,'0')+':'+String(mi).padStart(2,'0')+'&season='+SEASON_NAME[season]; }
-function syncTime(){ try{ history.replaceState(null,'',location.pathname+timeQuery()+location.hash); }catch(e){} }
+function syncTime(){}   /* the address bar is left alone: rewriting the query would drop ?utm_ tags and log a new page view on every time change; Share builds the time link itself */
 const TQ=new URLSearchParams(location.search);
 const timeLinked=(()=>{ const sq=SEASON_Q[(TQ.get('season')||'').toLowerCase()]; if(sq){ season=sq; document.querySelectorAll('#season button').forEach(x=>x.setAttribute('aria-pressed',String(x.dataset.s===sq))); }
   if(!TQ.has('time')) return false; const t=parseTime(TQ.get('time')); if(t==null) return false;
