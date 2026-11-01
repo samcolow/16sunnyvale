@@ -702,7 +702,10 @@ function unit(n,x){
   { const om=new THREE.MeshBasicMaterial({color:sale?0x7c76e8:0x3fae73}), ol=new THREE.Group(); ol.visible=false; g.add(ol);
     [[-3.04,3.04,-4.6,-4.52],[-3.04,3.04,3.86,3.94],[-3.04,-2.96,-4.6,3.94],[2.96,3.04,-4.6,3.94]].forEach(([a,b,c,d])=>bx(a,b,0,0.06,c,d,om,ol));
     var outline=ol; }
-  bx(-3.08,3.08,9,9.35,-4.6,3.9,M.roof,L2.shell,true);
+  /* mono-pitch roof at 4° per the elevations: high over the driveway front, falling to the back yard (0.58 m over the 8.3 m depth) */
+  const RF=0.58, roofTop=z=>9.35+RF*(3.8-z)/8.3;
+  { const me=bx(-3.08,3.08,roofTop(-0.35)-0.35,roofTop(-0.35),-4.62,3.92,M.roof,L2.shell,true); me.rotation.x=Math.atan2(RF,8.3); }
+  bx(-3.08,3.08,9.0,roofTop(-4.6)-0.02,-4.62,-4.52,M.charcoal,L2.shell,true);   // front fascia rises with the roof
   /* ---- driveway face (front, -z) ---- */
   // ground: Silver Pearl front door on the stair block, garage door recessed under the deck
   if(n!==1){ wallSeg(-1.0,-4.5,-0.06,-2.9,0,2.2,0.06,M.door,G.shell,false,0.04).scale.x=0.95/1.86;
@@ -773,6 +776,9 @@ function unit(n,x){
   if(n===1||n===6){
     const win=(z0,z1,y0,y1,par,gm,xo)=>{xo=xo||0;bx(-3.1-xo,-3.06-xo,y0,y1,z0,z1,M.black,par);bx(-3.12-xo,-3.1-xo,y0+0.07,y1-0.07,z0+0.07,z1-0.07,gm||glass,par);};
     const one=n===1, zw=one?-2.65:-1.55;
+    const wedge=(z0,z1,m)=>{ const sh=new THREE.Shape(); sh.moveTo(z0,9.35); sh.lineTo(z1,9.35); sh.lineTo(z1,roofTop(z1)-0.05); sh.lineTo(z0,roofTop(z0)-0.05); sh.lineTo(z0,9.35);   // end wall rises under the sloping roof
+      const g=new THREE.ExtrudeGeometry(sh,{depth:0.06,bevelEnabled:false}); g.rotateY(-Math.PI/2); const me=new THREE.Mesh(g,m); me.position.x=-3.0; me.castShadow=me.receiveShadow=true; L2.shell.add(me); };
+    { const zw0=n===1?-2.65:-1.55; wedge(-4.5,zw0,M.charcoal); if(n===1){ wedge(zw0,2.9,M.white); wedge(2.9,3.8,M.charcoal); } else wedge(zw0,3.8,M.white); }
     lv.forEach((L,i)=>{const y0=i*FH, y1=y0+FH+(i===2?0.35:0), zr=i===0?3.6:3.8, zf=-4.5;
       if(one){ bx(-3.06,-3,y0,y1,2.9,zr,M.charcoal,L.shell,true); bx(-3.06,-3,y0,y1,zw,2.9,M.white,L.shell,true); }
       else if(i===0){ const me=bx(-3.06,-3,y0,y1,zw,zr,M.brick,L.shell,true), uv=me.geometry.attributes.uv, w=zr-zw;   /* 16F west elevation: brick on the ground floor behind the Stria, at the same course scale as the rest */
