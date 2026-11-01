@@ -339,8 +339,8 @@ dialog.share p{font-size:13px;color:var(--muted);margin:0 0 12px}
       <div><h4>Bathrooms</h4><ul><li>Full-height tiling: Sand Light Grey walls, Gem Ash Grey floors</li><li>Plumbline Como brushed gunmetal PVD tapware and showers</li><li>Wall-hung vanities · LED backlit mirror in the main bathroom</li><li>Rain shower heads throughout · separate guest WC</li></ul></div>
       <div><h4>Heating and comfort</h4><ul><li>Heat pump in the living area</li><li>Bedrooms pre-piped for heat pumps · 16C &amp; 16D have heat pumps installed in every bedroom</li><li>Bathroom underfloor heating and heated towel rails on Wi-Fi touchscreen thermostats</li><li>Low-E double glazing · well-insulated roof and walls (R7.0 and R2.4)</li></ul></div>
       <div><h4>Flooring</h4><ul><li>Desert Oak SPC flooring across Level 1 living, dining and kitchen</li><li>Feltex Okiwi Bay plush carpet in Stone on stairs and bedrooms</li><li>Charcoal marine-grade carpet in the garage</li></ul></div>
-      <div><h4>Smart home and connectivity</h4><ul><li>Keyless smart lock (PIN and app)</li><li>Wired data to every level, ready for a mesh Wi-Fi point on each floor for fast, reliable Wi-Fi throughout</li><li>16C &amp; 16D: Smart home control of lighting scenes, climate, smart alarm and video doorbell</li></ul></div>
-      <div><h4>Outdoor and parking</h4><ul><li>Fully fenced backyard with artificial turf · private Level 1 deck</li><li>EV charger-ready garage</li><li>Shared secure parcel lockers at the street entrance</li></ul></div>
+      <div><h4>Smart home and connectivity</h4><ul><li>Keyless smart lock (PIN and app)</li><li>Wired data to every level, ready for a mesh Wi-Fi point on each floor for fast, reliable Wi-Fi throughout</li><li>16C &amp; 16D: Smart home control of lighting scenes, climate, smart alarm and video doorbell · Wi-Fi 7 mesh installed</li></ul></div>
+      <div><h4>Outdoor and parking</h4><ul><li>Fully fenced backyard with artificial turf · private Level 1 deck</li><li>EV charger-ready garage</li><li>Shared secure parcel locker at the street entrance</li></ul></div>
       <div><h4>Exterior materials</h4><ul class="mats"><li><i class="sw" style="background:#34373a"></i>James Hardie Stria, vertical: Resene Baltic Sea</li><li><i class="sw" style="background:#eeeae2"></i>James Hardie Oblique, horizontal: Resene Black White · soffits to match</li><li><i class="sw" style="background:#585c61"></i>Brick: Austral Bricks Industry range in Platinum, a graphite glazed brick with a metallic sheen</li><li><i class="sw" style="background:#1d1e20"></i>Roof: Metalcraft · Colorsteel Ebony</li><li><i class="sw" style="background:#151617"></i>Joinery, garage doors, fascia, gutters and louvres: Matt black aluminium · black uPVC downpipes</li></ul></div>
     </div>
   </details>
@@ -409,7 +409,7 @@ const lot=n=>{
     ['Title','Freehold, no body corporate'],
     ['Access','Shared driveway (JOAL), 1/6 share each'],
     ['Heating',sale?'Heat pumps in the living area and every bedroom · underfloor heating in bathrooms':'Heat pump in the living area · underfloor heating in bathrooms'],
-    ['Smart home',sale?'Smart home control of lighting scenes, climate, smart alarm and video doorbell · keyless entry · fibre ready':'Keyless entry · fibre ready'],
+    ['Smart home',sale?'Smart home control of lighting scenes, climate, smart alarm and video doorbell · Wi-Fi 7 mesh · keyless entry · fibre ready':'Keyless entry · fibre ready'],
     ['Window furnishings','High-quality linen sheers and blackout curtains in every room'],
     ['Garage','Carpeted, EV charger ready']];
   b.note=n===1?'End home facing Sunnyvale Rd, with its own floor plan.':n===6?'End home with a side yard.':'';
@@ -418,7 +418,7 @@ const lot=n=>{
 const INFO={
   site:{t:'The homes',s:'Six freehold terrace homes · Greenlane',cat:'dev',rows:[],homes:true,note:'Pick a home to see it in the model, then use GF, L1 or L2 to look inside.'},
   lot1:lot(1),lot2:lot(2),lot3:lot(3),lot4:lot(4),lot5:lot(5),lot6:lot(6),
-  entry:{t:'Street entrance',s:'Sign on the front fence · mail and parcel hub at the driveway',cat:'dev',rows:[['Sign','Brushed stainless steel with laser-cut lettering'],['Parcels','Shared secure parcel lockers'],['Letters','Six individual letterboxes'],['Fencing','Horizontal timber slats, matt black'],['Backyards','Fully fenced, artificial turf']]},
+  entry:{t:'Street entrance',s:'Sign on the front fence · mail and parcel hub at the driveway',cat:'dev',rows:[['Sign','Brushed stainless steel with laser-cut lettering'],['Parcels','Shared secure parcel locker'],['Letters','Six individual letterboxes'],['Fencing','Horizontal timber slats, matt black'],['Backyards','Fully fenced, artificial turf']]},
   stn:{t:'Greenlane train station',s:'Southern and Onehunga lines',cat:'dev',rows:[['From the site','12 min walk']],note:'Position in the model is indicative.'},
   mcd:{t:"McDonald's",s:'Great South Rd',cat:'dev',rows:[['Where','Great South Rd, Greenlane']],note:'Position in the model is indicative.'},
   ww:{t:'Woolworths',s:'Greenlane shops',cat:'dev',rows:[['From the site','8 min walk to Greenlane shops']],note:'Position in the model is indicative.'},
@@ -1788,7 +1788,7 @@ $('#bReset').onclick=()=>{stopTour();leaveSpot(false);fly('overview');render('si
 /* ---------- automatic tour ---------- */
 const TOUR=[
   {t:'Six new terrace homes on a no-exit road',v:'overview',sel:'site',cut:0,d:7000},
-  {t:'Arriving home: the street entrance and parcel lockers',v:'entrance',sel:'entry',cut:0,d:6000,car:1},
+  {t:'Arriving home: the street entrance and parcel locker',v:'entrance',sel:'entry',cut:0,d:6000,car:1},
   {t:'Drive in: internal garage, front door, deck above',v:'driveway',sel:'joal',cut:0,rot:-0.9,zoom:0.75,d:12000},
   {t:'Ground floor: a suite with its own ensuite, for guests, grandparents or a home office',sel:'lot3',cut:1,d:9000,rot:-0.5},
   {t:'Level 1: cook, eat and relax, opening onto the deck',sel:'lot3',cut:2,d:9000,rot:-0.5},
