@@ -1922,19 +1922,21 @@ $('#sunPlay').onclick=playDay;
 /* ambient soundtrack: plays from page load alongside the tour. Links that open a particular home or time (#16c, ?time=) start with it off.
    Browsers often refuse sound before the visitor interacts; if so it starts on their first tap, click or key press (unless that tap is on Sound itself).
    Uses the plain <audio> element so it also plays on iPhones in silent mode; the file is mastered at background level, so fades are a nicety where supported */
-{ const btn=$('#audioToggleBtn'), lbl=$('#audioStatusText'), el=$('#ambientTrack'), EV=['pointerdown','keydown','touchend'];
+{ const btn=$('#audioToggleBtn'), lbl=$('#audioStatusText'), el=$('#ambientTrack'), EV=['pointerup','touchend','click','keydown'];   // events every browser accepts as permission to play sound
   const pre=/^#?16[a-f]/i.test(INIT_HASH||'')||new URLSearchParams(location.search).has('time');
   let on=!pre, fadeRaf=0;
-  const show=()=>{ lbl.textContent=on?'Sound: On':'Sound: Off'; btn.setAttribute('aria-pressed',String(on)); };
+  const show=()=>{ lbl.textContent=!on?'Sound: Off':el.paused?'Tap for sound':'Sound: On'; btn.setAttribute('aria-pressed',String(on)); };
+  el.addEventListener('playing',show); el.addEventListener('pause',show);
   const fade=(to,ms,done)=>{ cancelAnimationFrame(fadeRaf); const from=el.volume, t0=performance.now();
     const step=now=>{ const k=Math.min(1,(now-t0)/ms); try{ el.volume=from+(to-from)*k; }catch(e){} if(k<1) fadeRaf=requestAnimationFrame(step); else if(done) done(); }; fadeRaf=requestAnimationFrame(step); };
   const play=()=>{ if(!on||!el.paused) return Promise.resolve(); try{ el.volume=0; }catch(e){} const p=el.play(); fade(1,1500); return p||Promise.resolve(); };
   const disarm=()=>EV.forEach(t=>document.removeEventListener(t,firstTap,true));
-  function firstTap(e){ disarm(); if(on&&!btn.contains(e.target)) play().catch(()=>{}); }
+  function firstTap(e){ if(!on||btn.contains(e.target)) return; play().then(()=>{ if(!el.paused) disarm(); }).catch(()=>{}); }   // stays armed until playback actually starts
   const arm=()=>EV.forEach(t=>document.addEventListener(t,firstTap,true));
   show();
   if(on) play().then(()=>{ if(el.paused) arm(); }).catch(()=>arm());   // autoplay allowed: playing now; otherwise wait for the first interaction
-  btn.addEventListener('click',()=>{ on=!on; show(); disarm(); if(on) play().catch(()=>{}); else fade(0,600,()=>el.pause()); track('sound',{on}); });
+  btn.addEventListener('click',()=>{ if(on&&el.paused){ play().then(disarm).catch(()=>{}); track('sound',{on:true}); return; }   // 'Tap for sound' starts it rather than switching off
+    on=!on; show(); disarm(); if(on) play().catch(()=>{}); else fade(0,600,()=>el.pause()); track('sound',{on}); });
   document.addEventListener('visibilitychange',()=>{ if(!on) return; if(document.hidden) el.pause(); else play().catch(()=>arm()); });
 }
 
