@@ -1232,7 +1232,7 @@ function interior(i,y0,L,x,mir,P,FU,endHome){
       Carpeted treads and risers over a white closed understair; treads above the cut appear only at eye level, so the floor view stays a clean section */
     const rise=FH/16, F=y0+0.12, Pv=[645,375], BX=[525,765,265,375], whiteM=new THREE.MeshLambertMaterial({color:0xebe9e5,emissive:0x3a3936});
     const put=(pts,k)=>{ const top=k*rise, par=top>CUT-0.05?L.doors:L.cut, q=pts.map(p=>m(...p));
-      if(k<=4){ if(k>1) prism(q,F,top-rise,whiteM,par); } else prism(q,F+top-rise-0.15,0.15,whiteM,par);   // left flight sits on the floor; winders and the right flight float over the stairwell, white soffits under the treads
+      if(k<=4){ if(k>1) prism(q,F,top-rise,whiteM,par); } else if(k<=12) prism(q,F+0.6,top-rise-0.6,whiteM,par);   // left flight sits on the floor; the winders close down to a flat plastered ceiling over the lower winders; the right flight gets a smooth sloped soffit (below)
       prism(q,F+top-rise,rise,carpetM,par); };
     const Fb=F-2.3, low=(pts,k)=>{ const top=(k-16)*rise, q=pts.map(p=>m(...p)); prism(q,Fb,top-rise-(Fb-F),whiteM,L.cut); prism(q,F+top-rise,rise,carpetM,L.cut); };   // the flight up from the ground floor, seen down the stairwell
     for(let j=1;j<=3;j++) low([[645,375+37.5*(j-1)],[765,375+37.5*(j-1)],[765,375+37.5*j],[645,375+37.5*j]],12+j);
@@ -1248,6 +1248,8 @@ function interior(i,y0,L,x,mir,P,FU,endHome){
       for(let v=0;v<pa.count;v++) if(pa.getY(v)>0){ const z=pa.getZ(v)+cz, f=(z-zA)/(zB-zA); pa.setY(v,hi+(lo-hi)*f-cy); }
       pa.needsUpdate=true; me.geometry.computeVertexNormals(); }
     for(let j=1;j<=4;j++) put([[645,375+37.5*(j-1)],[765,375+37.5*(j-1)],[765,375+37.5*j],[645,375+37.5*j]],12+j);   // right flight, back towards the dining, arriving at Level 2
+    { const [X0,X1,Z0,Z1]=ext(645,375,765,525), zA=m(645,375)[1], zB=m(645,525)[1], me=bx(X0,X1,F+12*rise-0.3,F+16*rise,Z0,Z1,whiteM,L.doors), pa=me.geometry.attributes.position, cy=me.position.y, cz=me.position.z;   // GIB-lined sloping soffit under the right flight: no steps visible from the stairwell below
+      for(let v=0;v<pa.count;v++){ const f=((pa.getZ(v)+cz)-zA)/(zB-zA), top=F+(12+4*f)*rise; pa.setY(v,(pa.getY(v)>0?top:top-0.3)-cy); } pa.needsUpdate=true; me.geometry.computeVertexNormals(); }
     const rail=(a,b,c,d,h0,h1)=>{ const [x0,z0]=m(a,b),[x1,z1]=m(c,d), v=new THREE.Vector3(x1-x0,h1-h0,z1-z0), len=v.length(), me=new THREE.Mesh(new THREE.BoxGeometry(len,0.04,0.04),M.black);
       me.position.set((x0+x1)/2,(h0+h1)/2,(z0+z1)/2); me.rotation.order='YZX'; me.rotation.y=Math.atan2(-v.z,v.x); me.rotation.z=Math.atan2(v.y,Math.hypot(v.x,v.z)); L.doors.add(me); };
     rail(528,525,528,375,F+0.9+rise*0.5,F+0.9+rise*4.5); rail(762,375,762,525,F+0.9+rise*12.5,F+0.9+rise*16);   // black wall-mounted handrails, 900 above the nosings
