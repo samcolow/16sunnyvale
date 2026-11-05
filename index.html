@@ -276,14 +276,24 @@ dd{font:400 13.5px/1.5 var(--f-body);min-width:0}
 .cta-hint{margin:10px 0 0;font-size:11.5px;color:var(--muted)}
 /* sun-path bar */
 .sunbar{position:absolute;left:10px;right:10px;bottom:52px;display:flex;justify-content:center;pointer-events:none}
-.sunbar>div{pointer-events:auto;display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;background:var(--chip-bg);color:var(--chip-fg);border-radius:14px;padding:8px 12px;box-shadow:0 1px 3px rgba(0,0,0,.15);max-width:100%}
-.sunbar .sunmoment{font:500 12.5px/1.3 var(--f-body);flex:1 1 200px}
-.sunbar #sunPlay{width:28px;height:28px;padding:0;display:inline-grid;place-items:center;box-shadow:none;border:1px solid var(--line)}
-.sunbar output{font:500 12px/1 var(--f-mono);min-width:19ch}
-.sunbar .sunnote{font-size:11.5px;color:var(--muted)}
-.sunbar input[type=range]{width:min(260px,52vw);accent-color:#e0a020}
+.sunbar>div{pointer-events:auto;display:grid;grid-template-columns:auto auto minmax(0,1fr) auto;grid-template-areas:"play time slider season" "desc desc desc moments";align-items:center;gap:6px 10px;background:var(--chip-bg);color:var(--chip-fg);border-radius:14px;padding:7px 10px;box-shadow:0 1px 3px rgba(0,0,0,.15);width:min(900px,100%);box-sizing:border-box}   /* compact: two short rows on desktop, three on phones */
+.sunbar #sunPlay{grid-area:play;width:28px;height:28px;padding:0;display:inline-grid;place-items:center;box-shadow:none;border:1px solid var(--line)}
+.sunbar output{grid-area:time;font:500 12px/1 var(--f-mono);white-space:nowrap}
+.sunbar .sunmoment{grid-area:desc;font:500 12px/1.3 var(--f-body);color:var(--muted);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sunbar input[type=range]{grid-area:slider;width:100%;min-width:0;margin:0;accent-color:#e0a020}
 .sunbar .seg{box-shadow:none}
-.sunbar .moments{flex-basis:100%;justify-content:center;flex-wrap:wrap}   /* one-tap popular times, on their own row */
+.sunbar #season{grid-area:season}
+.sunbar .moments{grid-area:moments;justify-self:end;flex-wrap:nowrap}
+.sunbar .seg button{padding:5px 9px;font-size:11px}
+.sunbar .sm{display:none}
+@media (max-width:760px){
+  .sunbar>div{grid-template-columns:auto auto minmax(0,1fr);grid-template-areas:"play time slider" "moments moments moments" "season season season";padding:6px 8px;gap:5px 8px}
+  .sunbar .sunmoment{display:none}   /* phones: the part of day and the sun on the compass say it */
+  .sunbar #season{justify-self:center}
+  .sunbar .lg{display:none} .sunbar .sm{display:inline}
+  .sunbar .moments{justify-self:stretch;overflow-x:auto;scrollbar-width:none} .sunbar .moments::-webkit-scrollbar{display:none}
+  .sunbar .moments button{flex:1 0 auto;padding:5px 7px}
+}
 /* share dialog */
 dialog.share{border:1px solid var(--line);border-radius:14px;background:var(--surface);color:var(--fg);padding:18px;max-width:min(360px,calc(100vw - 32px))}
 dialog.share::backdrop{background:rgba(10,14,24,.45)}
@@ -338,8 +348,8 @@ dialog.share p{font-size:13px;color:var(--muted);margin:0 0 12px}
     <div class="sunbar" id="sunbar" hidden><div>
       <button id="sunPlay" class="icon" aria-label="Play the day" title="Play the day"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg></button><output id="sunlbl" for="sunT">1:00 pm</output><span class="sunmoment" id="sunMoment"></span>
       <input type="range" id="sunT" min="0" max="1000" value="500" aria-label="Time of day">
-      <div class="seg" id="season" role="group" aria-label="Season"><button data-s="sum" aria-pressed="true">Summer</button><button data-s="eq" aria-pressed="false">Spring/Autumn</button><button data-s="win" aria-pressed="false">Winter</button></div>
-      <div class="seg moments" id="moments" role="group" aria-label="Jump to a time"><button data-m="morning" aria-pressed="false">Morning</button><button data-m="midday" aria-pressed="false">Midday</button><button data-m="afternoon" aria-pressed="false">Afternoon</button><button data-m="golden" aria-pressed="false">Golden hour</button><button data-m="evening" aria-pressed="false">Evening</button></div>
+      <div class="seg" id="season" role="group" aria-label="Season"><button data-s="sum" aria-pressed="true">Summer</button><button data-s="eq" aria-pressed="false" aria-label="Spring/Autumn"><span class="lg">Spring/Autumn</span><span class="sm">Spr/Aut</span></button><button data-s="win" aria-pressed="false">Winter</button></div>
+      <div class="seg moments" id="moments" role="group" aria-label="Jump to a time"><button data-m="morning" aria-pressed="false">Morning</button><button data-m="midday" aria-pressed="false">Midday</button><button data-m="afternoon" aria-pressed="false">Afternoon</button><button data-m="golden" aria-pressed="false" aria-label="Golden hour"><span class="lg">Golden hour</span><span class="sm">Golden</span></button><button data-m="evening" aria-pressed="false">Evening</button></div>
     </div></div>
     <div class="spothint" id="spotHint" hidden>Tap <b>◉</b> to stand in a room</div>
     <div class="spotbar" id="spotBar" hidden><div><span class="sb-eye" aria-hidden="true">◉</span><span id="spotName"></span><span class="sb-hint">Drag to look around</span><button id="spotBack" type="button">Back</button></div></div>
