@@ -109,10 +109,10 @@ button:focus-visible{outline:2px solid var(--lease);outline-offset:2px}
 .more{display:none}
 .ctrls .icon{width:36px;height:34px;padding:0;display:inline-flex;align-items:center;justify-content:center}
 .cue{display:flex;align-items:center;gap:6px;margin:8px auto 0;background:transparent;box-shadow:none;border:0;color:var(--muted);font:500 12px/1 var(--f-body);padding:8px 12px;transition:opacity .3s}
-.cue span{font-size:16px;line-height:1;animation:cue 1.8s ease-in-out infinite}
+.cue span[aria-hidden]{font-size:16px;line-height:1;animation:cue 1.8s ease-in-out infinite}
 @keyframes cue{0%,100%{transform:translateY(-2px)}50%{transform:translateY(3px)}}
 .cue.gone{opacity:0;pointer-events:none}
-@media (prefers-reduced-motion:reduce){.cue span{animation:none}}
+@media (prefers-reduced-motion:reduce){.cue span[aria-hidden]{animation:none}}
 /* phones: core controls only, the rest behind More */
 @media (max-width:760px){
   .more{display:inline-block}
@@ -1967,7 +1967,7 @@ const heroFit=()=>{const top=document.querySelector('header.wrap').getBoundingCl
   const h=Math.max(360,Math.round(innerHeight-top-cue-10)); document.documentElement.style.setProperty('--heroH',h+'px');};
 let lastW=0,lastH=0; const refit=()=>{ if(innerWidth!==lastW||Math.abs(innerHeight-lastH)>140){lastW=innerWidth;lastH=innerHeight;heroFit();} };
 refit(); addEventListener('resize',refit);
-$('#cue').onclick=()=>{stopTour(); document.querySelector('.features').scrollIntoView({behavior:reduce?'auto':'smooth'});};
+$('#cue').onclick=()=>{stopTour(); document.querySelector(document.documentElement.classList.contains('tour-only')?'main.wrap':'.features').scrollIntoView({behavior:reduce?'auto':'smooth'});};   // tour-only: the features are hidden, so go to the homes and contacts
 addEventListener('scroll',()=>$('#cue').classList.toggle('gone',scrollY>40),{passive:true});
 $('#bMore').onclick=()=>{const o=sceneEl.classList.toggle('open'); $('#bMore').setAttribute('aria-expanded',String(o)); $('#bMore').textContent=o?'Close':'More';};
 function resize(){
