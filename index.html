@@ -1676,7 +1676,10 @@ function ctaHint(){const p=document.createElement('p'); p.className='cta-hint'; 
 /* deep links: #16c opens with 16C selected; #16c-l1 also opens that floor. The address follows what the viewer picks, so Share sends the same view */
 function deepHash(){ const m=/^lot(\d)$/.exec(selected); if(!m) return ''; return '#16'+'abcdef'[+m[1]-1]+(cut?'-'+['','gf','l1','l2'][cut]:'')+(inSpot&&cut?'-'+inSpot.sp.slug:''); }
 function syncHash(){ if(touring) return; const h=deepHash(); if(h!==location.hash) try{history.replaceState(null,'',h||location.pathname+location.search);}catch(e){} }
-function shareLink(){ const base=SHARE_URL||location.origin+location.pathname; return base+timeQuery()+deepHash(); }
+function shareLink(){ const base=SHARE_URL||location.origin+location.pathname;   /* keeps every query string on the current address (view=tour, utm_ tags …); time and season follow A day here as it is now */
+  const q=new URLSearchParams(location.search), tq=new URLSearchParams(timeQuery().slice(1));
+  q.delete('time'); q.delete('season'); tq.forEach((v,k)=>q.set(k,v));
+  const qs=q.toString().replace(/%3A/gi,':'); return base+(qs?'?'+qs:'')+deepHash(); }
 function openDeepLink(hash){ const m=/^#?16([a-f])(?:[-/](gf|l1|l2)(?:[-/]([a-z]+))?)?$/i.exec(decodeURIComponent(hash||'')); if(!m) return false;
   const n='abcdef'.indexOf(m[1].toLowerCase())+1, c=m[2]?{gf:1,l1:2,l2:3}[m[2].toLowerCase()]:0, xc=-15+(n-1)*W;
   touched=true; selected='lot'+n; setCut(c); render('lot'+n); fly(c?lotView(n,c):[[xc+9,17,-25],[xc,4.5,-1]],1600);
