@@ -88,7 +88,7 @@ button.copy.done{background:var(--ink);color:var(--surface);border-color:var(--i
 <script src="qrcode.min.js"></script>
 <script>
 const BASE='https://16sunnyvale.sasu.co.nz/';
-const url=(src,med,camp,home,content)=>BASE+'?utm_source='+src+'&utm_medium='+med+'&utm_campaign='+camp+(content?'&utm_content='+content.toLowerCase():'')+(home?'#'+home.toLowerCase():'');   /* no #: the full guided tour plays; utm_content says which listing it came from */
+const url=(src,med,camp,home,content)=>BASE+'?utm_source='+src+'&utm_medium='+med+'&utm_campaign='+camp+(content?'&utm_content='+content.toLowerCase():'')+(med==='listing'?'&view=tour':'')+(home?'#'+home.toLowerCase():'');   /* listing links open the tour-only page: the listing already has the highlights and spec */   /* no #: the full guided tour plays; utm_content says which listing it came from */
 const PEOPLE={
   sale:{name:'Dean Tuffley',org:'Ray White · sales agent',camp:'sale',homes:[['16C & 16D','For sale · one listing for both','']],
     channels:[['raywhite','listing','Ray White website','Listing on the Ray White website'],['trademe','listing','TradeMe','Listing and virtual tour link'],['realestate','listing','realestate.co.nz','Listing and virtual tour link'],['oneroof','listing','OneRoof','Listing and virtual tour link'],['email','database','Email','Ray White buyer database'],['facebook','social','Facebook','Posts and ads'],['instagram','social','Instagram','Bio link, stories']],

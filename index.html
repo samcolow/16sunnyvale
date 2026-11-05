@@ -4,6 +4,7 @@ if(q.has('notrack')){localStorage.setItem('umami.disabled','1');q.delete('notrac
 else if(q.has('track')){localStorage.removeItem('umami.disabled');q.delete('track');m='Analytics on for this browser';}
 if(!m)return; var u=location.pathname+(q.toString()?'?'+q:'')+location.hash; history.replaceState(null,'',u);
 addEventListener('DOMContentLoaded',function(){var d=document.createElement('div');d.textContent=m;d.style.cssText='position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#222;color:#fff;padding:8px 14px;border-radius:8px;font:13px sans-serif;z-index:9999';document.body.appendChild(d);setTimeout(function(){d.remove();},2500);});}catch(e){}})();</script>
+<script>/* ?view=tour: tour-only page for visitors arriving from a listing, which already carries the highlights and spec */ try{ if(new URLSearchParams(location.search).get('view')==='tour') document.documentElement.classList.add('tour-only'); }catch(e){}</script>
 <script defer id="umami-tracker" src="https://cloud.umami.is/script.js" data-website-id="a1380e31-5647-4dc0-a598-c6579a6b227d" data-domains="16sunnyvale.sasu.co.nz" data-exclude-hash="true"></script>
 </head><body>
 <title>16 Sunnyvale Road, Greenlane · Terrace homes for sale and rent</title>
@@ -53,6 +54,8 @@ h1{font:700 clamp(28px,5vw,44px)/1.02 var(--f-display);letter-spacing:-.02em;mar
 .stat b{font:500 18px/1.2 var(--f-mono);font-variant-numeric:tabular-nums}
 .stat span{font-size:12px;color:var(--muted)}
 .scene-band{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.tour-only .features,.tour-only .spec,.cue-tour{display:none!important}
+.tour-only .cue-tour{display:inline!important} .tour-only .cue-full{display:none!important}   /* tour-only: keep the model, homes list and contacts */
 .startgate{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;pointer-events:none;z-index:4;background:rgba(251,251,247,.72);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}   /* soft white veil so the button reads cleanly over the model */
 .startgate button{pointer-events:auto;display:inline-flex;align-items:center;gap:10px;font:600 17px/1 var(--f-body);background:#1d2a44;color:#ffffff;border:0;border-radius:999px;padding:16px 26px 16px 22px;box-shadow:0 6px 24px rgba(16,24,40,.28);cursor:pointer;transition:transform .15s}
 .startgate button:hover{transform:scale(1.04)} .startgate button:focus-visible{outline:3px solid #ffffff;outline-offset:3px}
@@ -334,7 +337,7 @@ dialog.share p{font-size:13px;color:var(--muted);margin:0 0 12px}
     <div class="spotbar" id="spotBar" hidden><div><span class="sb-eye" aria-hidden="true">◉</span><span id="spotName"></span><span class="sb-hint">Drag to look around</span><button id="spotBack" type="button">Back</button></div></div>
     <div class="jump" id="jump"></div>
   </div>
-  <button class="cue" id="cue" type="button" data-track="Scroll for features">Scroll for features and contact <span aria-hidden="true">⌄</span></button>
+  <button class="cue" id="cue" type="button" data-track="Scroll for features"><span class="cue-full">Scroll for features and contact</span><span class="cue-tour">Scroll for the homes and contact</span> <span aria-hidden="true">⌄</span></button>
 </div>
 
 <section class="wrap features" aria-label="Key features">
