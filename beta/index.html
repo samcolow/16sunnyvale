@@ -87,7 +87,11 @@ h1{font:700 clamp(28px,5vw,44px)/1.02 var(--f-display);letter-spacing:-.02em;mar
 .lbl.room{font:500 9px/1 var(--f-mono);padding:2px 4px;border-radius:4px;transform:translate(-50%,-50%);opacity:.95}
 .lbl.geo{background:transparent;box-shadow:none;color:#3a4245;opacity:.7;font:500 10px/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase}
 .night .lbl.geo{color:#b9c4c8}
-.ctrls{position:absolute;top:10px;left:10px;right:10px;display:flex;flex-wrap:wrap;gap:6px;pointer-events:none}
+.ctrls{position:absolute;top:10px;left:10px;right:10px;display:flex;flex-wrap:wrap;align-items:center;gap:6px;pointer-events:none}
+.ctrls>button,.ctrls>.seg{height:34px;box-sizing:border-box}   /* one height for every control, matching the play button */
+.ctrls>button{display:inline-flex;align-items:center;justify-content:center}
+.ctrls .seg button{height:30px;box-sizing:border-box}
+.ctrls .brk{display:none}
 .ctrls>*{pointer-events:auto}
 button{font:500 12px/1 var(--f-body);border:1px solid transparent;border-radius:999px;padding:8px 12px;background:var(--chip-bg);color:var(--chip-fg);cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.15)}
 button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
@@ -105,8 +109,8 @@ button:focus-visible{outline:2px solid var(--lease);outline-offset:2px}
 .night .ctrls button[aria-pressed="true"],.night .ctrls .seg button[aria-pressed="true"],.night .sunbar .seg button[aria-pressed="true"]{background:#1d2a44;color:#ffffff;border-color:rgba(255,255,255,.55)}
 .night .ctrls button,.night .ctrls .seg,.night .jump button,.night .skey,.night .tourcap{background:rgba(24,30,46,.88);color:#e8eaf4}
 .ctrls .spacer{flex:1}
-.more{display:none}
-.ctrls .icon{width:36px;height:34px;padding:0;display:inline-flex;align-items:center;justify-content:center}
+.ctrls .more{display:none}
+.ctrls .icon{width:34px;height:34px;padding:0;display:inline-flex;align-items:center;justify-content:center}
 .cue{display:flex;align-items:center;gap:6px;margin:8px auto 0;background:transparent;box-shadow:none;border:0;color:var(--muted);font:500 12px/1 var(--f-body);padding:8px 12px;transition:opacity .3s}
 .cue span[aria-hidden]{font-size:16px;line-height:1;animation:cue 1.8s ease-in-out infinite}
 @keyframes cue{0%,100%{transform:translateY(-2px)}50%{transform:translateY(3px)}}
@@ -114,9 +118,12 @@ button:focus-visible{outline:2px solid var(--lease);outline-offset:2px}
 @media (prefers-reduced-motion:reduce){.cue span[aria-hidden]{animation:none}}
 /* phones: core controls only, the rest behind More */
 @media (max-width:760px){
-  .more{display:inline-block}
+  .ctrls .more{display:inline-flex}
   .ctrls .opt{display:none}
-  .scene.open .ctrls .opt{display:inline-block}
+  .scene.open .ctrls .opt{display:inline-flex}
+  .ctrls .opt{order:2} .scene.open .ctrls .brk{display:block;order:1;flex-basis:100%;height:0}   /* More opens a second row underneath; the main row stays put */
+  .ctrls .more{min-width:62px}
+  @media (max-width:370px){.ctrls{gap:4px}.ctrls .seg button{padding:6px 7px}.ctrls .more{min-width:0;width:34px;padding:0;font-size:0}.ctrls .more::before{content:'\22EF';font-size:18px;line-height:1}.scene.open .ctrls .more::before{content:'\2715';font-size:13px}}   /* small phones: More becomes a round ⋯ button so the main row fits on one line */
   .scene .jump{display:none}
   .scene.open .jump{display:flex}
   .scene .tourbar{bottom:12px}
@@ -126,7 +133,7 @@ button:focus-visible{outline:2px solid var(--lease);outline-offset:2px}
   .scene:has(#tourcap:not([hidden])) .skey,.scene:has(#sunbar:not([hidden])) .skey,.scene:has(#sunbar:not([hidden])) .jump{display:none!important}
   .scene .sunbar{bottom:12px}
 }
-.compass{padding:2px;width:40px;height:40px;display:inline-flex;align-items:center;justify-content:center}   /* map-style needle, enlarged; in A day here a sun on the rim shows its bearing */
+.ctrls .compass{padding:0;width:34px;height:34px}.ctrls .compass svg{width:26px;height:26px}   /* map-style needle, enlarged; in A day here a sun on the rim shows its bearing */
 .compass svg{display:block}
 .tourbar{position:absolute;left:10px;right:10px;bottom:52px;display:flex;justify-content:flex-start;pointer-events:none}   /* tour caption sits left, in line with the view buttons below */
 .tourcap{font:500 12px/1.2 var(--f-body);background:var(--chip-bg);color:var(--chip-fg);padding:7px 12px;border-radius:999px;box-shadow:0 1px 3px rgba(0,0,0,.15);display:flex;gap:8px;align-items:center;max-width:100%}
@@ -286,7 +293,7 @@ dialog.share p{font-size:13px;color:var(--muted);margin:0 0 12px}
 .share-url{font:500 12px/1.4 var(--f-mono);word-break:break-all;margin:10px 0 12px;color:var(--fg)}
 .share-row{display:flex;flex-wrap:wrap;gap:8px}
 .btnlike{font:500 12px/1 var(--f-body);border-radius:999px;padding:8px 12px;background:var(--chip-bg);color:var(--chip-fg);box-shadow:0 1px 3px rgba(0,0,0,.15);text-decoration:none;display:inline-block}
-@media (max-width:520px){.ctrls button{padding:7px 10px}.ctrls .compass{padding:2px;width:38px;height:38px}.ctrls .compass svg{width:28px;height:28px}.stat b{font-size:16px}
+@media (max-width:520px){.ctrls button{padding:7px 10px}.stat b{font-size:16px}
   .features ul{grid-template-columns:1fr;gap:14px}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
@@ -320,6 +327,7 @@ dialog.share p{font-size:13px;color:var(--muted);margin:0 0 12px}
       <div class="seg" id="seg" role="group" aria-label="Floor"><button data-cut="0" aria-pressed="true">Outside</button><button data-cut="1">GF</button><button data-cut="2">L1</button><button data-cut="3">L2</button></div>
       <button id="bArea" class="opt" aria-pressed="false" hidden title="Show or hide room sizes">Room sizes</button>
       <span class="spacer"></span>
+      <span class="brk" aria-hidden="true"></span>
       <button id="bNorth" class="compass" aria-label="Compass: turn the view so north is up" title="North up"><svg viewBox="0 0 32 32" width="30" height="30" aria-hidden="true"><g id="needle"><path d="M16 2.5 L21.5 16 L10.5 16 Z" fill="#d6452f"/><path d="M16 29.5 L21.5 16 L10.5 16 Z" fill="currentColor" opacity=".45"/><text x="16" y="13.6" text-anchor="middle" font-size="8" font-weight="700" fill="#fff" font-family="IBM Plex Mono,monospace">N</text></g><g id="sunDot" visibility="hidden"><circle id="sunDisc" cx="16" cy="16" r="3.2" fill="#f2b630" stroke="#b97c0c" stroke-width=".8"/></g></svg></button>
       <button id="bReset" class="opt">Reset</button>
       <button id="bMore" class="more" aria-expanded="false" aria-label="More controls">More</button>
