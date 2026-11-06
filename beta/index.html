@@ -4,7 +4,7 @@ if(q.has('notrack')){localStorage.setItem('umami.disabled','1');q.delete('notrac
 else if(q.has('track')){localStorage.removeItem('umami.disabled');q.delete('track');m='Analytics on for this browser';}
 if(!m)return; var u=location.pathname+(q.toString()?'?'+q:'')+location.hash; history.replaceState(null,'',u);
 addEventListener('DOMContentLoaded',function(){var d=document.createElement('div');d.textContent=m;d.style.cssText='position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#222;color:#fff;padding:8px 14px;border-radius:8px;font:13px sans-serif;z-index:9999';document.body.appendChild(d);setTimeout(function(){d.remove();},2500);});}catch(e){}})();</script>
-<script>/* ?view=tour: tour-only page for visitors arriving from a listing, which already carries the highlights and spec */ try{ if(new URLSearchParams(location.search).get('view')==='tour') document.documentElement.classList.add('tour-only'); }catch(e){}</script>
+<script>/* ?view=tour (or mode=tour): tour-only page for visitors arriving from a listing, which already carries the highlights and spec */ try{ if(/^tour$/i.test(new URLSearchParams(location.search).get('view')||new URLSearchParams(location.search).get('mode')||'')) document.documentElement.classList.add('tour-only'); }catch(e){}</script>
 </head><body>
 <title>16 Sunnyvale Road, Greenlane · Terrace homes for sale and rent</title>
 <link rel="canonical" href="https://16sunnyvale.sasu.co.nz/">
@@ -1713,7 +1713,9 @@ function render(id,pid){   /* pid: show this panel instead (the tour keeps the s
   const h=document.createElement('h2'); h.textContent=d.t;
   const s=document.createElement('p'); s.className='sub'; s.textContent=d.s;
   const dl=document.createElement('dl');
-  d.rows.forEach(([k,v])=>{const dt=document.createElement('dt');dt.textContent=k;const dd=document.createElement('dd');dd.textContent=v;dl.append(dt,dd);});
+  const TOUR_ROWS=['Available','Open home','Layout','Floor area','GF','Level 1','Level 2'];   /* tour-only: the home card keeps what helps you find your way round the model; the listing carries the spec */
+  const tourOnly=document.documentElement.classList.contains('tour-only')&&/^lot\d$/.test(pid||id);
+  d.rows.filter(([k])=>!tourOnly||TOUR_ROWS.includes(k)).forEach(([k,v])=>{const dt=document.createElement('dt');dt.textContent=k;const dd=document.createElement('dd');dd.textContent=v;dl.append(dt,dd);});
   el.append(h,s,dl);
   if(d.homes){ const ul=document.createElement('ul'); ul.className='homes';   /* one row per home: tap to select it in the model */
     [1,2,3,4,5,6].forEach(n=>{ const L=INFO['lot'+n], st=STATUS[n], li=document.createElement('li'), b=document.createElement('button'); b.type='button';
