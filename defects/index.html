@@ -33,6 +33,9 @@ button.sec{background:var(--surface);color:var(--fg);border-color:var(--line)}
 .sevtag{font:600 11px/1 ui-monospace,Menlo,monospace;text-transform:uppercase;padding:3px 7px;border-radius:5px;margin-right:8px}
 .sv-critical{background:var(--open);color:#fff}.sv-major{background:var(--prog);color:#fff}.sv-minor{background:var(--code);color:var(--muted);border:1px solid var(--line)}
 .fixnote{color:var(--fixed)}.progressnote{color:var(--prog)}
+.key{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:13px;color:var(--muted);align-items:center}
+.keyitem{display:inline-flex;align-items:center;gap:8px}
+.keyitem .sevtag{margin-right:0}
 .legend{font-size:13px;color:var(--muted);margin:0}
 .item.closed{opacity:.6}
 .hide{display:none!important}
@@ -56,7 +59,7 @@ button.sec{background:var(--surface);color:var(--fg);border-color:var(--line)}
     <select id="st"><option value="active">Open items only</option><option value="">All statuses</option><option value="open">Open</option><option value="in_progress">In progress</option><option value="fixed">Fixed, awaiting check</option><option value="closed">Closed</option></select>
     <button class="sec" onclick="print()">Print</button>
   </div>
-  <p class="legend"><b>Priority:</b> Critical = safety or compliance hazard, resolve before occupancy. Major = a specified feature does not work, or there is a risk of damage. Minor = cosmetic, tuning or noise. The most critical items are listed first in each group.</p>
+  <div class="key" aria-label="Priority key"><span class="keyitem"><span class="sevtag sv-critical">Critical</span>Safety or compliance</span><span class="keyitem"><span class="sevtag sv-major">Major</span>Not working or damage risk</span><span class="keyitem"><span class="sevtag sv-minor">Minor</span>Cosmetic or tuning</span></div>
   <div id="list"></div>
 </div>
 <script>
