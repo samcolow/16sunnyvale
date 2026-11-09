@@ -46,6 +46,8 @@ button.sec{background:var(--surface);color:var(--fg);border-color:var(--line)}
   <div class="bar">
     <input id="q" type="search" placeholder="Search defects">
     <select id="lot"><option value="">All units</option></select>
+    <select id="tr"><option value="">All trades</option></select>
+    <select id="gb"><option value="lot">Group by unit</option><option value="trade">Group by trade</option></select>
     <select id="st"><option value="active">Open items only</option><option value="">All statuses</option><option value="open">Open</option><option value="in_progress">In progress</option><option value="fixed">Fixed, awaiting check</option><option value="closed">Closed</option></select>
     <button class="sec" onclick="print()">Print</button>
   </div>
@@ -63,18 +65,19 @@ async function unlock(pw){
 }
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function render(){
-  const q=$('q').value.toLowerCase(), lot=$('lot').value, st=$('st').value;
-  const rows=D.filter(d=>(!lot||d.lot===lot)&&(st===''||(st==='active'?d.status!=='closed':d.status===st))&&(!q||JSON.stringify(d).toLowerCase().includes(q)));
-  const by={}; rows.forEach(d=>(by[d.lot]??=[]).push(d));
-  $('list').innerHTML=Object.keys(by).sort().map(l=>`<section class="lot"><h2>${esc(l)} <span class="muted" style="font-weight:400;font-size:14px">${by[l].length}</span></h2>`+by[l].map(d=>`<article class="card item sev-${esc(d.severity)} ${d.status==='closed'?'closed':''}"><span class="id">${esc(d.id)}</span><span class="title">${esc(d.title)}</span><span class="badge s-${esc(d.status)}">${LABEL[d.status]||esc(d.status)}</span>${d.detail?`<p class="detail">${esc(d.detail)}</p>`:''}${d.comment?`<p class="comment">Builder: ${esc(d.comment)}</p>`:''}<span class="meta">${esc(d.location)} · raised ${esc(d.raised)}${d.closed?` · closed ${esc(d.closed)}`:''}</span></article>`).join('')+'</section>').join('')||'<p class="muted">No defects match.</p>';
+  const q=$('q').value.toLowerCase(), lot=$('lot').value, tr=$('tr').value, gb=$('gb').value, st=$('st').value;
+  const rows=D.filter(d=>(!lot||d.lot===lot)&&(!tr||(d.trade||'Other')===tr)&&(st===''||(st==='active'?d.status!=='closed':d.status===st))&&(!q||JSON.stringify(d).toLowerCase().includes(q)));
+  const by={}; const key=d=>gb==='trade'?(d.trade||'Other'):d.lot; rows.forEach(d=>(by[key(d)]??=[]).push(d));
+  $('list').innerHTML=Object.keys(by).sort().map(l=>`<section class="lot"><h2>${esc(l)} <span class="muted" style="font-weight:400;font-size:14px">${by[l].length}</span></h2>`+by[l].map(d=>`<article class="card item sev-${esc(d.severity)} ${d.status==='closed'?'closed':''}"><span class="id">${esc(d.id)}</span><span class="title">${esc(d.title)}</span><span class="badge s-${esc(d.status)}">${LABEL[d.status]||esc(d.status)}</span>${d.detail?`<p class="detail">${esc(d.detail)}</p>`:''}${d.comment?`<p class="comment">Builder: ${esc(d.comment)}</p>`:''}<span class="meta">${esc(gb==='trade'?d.lot:(d.trade||'Other'))} · ${esc(d.location)} · raised ${esc(d.raised)}${d.closed?` · closed ${esc(d.closed)}`:''}</span></article>`).join('')+'</section>').join('')||'<p class="muted">No defects match.</p>';
 }
 function start(data){
   D=data.defects||[]; $('upd').textContent='Updated '+(data.updated||'');
   const n=s=>D.filter(d=>d.status===s).length;
   $('stats').innerHTML=[['Open',n('open')],['In progress',n('in_progress')],['Fixed, awaiting check',n('fixed')],['Closed',n('closed')],['Total',D.length]].map(([a,c])=>`<span class="stat"><b>${c}</b> ${a}</span>`).join('');
   [...new Set(D.map(d=>d.lot))].sort().forEach(l=>$('lot').add(new Option(l,l)));
+  [...new Set(D.map(d=>d.trade||'Other'))].sort().forEach(t=>$('tr').add(new Option(t,t)));
   $('gate').classList.add('hide'); $('app').classList.remove('hide'); render();
-  ['q','lot','st'].forEach(i=>$(i).addEventListener('input',render));
+  ['q','lot','tr','gb','st'].forEach(i=>$(i).addEventListener('input',render));
 }
 $('f').addEventListener('submit',async ev=>{ev.preventDefault();$('err').textContent='';
   try{const pw=$('pw').value; const data=await unlock(pw); try{sessionStorage.setItem('dpw',pw)}catch(_){} start(data);}
