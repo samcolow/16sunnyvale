@@ -24,7 +24,7 @@ button.sec{background:var(--surface);color:var(--fg);border-color:var(--line)}
 .item{display:grid;grid-template-columns:auto 1fr auto;gap:4px 12px;align-items:start}
 .id{font:500 12px ui-monospace,Menlo,monospace;color:var(--muted);padding-top:3px}
 .title{font-weight:600}
-.detail,.comment{grid-column:2/4;margin:0;font-size:14px}
+.detail,.comment{white-space:pre-line;grid-column:2/4;margin:0;font-size:14px}
 .comment{color:var(--muted)}
 .meta{grid-column:2/4;font-size:12.5px;color:var(--muted)}
 .badge{font:600 11.5px/1 ui-monospace,Menlo,monospace;text-transform:uppercase;padding:5px 8px;border-radius:6px;border:1px solid currentColor;white-space:nowrap}
@@ -69,15 +69,16 @@ async function unlock(pw){
   const k=await crypto.subtle.deriveKey({name:'PBKDF2',salt:b64(e.salt),iterations:e.iter,hash:'SHA-256'},km,{name:'AES-GCM',length:256},false,['decrypt']);
   return JSON.parse(new TextDecoder().decode(await crypto.subtle.decrypt({name:'AES-GCM',iv:b64(e.iv)},k,b64(e.ct))));
 }
+const fd=s=>{const m=/^(\d{4})-(\d{2})-(\d{2})/.exec(s||'');if(!m)return esc(s);return new Date(Date.UTC(+m[1],+m[2]-1,+m[3])).toLocaleDateString('en-NZ',{day:'numeric',month:'short',year:'numeric',timeZone:'UTC'})};
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function render(){
   const q=$('q').value.toLowerCase(), lot=$('lot').value, tr=$('tr').value, sv=$('sev').value, gb=$('gb').value, st=$('st').value;
   const rows=D.filter(d=>(!lot||d.lot===lot)&&(!tr||(d.trade||'Other')===tr)&&(!sv||d.severity===sv)&&(st===''||(st==='active'?d.status!=='closed':d.status===st))&&(!q||JSON.stringify(d).toLowerCase().includes(q)));
   const by={}; const SEVL={critical:'Critical',major:'Major',minor:'Minor'}, RANK={critical:0,major:1,minor:2}; const key=d=>gb==='trade'?(d.trade||'Other'):gb==='severity'?d.severity:d.lot; rows.forEach(d=>(by[key(d)]??=[]).push(d));
-  $('list').innerHTML=(gb==='severity'?['critical','major','minor'].filter(k=>by[k]):Object.keys(by).sort()).map(l=>`<section class="lot"><h2>${esc(gb==='severity'?SEVL[l]:l)} <span class="muted" style="font-weight:400;font-size:14px">${by[l].length}</span></h2>`+by[l].sort((a,b)=>(RANK[a.severity]??3)-(RANK[b.severity]??3)||a.id.localeCompare(b.id)).map(d=>`<article class="card item sev-${esc(d.severity)} ${d.status==='closed'?'closed':''}"><span class="id">${esc(d.id)}</span><span class="title">${esc(d.title)}</span><span class="badge s-${esc(d.status)}">${LABEL[d.status]||esc(d.status)}</span>${d.detail?`<p class="detail">${esc(d.detail)}</p>`:''}${d.comment?`<p class="comment">Builder: ${esc(d.comment)}</p>`:''}${d.fixNote?`<p class="comment fixnote">Fix note${d.fixedOn?` (${esc(d.fixedOn)})`:''}: ${esc(d.fixNote)}</p>`:''}<span class="meta"><span class="sevtag sv-${esc(d.severity)}">${esc(SEVL[d.severity]||d.severity)}</span>${esc(gb==='trade'?d.lot:gb==='severity'?d.lot+' · '+(d.trade||'Other'):(d.trade||'Other'))} · ${esc(d.location)} · raised ${esc(d.raised)}${d.closed?` · closed ${esc(d.closed)}`:''}</span></article>`).join('')+'</section>').join('')||'<p class="muted">No defects match.</p>';
+  $('list').innerHTML=(gb==='severity'?['critical','major','minor'].filter(k=>by[k]):Object.keys(by).sort()).map(l=>`<section class="lot"><h2>${esc(gb==='severity'?SEVL[l]:l)} <span class="muted" style="font-weight:400;font-size:14px">${by[l].length}</span></h2>`+by[l].sort((a,b)=>(RANK[a.severity]??3)-(RANK[b.severity]??3)||a.id.localeCompare(b.id)).map(d=>`<article class="card item sev-${esc(d.severity)} ${d.status==='closed'?'closed':''}"><span class="id">${esc(d.id)}</span><span class="title">${esc(d.title)}</span><span class="badge s-${esc(d.status)}">${LABEL[d.status]||esc(d.status)}</span>${d.detail?`<p class="detail">${esc(d.detail)}</p>`:''}${d.comment?`<p class="comment">Builder: ${esc(d.comment)}</p>`:''}${d.fixNote?`<p class="comment fixnote">Fix note${d.fixedOn?` (${fd(d.fixedOn)})`:''}: ${esc(d.fixNote)}</p>`:''}<span class="meta"><span class="sevtag sv-${esc(d.severity)}">${esc(SEVL[d.severity]||d.severity)}</span>${esc(gb==='trade'?d.lot:gb==='severity'?d.lot+' · '+(d.trade||'Other'):(d.trade||'Other'))} · ${esc(d.location)} · raised ${fd(d.raised)}${d.closed?` · closed ${fd(d.closed)}`:''}</span></article>`).join('')+'</section>').join('')||'<p class="muted">No defects match.</p>';
 }
 function start(data){
-  D=data.defects||[]; $('upd').textContent='Updated '+(data.updated||'');
+  D=data.defects||[]; {const m=/^(\d{4})-(\d{2})-(\d{2})(?: (\d{2}):(\d{2}))?/.exec(data.updated||'');$('upd').textContent=m?'Updated '+fd(data.updated)+(m[4]?', '+new Date(Date.UTC(2000,0,1,+m[4],+m[5])).toLocaleTimeString('en-NZ',{hour:'numeric',minute:'2-digit',timeZone:'UTC'}):''):'';}
   const n=s=>D.filter(d=>d.status===s).length;
   $('stats').innerHTML=[['Open',n('open')],['In progress',n('in_progress')],['Fixed, awaiting check',n('fixed')],['Closed',n('closed')],['Total',D.length]].map(([a,c])=>`<span class="stat"><b>${c}</b> ${a}</span>`).join('');
   [...new Set(D.map(d=>d.lot))].sort().forEach(l=>$('lot').add(new Option(l,l)));
