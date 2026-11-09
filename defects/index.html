@@ -56,7 +56,7 @@ button.sec{background:var(--surface);color:var(--fg);border-color:var(--line)}
     <select id="tr"><option value="">All trades</option></select>
     <select id="gb"><option value="lot">Group by unit</option><option value="trade">Group by trade</option><option value="severity">Group by priority</option></select>
     <select id="sev"><option value="">All priorities</option><option value="critical">Critical</option><option value="major">Major</option><option value="minor">Minor</option></select>
-    <select id="st"><option value="active">Open items only</option><option value="">All statuses</option><option value="open">Open</option><option value="in_progress">In progress</option><option value="fixed">Fixed, awaiting check</option><option value="closed">Closed</option></select>
+    <select id="st"><option value="active">Open items only</option><option value="">All statuses</option><option value="open">Open</option><option value="in_progress">In progress</option><option value="fixed">Fixed, to verify</option><option value="closed">Closed</option></select>
     <button class="sec" onclick="print()">Print</button>
   </div>
   <div class="key" aria-label="Priority key"><span class="keyitem"><span class="sevtag sv-critical">Critical</span>Safety or compliance</span><span class="keyitem"><span class="sevtag sv-major">Major</span>Not working or damage risk</span><span class="keyitem"><span class="sevtag sv-minor">Minor</span>Cosmetic or tuning</span></div>
@@ -64,7 +64,7 @@ button.sec{background:var(--surface);color:var(--fg);border-color:var(--line)}
 </div>
 <script>
 const $=id=>document.getElementById(id), b64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
-const LABEL={open:'Open',in_progress:'In progress',fixed:'Fixed',closed:'Closed'};
+const LABEL={open:'Open',in_progress:'In progress',fixed:'Fixed, to verify',closed:'Closed'};
 let D=[];
 async function unlock(pw){
   const r=await fetch('data.enc.json',{cache:'no-store'}); if(!r.ok) throw new Error('nodata');
@@ -83,7 +83,7 @@ function render(){
 function start(data){
   D=data.defects||[]; {const m=/^(\d{4})-(\d{2})-(\d{2})(?: (\d{2}):(\d{2}))?/.exec(data.updated||'');$('upd').textContent=m?'Updated '+fd(data.updated)+(m[4]?', '+new Date(Date.UTC(2000,0,1,+m[4],+m[5])).toLocaleTimeString('en-NZ',{hour:'numeric',minute:'2-digit',timeZone:'UTC'}):''):'';}
   const n=s=>D.filter(d=>d.status===s).length;
-  $('stats').innerHTML=[['Open',n('open')],['In progress',n('in_progress')],['Fixed, awaiting check',n('fixed')],['Closed',n('closed')],['Total',D.length]].map(([a,c])=>`<span class="stat"><b>${c}</b> ${a}</span>`).join('');
+  $('stats').innerHTML=[['Open',n('open')],['In progress',n('in_progress')],['Fixed, to verify',n('fixed')],['Closed',n('closed')],['Total',D.length]].map(([a,c])=>`<span class="stat"><b>${c}</b> ${a}</span>`).join('');
   [...new Set(D.map(d=>d.lot))].sort().forEach(l=>$('lot').add(new Option(l,l)));
   [...new Set(D.map(d=>d.trade||'Other'))].sort().forEach(t=>$('tr').add(new Option(t,t)));
   $('gate').classList.add('hide'); $('app').classList.remove('hide'); render();
