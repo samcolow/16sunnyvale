@@ -80,7 +80,17 @@ async def check(b, suffix, exp):
   if exp.get('spot') and not st['spot']: bad.append('not standing in the room')
   return bad
 
+def area_drift():
+  """Every m² on the page comes from the AREAS table; a hard-coded figure elsewhere is drift from the schedule."""
+  src = open(os.path.join(ROOT, PAGE) if not os.path.isabs(PAGE) else PAGE, encoding='utf-8').read()
+  body = re.sub(r'/\*.*?\*/', '', src, flags=re.S)                      # comments may quote figures
+  body = re.sub(r'const AREAS=.*?\n\}\)\(\);', '', body, flags=re.S)   # the table itself
+  body = body.replace('<b id="statArea">141–148 m²</b>', '')            # no-script fallback, rewritten from AREAS on load
+  return re.findall(r'.{0,30}\d m².{0,10}', body)
+
 async def main():
+  drift = area_drift()
+  for d in drift: print('FAIL area outside AREAS:', d.strip())
   httpd = serve()
   async with async_playwright() as p:
     b = await p.chromium.launch(args=['--use-gl=swiftshader', '--enable-webgl'])
@@ -92,6 +102,6 @@ async def main():
     await b.close()
   httpd.shutdown()
   print(f"{len(cases) - fails}/{len(cases)} links OK ({len(FIXED)} fixed, {nu} campaign links, {nq} QR codes) on {PAGE}")
-  sys.exit(1 if fails else 0)
+  sys.exit(1 if fails or drift else 0)
 
 asyncio.run(main())

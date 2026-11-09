@@ -318,7 +318,7 @@ dialog.share p{font-size:13px;color:var(--muted);margin:0 0 12px}
   <div class="stats" aria-label="Summary">
     <div class="stat"><b>6 homes</b><span>3-storey terraces</span></div>
     <div class="stat"><b>4 bed · 2.5 bath</b><span>single internal garage</span></div>
-    <div class="stat"><b>141–148 m²</b><span>floor area, per consented plans</span></div>
+    <div class="stat"><b id="statArea">141–148 m²</b><span>floor area, per consented plans</span></div>
     <div class="stat"><b>Freehold</b><span>no body corporate</span></div>
   </div>
   <div class="hdr-actions"><button id="bShare">Share</button></div>
@@ -439,6 +439,21 @@ const SHARE_URL=''; // set once the tour is hosted at its public address; until 
 const LOW=matchMedia('(max-width: 760px), (pointer: coarse)').matches;
 
 /* ---------- data ---------- */
+/* AREAS: the one place for every m² on this page (home cards, headline stat, room labels).
+   Source of record: "16 Sunnyvale Road - Floor and Room Area Breakdown"
+   https://docs.google.com/document/d/1-RRCxcrhvH-cFtqFmYIh6POzNFPEMS9Bomum3EvdRw0/edit
+   Update the doc first, then copy its figures here. A = Lot 1 (16A), M = Lots 2–5 (16B–E), F = Lot 6 (16F, M's rooms).
+   outdoor and yard are not in the schedule (from the consented plans). */
+const AREAS=(()=>{
+  const A={land:95,gf:44.6,l1:44.1,l2:50.9,total:148.2,deck:7.2,outdoor:24.4,
+    garage:18.4,bed1:8.6,entry:2.7,shower:4.0, living:15.0,kitchen:10.1,dining:9.5,wc:2.3, primary:10.6,bed2:10.8,bed3:7.0,bath:4.1,hall:5.4};
+  const M={land:73,gf:44.3,l1:42.9,l2:49.9,total:141.0,deck:7.2,yard:'18',
+    garage:17.2,bed1:7.2,entry:5.6,shower:3.2, living:17.8,kitchen:9.3,dining:7.0,wc:2.4, primary:11.5,bed2:8.4,bed3:8.7,bath:4.2,hall:4.0};
+  const F={...M,land:115,gf:44.5,total:141.2};
+  return {A,M,F,lot:n=>n===1?A:n===6?F:M};
+})();
+const m2=v=>(typeof v==='string'?v:v.toFixed(1))+' m²';   /* 7.2 m², 141.0 m²; a string keeps its own precision ('18') */
+{ const t=[AREAS.A,AREAS.M,AREAS.F].map(o=>o.total), el=document.getElementById('statArea'); if(el) el.textContent=Math.floor(Math.min(...t))+'–'+Math.floor(Math.max(...t))+' m²'; }   /* headline range follows the table */
 /* listing status: change here when a home is leased or sold ('sale', 'lease', 'leased', 'sold') */
 const STATUS={1:'lease',2:'lease',3:'sale',4:'sale',5:'lease',6:'lease'};
 const AVAILABLE={lease:'From Monday 9 November 2026'};
@@ -447,18 +462,18 @@ if(AVAIL_NOW){ AVAILABLE.lease='Now'; const rb=document.querySelector('.ribbon.r
 const OPEN_HOME={};   // open homes are published on the listing; add e.g. {sale:'Sat 2–2.30 pm'} to show one on the home cards
 const CAT={sale:['For sale','--sale'],lease:['For rent','--lease'],sold:['Sold','--dev'],leased:['Rented','--dev'],dev:['Overview','--dev']};
 const lot=n=>{
-  const st=STATUS[n], sale=st==='sale';
+  const st=STATUS[n], sale=st==='sale', ar=k=>m2(AREAS.lot(n)[k]);
   const b={t:'16'+'ABCDEF'[n-1],s:'16'+'ABCDEF'[n-1]+' Sunnyvale Road, Greenlane',cat:st};
   b.rows=[
     ...(AVAILABLE[st]?[['Available',AVAILABLE[st]]]:[]),
     ...(OPEN_HOME[st]?[['Open home',OPEN_HOME[st]]]:[]),
     ['Layout','4 bed · 2.5 bath · single internal garage'],
-    ['Floor area',{1:'148.2 m²',6:'141.2 m²'}[n]||'141.0 m²'],
-    ...(n===1?[['GF','Foyer, bedroom (8.6 m²) with shower room (4.0 m²), internal garage (18.4 m²)'],['Level 1','Open-plan lounge, dining and kitchen with island, WC, deck'],['Level 2','Primary (10.6 m²), bedrooms of 10.8 m² and 7.0 m², bathroom, robes']]:[
+    ['Floor area',ar('total')],
+    ...(n===1?[['GF',`Foyer, bedroom (${ar('bed1')}) with shower room (${ar('shower')}), internal garage (${ar('garage')})`],['Level 1','Open-plan lounge, dining and kitchen with island, WC, deck'],['Level 2',`Primary (${ar('primary')}), bedrooms of ${ar('bed2')} and ${ar('bed3')}, bathroom, robes`]]:[
       ['GF','Foyer · guest suite with ensuite, opening to the backyard (home office or teen retreat) · internal garage'],
-      ['Level 1','Open-plan lounge, dining and kitchen · WC · 7.2 m² deck'],
+      ['Level 1',`Open-plan lounge, dining and kitchen · WC · ${ar('deck')} deck`],
       ['Level 2','Primary bedroom and two bedrooms · bathroom with shower · linen']]),
-    ['Outdoor',n===1?'Level 1 deck and 24.4 m² outdoor living space':'7.2 m² deck and 18 m² fenced backyard'],
+    ['Outdoor',n===1?`Level 1 deck and ${ar('outdoor')} outdoor living space`:`${ar('deck')} deck and ${ar('yard')} fenced backyard`],
     ['Title','Freehold, no body corporate'],
     ['Access','Shared driveway (JOAL), 1/6 share each'],
     ['Heating',sale?'Heat pumps in the living area and every bedroom · underfloor heating in bathrooms':'Heat pump in the living area · underfloor heating in bathrooms'],
@@ -881,10 +896,10 @@ const PLANS=[
     rooms:[
       ['stair',[[52,41],[290,41],[290,600],[52,600]],''],
       ['entry',[[290,41],[500,41],[715,390],[710,710],[450,710],[450,600],[290,600]],'Foyer',[520,470]],
-      ['bath',[[52,600],[450,600],[450,1062],[52,1062]],'Ensuite · 3.2 m²'],
+      ['bath',[[52,600],[450,600],[450,1062],[52,1062]],'Ensuite · {shower}'],
       ['hall',[[52,1062],[450,1062],[450,1205],[52,1205]],'Robe'],
-      ['bed',[[52,1205],[450,1205],[450,710],[710,710],[710,1800],[52,1800]],'Guest bed · 7.2 m²',[380,1500]],
-      ['garage',[[710,390],[1399,390],[1399,1800],[710,1800]],'Garage · 17.2 m²']
+      ['bed',[[52,1205],[450,1205],[450,710],[710,710],[710,1800],[52,1800]],'Guest bed · {bed1}',[380,1500]],
+      ['garage',[[710,390],[1399,390],[1399,1800],[710,1800]],'Garage · {garage}']
     ],
     walls:[
       ['w',52,41,52,706],['win',52,706,52,860,[1.1,2.09]],['w',52,860,52,1340],['win',52,1340,52,1740,[1.68,2.41]],['w',52,1740,52,1800],   /* 16F end wall: W107 ensuite, W103 bedroom (other homes: intertenancy, no windows) */
@@ -904,13 +919,13 @@ const PLANS=[
     slab:[[36,196],[470,196],[470,500],[1248,500],[1248,1835],[36,1835]],
     rooms:[
       ['stair',[[36,196],[470,196],[470,440],[254,440],[254,995],[36,995]],''],
-      ['wc',[[36,1003],[368,1003],[368,1215],[36,1215]],'WC · 2.4 m²'],
+      ['wc',[[36,1003],[368,1003],[368,1215],[36,1215]],'WC · {wc}'],
       ['living',[[470,500],[1248,500],[1248,1835],[36,1835],[36,1215],[368,1215],[368,1003],[254,1003],[254,440],[470,440]],''],
-      [null,null,'Lounge · 17.8 m²',[900,820]],
-      [null,null,'Dining · 7.0 m²',[965,1480]],
-      [null,null,'Kitchen · 9.3 m²',[430,1530]]
+      [null,null,'Lounge · {living}',[900,820]],
+      [null,null,'Dining · {dining}',[965,1480]],
+      [null,null,'Kitchen · {kitchen}',[430,1530]]
     ],
-    extra:[['Deck · 7.2 m²',1.07,-3.7]],
+    extra:[['Deck · {deck}',1.07,-3.7]],
     walls:[
       ['w',36,196,36,1051],['win',36,1051,36,1197,[1.19,2.52]],['w',36,1197,36,1375],['win',36,1375,36,1730,[1.11,2.01,{kit:1}]],['w',36,1730,36,1835],
       ['w',36,196,105,196],['win',105,196,225,196],['w',225,196,470,196],['w',470,196,470,500],
@@ -927,13 +942,13 @@ const PLANS=[
     slab:[[18,92],[518,92],[518,18],[1417,18],[1417,1975],[18,1975]],
     rooms:[
       ['stair',[[18,92],[276,92],[276,1025],[18,1025]],''],
-      ['bath',[[276,92],[518,92],[518,18],[757,18],[757,597],[276,597]],'Bathroom · 4.2 m²',[520,320]],
+      ['bath',[[276,92],[518,92],[518,18],[757,18],[757,597],[276,597]],'Bathroom · {bath}',[520,320]],
       ['hall',[[284,597],[508,597],[508,740],[284,740]],'Linen'],
-      ['bed',[[757,18],[1417,18],[1417,830],[757,830]],'Bedroom · 8.7 m²',[1090,360]],
+      ['bed',[[757,18],[1417,18],[1417,830],[757,830]],'Bedroom · {bed3}',[1090,360]],
       ['hall',[[757,830],[1417,830],[1417,1005],[757,1005]],''],
-      ['bed',[[757,1005],[1417,1005],[1417,1975],[700,1975],[700,1218],[757,1218]],'Primary · 11.5 m²',[1060,1500]],
+      ['bed',[[757,1005],[1417,1005],[1417,1975],[700,1975],[700,1218],[757,1218]],'Primary · {primary}',[1060,1500]],
       ['hall',[[18,1043],[433,1043],[433,1218],[18,1218]],''],
-      ['bed',[[18,1218],[700,1218],[700,1975],[18,1975]],'Bedroom · 8.4 m²',[360,1600]]
+      ['bed',[[18,1218],[700,1218],[700,1975],[18,1975]],'Bedroom · {bed2}',[360,1600]]
     ],
     well:{x0:28,x1:266,y0:100,y1:1025,land:760,steps:8},   // landing spans the opening to the hall (760–1025); the flight runs to the front wall
     walls:[
@@ -982,9 +997,9 @@ const PLANS1=[
     rooms:[
       ['stair',[[365,430],[605,430],[605,610],[365,610]],''],
       ['entry',[[300,610],[605,610],[605,745],[300,745]],'Foyer',[450,690]],
-      ['bed',[[305,745],[605,745],[605,1045],[305,1045]],'Bedroom · 8.6 m²'],
-      ['bath',[[305,1045],[605,1045],[605,1222],[305,1222]],'Shower · 4.0 m²'],
-      ['garage',[[10,575],[300,575],[300,1222],[10,1222]],'Garage · 18.4 m²']
+      ['bed',[[305,745],[605,745],[605,1045],[305,1045]],'Bedroom · {bed1}'],
+      ['bath',[[305,1045],[605,1045],[605,1222],[305,1222]],'Shower · {shower}'],
+      ['garage',[[10,575],[300,575],[300,1222],[10,1222]],'Garage · {garage}']
     ],
     walls:[
       ['w',10,575,10,1222],['w',10,575,40,575],['gd',40,575,295,575],['w',295,575,365,575],
@@ -1002,9 +1017,9 @@ const PLANS1=[
     slab:[[110,435],[520,435],[520,265],[770,265],[770,1148],[110,1148]],
     rooms:[
       ['stair',[[520,265],[770,265],[770,525],[520,525]],''],
-      ['wc',[[590,1012],[770,1012],[770,1148],[590,1148]],'WC · 2.3 m²'],
+      ['wc',[[590,1012],[770,1012],[770,1148],[590,1148]],'WC · {wc}'],
       ['living',[[110,435],[520,435],[520,525],[770,525],[770,1012],[590,1012],[590,1148],[110,1148]],''],
-      [null,null,'Lounge · 15.0 m²',[190,790]],[null,null,'Dining · 9.5 m²',[645,630]],[null,null,'Kitchen · 10.1 m²',[330,1010]]
+      [null,null,'Lounge · {living}',[190,790]],[null,null,'Dining · {dining}',[645,630]],[null,null,'Kitchen · {kitchen}',[330,1010]]
     ],
     walls:[
       ['w',110,435,110,1148],['w',110,435,170,435],['sl',170,435,465,435],['w',465,435,520,435],
@@ -1021,13 +1036,13 @@ const PLANS1=[
     well:{u:1,depth:1.8,hole:[405,35,637,220],poly:[[405,35],[637,35],[637,220],[405,220]]},   // 16A U-stair from the Lot 1 plan: down the right flight, winders at the rear (half a floor down), back down the left flight to Level 1   // top flight of 16A's U-stair, arriving at the rear
     slab:[[5,0],[405,0],[405,35],[640,35],[640,880],[5,880]],
     rooms:[
-      ['bed',[[5,0],[405,0],[405,220],[320,220],[320,325],[5,325]],'Bedroom · 10.8 m²',[170,170]],
+      ['bed',[[5,0],[405,0],[405,220],[320,220],[320,325],[5,325]],'Bedroom · {bed2}',[170,170]],
       ['hall',[[5,325],[320,325],[320,475],[5,475]],'Robes'],
-      ['bed',[[5,475],[320,475],[320,575],[325,575],[325,880],[5,880]],'Primary · 10.6 m²',[165,700]],
+      ['bed',[[5,475],[320,475],[320,575],[325,575],[325,880],[5,880]],'Primary · {primary}',[165,700]],
       ['hall',[[320,220],[435,220],[435,578],[325,578],[320,578]],''],
       ['stair',[[405,35],[640,35],[640,370],[545,370],[545,340],[435,340],[435,220],[405,220]],''],
-      ['bath',[[435,340],[545,340],[545,370],[640,370],[640,578],[435,578]],'Bathroom · 4.1 m²'],
-      ['bed',[[325,578],[640,578],[640,880],[325,880]],'Bedroom · 7.0 m²',[500,700]]
+      ['bath',[[435,340],[545,340],[545,370],[640,370],[640,578],[435,578]],'Bathroom · {bath}'],
+      ['bed',[[325,578],[640,578],[640,880],[325,880]],'Bedroom · {bed3}',[500,700]]
     ],
     walls:[
       ['w',5,0,5,880],['w',5,0,68,0],['win',68,0,275,0,[0.2,2.3,{aw:1,awY:1.25}]],['w',275,0,405,0],['w',405,0,405,35],
@@ -1138,7 +1153,7 @@ function interior(i,y0,L,x,mir,P,FU,endHome){
   ((P===PLANS1?SPOTS1:SPOTS)[i]||[]).forEach(([slug,label,a,b,c,d,ma,mb])=>{ const [px,pz]=m(a,b),[lx,lz]=m(c,d), mk=ma!=null?m(ma,mb):null;
     const fx=mk?mk[0]:px+(lx-px)*0.45, fz=mk?mk[1]:pz+(lz-pz)*0.45;   /* marker sits on the floor inside the room, between the viewpoint and what it looks at */
     L.spots.push({slug,label,p:[x+mir*px,y0+1.75,pz],l:[x+mir*lx,y0+1.05,lz],f:[x+mir*fx,y0+0.25,fz]}); });   /* eye level, looking slightly down across the room */
-  const lab=(t,c)=>L.rooms.push({lab:t.replace(/ · [\d.]+ m²$/,''),area:(t.match(/ · ([\d.]+ m²)$/)||[])[1],pos:new THREE.Vector3(x+mir*c[0],y0+0.7,c[1])});
+  const AR=P===PLANS1?AREAS.A:AREAS.M, lab=(t0,c)=>{ const t=t0.replace(/\{(\w+)\}/,(_,k)=>m2(AR[k])); L.rooms.push({lab:t.replace(/ · [\d.]+ m²$/,''),area:(t.match(/ · ([\d.]+ m²)$/)||[])[1],pos:new THREE.Vector3(x+mir*c[0],y0+0.7,c[1])}); };
   const hr=f.well&&(f.well.hole||[f.well.x0,f.well.y0,f.well.x1,f.well.y1]);
   const wellHole=hr?(f.well.poly||[[hr[0],hr[1]],[hr[2],hr[1]],[hr[2],hr[3]],[hr[0],hr[3]]]).map(p=>m(...p)):null;   // open stairwell down to the floor below
   const sw16=P===PLANS1&&i===1?[[645,487.5],[765,487.5],[765,265],[525,265],[525,375],[645,375]].map(p=>m(...p)):null;   /* 16A Level 1: open stairwell where the flight comes up from the ground floor */
