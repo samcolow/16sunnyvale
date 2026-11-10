@@ -335,7 +335,7 @@ dialog.share p{font-size:13px;color:var(--muted);margin:0 0 12px}
       <button id="audioToggleBtn" class="opt audio-pill-btn" aria-pressed="false" aria-label="Toggle ambient soundtrack" title="Play or stop the soundtrack"><span class="sound-wave-icon" aria-hidden="true"><span class="sound-bar"></span><span class="sound-bar"></span><span class="sound-bar"></span></span><span id="audioStatusText">Sound: Off</span></button>
       <audio id="ambientTrack" loop preload="none"><source src="../audio/ambient-loop.webm" type="audio/webm"><source src="../audio/ambient-loop.mp4" type="audio/mp4"></audio>   <!-- fetched only when Sound is switched on -->
       <div class="seg" id="seg" role="group" aria-label="Floor"><button data-cut="0" aria-pressed="true">Outside</button><button data-cut="1">GF</button><button data-cut="2">L1</button><button data-cut="3">L2</button></div>
-      <button id="bArea" class="opt" aria-pressed="false" hidden title="Show or hide room sizes">Room sizes</button>
+      <button id="bArea" class="opt" aria-pressed="false" hidden title="Show or hide floor areas">Floor areas</button>
       <span class="spacer"></span>
       <span class="brk" aria-hidden="true"></span>
       <button id="bNorth" class="compass" aria-label="Compass: turn the view so north is up" title="North up"><svg viewBox="0 0 32 32" width="30" height="30" aria-hidden="true"><g id="needle"><path d="M16 2.5 L21.5 16 L10.5 16 Z" fill="#d6452f"/><path d="M16 29.5 L21.5 16 L10.5 16 Z" fill="currentColor" opacity=".45"/><text x="16" y="13.6" text-anchor="middle" font-size="8" font-weight="700" fill="#fff" font-family="IBM Plex Mono,monospace">N</text></g><g id="sunDot" visibility="hidden"><circle id="sunDisc" cx="16" cy="16" r="3.2" fill="#f2b630" stroke="#b97c0c" stroke-width=".8"/></g></svg></button>
@@ -1518,7 +1518,7 @@ function leaveSpot(back){ if(!inSpot) return; const pv=inSpot.prev; roomMode(inS
   if(back) tween={p0:camera.position.clone(),t0:controls.target.clone(),p1:new THREE.Vector3(...pv[0]),t1:new THREE.Vector3(...pv[1]),s:performance.now(),d:reduce?1:1200};
   syncHash(); }
 $('#spotBack').onclick=()=>leaveSpot(true);
-let showAreas=false;   /* off by default; room sizes on the floor-view labels, toggled by the Room sizes button */
+let showAreas=false;   /* off by default; room areas on the floor-view labels, toggled by the Floor areas button */
 function applyAreas(){ labels.forEach(l=>{ if(l.room) l.el.textContent=l.name+(showAreas&&l.area?' · '+l.area:''); }); $('#bArea').setAttribute('aria-pressed',String(showAreas)); }
 applyAreas(); $('#bArea').onclick=()=>{ showAreas=!showAreas; applyAreas(); if(showAreas) track('room-sizes',{unit:curUnit()}); };
 /* Stria grooves: map the texture in site coordinates so grooves line up across separate panels and floors */
@@ -1780,7 +1780,7 @@ renderer.domElement.addEventListener('pointerup',e=>{
 let cut=0;
 function setCut(c){
   if(inSpot&&c!==inSpot.i+1) leaveSpot(false);
-  cut=c; trackFloor(); if(c&&!touring&&!walking) spotHintOnce(); $('#bArea').hidden=c===0;   /* room sizes only matter in the floor views */
+  cut=c; trackFloor(); if(c&&!touring&&!walking) spotHintOnce(); $('#bArea').hidden=c===0;   /* floor areas only matter in the floor views */
   document.querySelectorAll('#seg button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.cut===c)));
   const top=c===0?2:c-1;
   for(const n in units) units[n].lv.forEach((L,i)=>{
@@ -2064,8 +2064,8 @@ function loop(now){
   const dist=camera.position.distanceTo(controls.target), fl=focusLot(), top=cut-1, ctrlB=$('.ctrls').offsetTop+$('.ctrls').offsetHeight+6;   /* unit tags stay below the top controls */
   labels.forEach(l=>{
     let ok=true;
-    if(l.room){ const near=narrow()?17:12; ok=cut!==0&&l.level===top&&l.lot===fl&&(dist<near||((touring||walking)&&KEYROOM.test(l.el.textContent)));   // only when zoomed in close, or for the key rooms during the tour / walk-through
-      if(ok) l.el.style.transform='translate(-50%,-50%) scale('+Math.max(0.75,Math.min(1.1,near/dist)).toFixed(2)+')'; }   // shrink as the view pulls back
+    if(l.room){ const near=narrow()?17:12; ok=cut!==0&&l.level===top&&(l.lot===fl||(showAreas&&!fl&&l.area))&&(dist<near||(showAreas&&l.area&&!inSpot)||((touring||walking)&&KEYROOM.test(l.el.textContent)));   // only when zoomed in close, for the key rooms during the tour / walk-through, or any room with an area while Floor areas is on
+      if(ok) l.el.style.transform='translate(-50%,'+(showAreas?'calc(-50% + 16px)':'-50%')+') scale('+Math.max(showAreas?0.95:0.75,Math.min(1.1,near/dist)).toFixed(2)+')'; }   /* with Floor areas on, sit just below the step-in dot and stay readable */   // shrink as the view pulls back
     if(l.lotTag) ok=dist<120&&!(cut&&l.lotTag===fl)&&!inSpot;
     if(l.spot) ok=!inSpot&&!touring&&!walking&&cut!==0&&l.level===top&&l.lot===fl;
     if(inSpot&&!l.room) ok=false;   /* standing in a room: only its own room names */   // the outlined home doesn't need its tag over its room names
