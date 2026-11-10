@@ -37,6 +37,10 @@ button.sec{background:var(--surface);color:var(--fg);border-color:var(--line)}
 .keyitem{display:inline-flex;align-items:center;gap:8px}
 .keyitem .sevtag{margin-right:0}
 .legend{font-size:13px;color:var(--muted);margin:0}
+.photos{grid-column:2/4;display:flex;flex-wrap:wrap;gap:8px;margin:0}
+.photos img{width:84px;height:84px;object-fit:cover;border-radius:8px;border:1px solid var(--line);cursor:zoom-in;background:var(--code)}
+.lightbox{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.85);display:grid;place-items:center;padding:16px;cursor:zoom-out}
+.lightbox img{max-width:100%;max-height:100%;border-radius:8px}
 .item.closed{opacity:.6}
 .hide{display:none!important}
 @media print{body{background:#fff;color:#000}.bar,#gate,button{display:none!important}.card{break-inside:avoid;border-color:#999}}
@@ -65,11 +69,11 @@ button.sec{background:var(--surface);color:var(--fg);border-color:var(--line)}
 <script>
 const $=id=>document.getElementById(id), b64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
 const LABEL={open:'Open',in_progress:'In progress',fixed:'Fixed, to verify',closed:'Closed'};
-let D=[];
+let D=[], KEY=null; const IMG={};
 async function unlock(pw){
   const r=await fetch('data.enc.json',{cache:'no-store'}); if(!r.ok) throw new Error('nodata');
   const e=await r.json(), km=await crypto.subtle.importKey('raw',new TextEncoder().encode(pw),'PBKDF2',false,['deriveKey']);
-  const k=await crypto.subtle.deriveKey({name:'PBKDF2',salt:b64(e.salt),iterations:e.iter,hash:'SHA-256'},km,{name:'AES-GCM',length:256},false,['decrypt']);
+  const k=KEY=await crypto.subtle.deriveKey({name:'PBKDF2',salt:b64(e.salt),iterations:e.iter,hash:'SHA-256'},km,{name:'AES-GCM',length:256},false,['decrypt']);
   return JSON.parse(new TextDecoder().decode(await crypto.subtle.decrypt({name:'AES-GCM',iv:b64(e.iv)},k,b64(e.ct))));
 }
 const fd=s=>{const m=/^(\d{4})-(\d{2})-(\d{2})/.exec(s||'');if(!m)return esc(s);return new Date(Date.UTC(+m[1],+m[2]-1,+m[3])).toLocaleDateString('en-NZ',{day:'numeric',month:'short',year:'numeric',timeZone:'UTC'})};
@@ -78,8 +82,18 @@ function render(){
   const q=$('q').value.toLowerCase(), lot=$('lot').value, tr=$('tr').value, sv=$('sev').value, gb=$('gb').value, st=$('st').value;
   const rows=D.filter(d=>(!lot||d.lot===lot)&&(!tr||(d.trade||'Other')===tr)&&(!sv||d.severity===sv)&&(st===''||(st==='active'?d.status!=='closed':d.status===st))&&(!q||JSON.stringify(d).toLowerCase().includes(q)));
   const by={}; const SEVL={critical:'Critical',major:'Major',minor:'Minor'}, RANK={critical:0,major:1,minor:2}; const key=d=>gb==='trade'?(d.trade||'Other'):gb==='severity'?d.severity:d.lot; rows.forEach(d=>(by[key(d)]??=[]).push(d));
-  $('list').innerHTML=(gb==='severity'?['critical','major','minor'].filter(k=>by[k]):Object.keys(by).sort()).map(l=>`<section class="lot"><h2>${esc(gb==='severity'?SEVL[l]:l)} <span class="muted" style="font-weight:400;font-size:14px">${by[l].length}</span></h2>`+by[l].sort((a,b)=>(RANK[a.severity]??3)-(RANK[b.severity]??3)||a.id.localeCompare(b.id)).map(d=>`<article class="card item sev-${esc(d.severity)} ${d.status==='closed'?'closed':''}"><span class="id">${esc(d.id)}</span><span class="title">${esc(d.title)}</span><span class="badge s-${esc(d.status)}">${LABEL[d.status]||esc(d.status)}</span>${d.detail?`<p class="detail">${esc(d.detail)}</p>`:''}${d.comment?`<p class="comment">Builder: ${esc(d.comment)}</p>`:''}${d.progressNote?`<p class="comment progressnote">Progress note${d.progressOn?` (${fd(d.progressOn)})`:''}: ${esc(d.progressNote)}</p>`:''}${d.fixNote?`<p class="comment fixnote">Fix note${d.fixedOn?` (${fd(d.fixedOn)})`:''}: ${esc(d.fixNote)}</p>`:''}<span class="meta"><span class="sevtag sv-${esc(d.severity)}">${esc(SEVL[d.severity]||d.severity)}</span>${esc(gb==='trade'?d.lot:gb==='severity'?d.lot+' · '+(d.trade||'Other'):(d.trade||'Other'))} · ${esc(d.location)} · raised ${fd(d.raised)}${d.closed?` · closed ${fd(d.closed)}`:''}</span></article>`).join('')+'</section>').join('')||'<p class="muted">No defects match.</p>';
+  $('list').innerHTML=(gb==='severity'?['critical','major','minor'].filter(k=>by[k]):Object.keys(by).sort()).map(l=>`<section class="lot"><h2>${esc(gb==='severity'?SEVL[l]:l)} <span class="muted" style="font-weight:400;font-size:14px">${by[l].length}</span></h2>`+by[l].sort((a,b)=>(RANK[a.severity]??3)-(RANK[b.severity]??3)||a.id.localeCompare(b.id)).map(d=>`<article class="card item sev-${esc(d.severity)} ${d.status==='closed'?'closed':''}"><span class="id">${esc(d.id)}</span><span class="title">${esc(d.title)}</span><span class="badge s-${esc(d.status)}">${LABEL[d.status]||esc(d.status)}</span>${d.detail?`<p class="detail">${esc(d.detail)}</p>`:''}${d.comment?`<p class="comment">Builder: ${esc(d.comment)}</p>`:''}${d.progressNote?`<p class="comment progressnote">Progress note${d.progressOn?` (${fd(d.progressOn)})`:''}: ${esc(d.progressNote)}</p>`:''}${d.fixNote?`<p class="comment fixnote">Fix note${d.fixedOn?` (${fd(d.fixedOn)})`:''}: ${esc(d.fixNote)}</p>`:''}${(d.photos&&d.photos.length)?`<div class="photos">${d.photos.map(id=>`<img data-id="${esc(id)}" alt="Loading photo" width="84" height="84">`).join('')}</div>`:''}<span class="meta"><span class="sevtag sv-${esc(d.severity)}">${esc(SEVL[d.severity]||d.severity)}</span>${esc(gb==='trade'?d.lot:gb==='severity'?d.lot+' · '+(d.trade||'Other'):(d.trade||'Other'))} · ${esc(d.location)} · raised ${fd(d.raised)}${d.closed?` · closed ${fd(d.closed)}`:''}</span></article>`).join('')+'</section>').join('')||'<p class="muted">No defects match.</p>';
+  showPhotos();
 }
+async function loadImg(id){
+  if(IMG[id]) return IMG[id];
+  const r=await fetch('img/'+encodeURIComponent(id)+'.enc'); if(!r.ok) throw new Error('missing');
+  const b=new Uint8Array(await r.arrayBuffer());
+  const pt=await crypto.subtle.decrypt({name:'AES-GCM',iv:b.slice(0,12)},KEY,b.slice(12));
+  return IMG[id]=URL.createObjectURL(new Blob([pt],{type:'image/jpeg'}));
+}
+function showPhotos(){document.querySelectorAll('#list img[data-id]:not([src])').forEach(img=>loadImg(img.dataset.id).then(u=>{img.src=u;img.alt='Photo'}).catch(()=>{img.alt='Photo unavailable'}))}
+$('list').addEventListener('click',e=>{const i=e.target.closest('img[data-id]'); if(!i||!i.src) return; const lb=document.createElement('div'); lb.className='lightbox'; lb.innerHTML='<img alt="Photo">'; lb.firstChild.src=i.src; lb.onclick=()=>lb.remove(); document.body.appendChild(lb)});
 function start(data){
   D=data.defects||[]; {const m=/^(\d{4})-(\d{2})-(\d{2})(?: (\d{2}):(\d{2}))?/.exec(data.updated||'');$('upd').textContent=m?'Updated '+fd(data.updated)+(m[4]?', '+new Date(Date.UTC(2000,0,1,+m[4],+m[5])).toLocaleTimeString('en-NZ',{hour:'numeric',minute:'2-digit',timeZone:'UTC'}):''):'';}
   const n=s=>D.filter(d=>d.status===s).length;
