@@ -1824,7 +1824,8 @@ $('#bLife').onclick=()=>setLife(!lifeOn);
 /* ---------- camera (positions in the site frame) ---------- */
 const narrow=()=>sceneEl.clientWidth<520;
 const V={
-  overview:[[22,30,-46],[-3,3,-2]], overviewM:[[39,31,-33.5],[0,1,-1]],   // phones: from the 16F end, so all six homes fill the tall frame
+  overview:[[22,30,-46],[-3,3,-2]], overviewM:[[39,31,-33.5],[0,1,-1]],
+  sunview:[[25,34,-53],[-3,9,-2]], sunviewM:[[44,35,-38],[0,8,-1]],   // A day here: pulled back and aimed higher so the whole sun path fits   // phones: from the 16F end, so all six homes fill the tall frame
   entrance:[[-34,7,-10],[-18,3.5,-4]], entranceM:[[-37,8,-8],[-18,4.6,-4]],
   driveway:[[-36,9,-23],[8,4.5,-3]],
   drivewayM:[[-40,9.5,-24],[1,4.5,-3.5]],
@@ -1842,7 +1843,7 @@ function centreOn(n){   /* outside view: slide the camera across so the picked h
 }
 function lotView(n,c){const xc=-15+(n-1)*W, y=(c-1)*FH; return [[xc+3,y+13,-11],[xc,y,-0.3]];}
 function poseFor(key){
-  if((key==='overview'||key==='driveway'||key==='landmarks'||key==='entrance')&&narrow()) key+='M';   /* phones: centred on the middle homes */
+  if((key==='overview'||key==='sunview'||key==='driveway'||key==='landmarks'||key==='entrance')&&narrow()) key+='M';   /* phones: centred on the middle homes */
   const [p0,t0]=Array.isArray(key)?key:V[key]; let p=toW(p0), t=toW(t0);
   if(narrow()&&!/M$/.test(key)) p=p.map((v,i)=>t[i]+(v-t[i])*1.4);   /* phones sit further back, except the driveway view which is already wide */
   return [p,t];
@@ -1921,19 +1922,22 @@ $('#bNorth').onclick=()=>{stopTour();orientNorth();};
  $('#mBook').onclick=()=>{ stopTour(); if(!/^lot\d$|^site$/.test(selected)) render('site');
    const t=$('#contact .cta-box'); (t||info).scrollIntoView({behavior:reduce?'auto':'smooth',block:'center'}); };}
 
-/* sun path: real sun angles for Greenlane (36.89°S) on the solstices and equinox, clock time in NZ time */
-const EAST=new THREE.Vector3(-NORTH.z,0,NORTH.x), SUN0=sun.position.clone(), LAT=-36.89*Math.PI/180;
+/* sun path: real sun angles for Greenlane, Auckland (36.89°S, 174.80°E) on the solstices and equinox, clock time in NZ time.
+   Solar noon allows for the longitude and the equation of time; sunrise and sunset use the standard -0.833° (refraction), so times match the RASNZ Auckland tables */
+const EAST=new THREE.Vector3(-NORTH.z,0,NORTH.x), SUN0=sun.position.clone(), LAT=-36.89*Math.PI/180, LON=174.80, RISE=-0.833*Math.PI/180;
+const solarNoon=S=>{ const B=2*Math.PI*(S.doy-81)/364, eot=9.87*Math.sin(2*B)-7.53*Math.cos(B)-1.5*Math.sin(B);   /* equation of time, minutes */
+  return 12+S.dst+((180-LON)*4-eot)/60; };   /* NZST runs on 180°E; e.g. 1:20 pm in December, 12:22 pm in June, 1:29 pm in March */
 const SEASON={sum:{doy:355,dst:1,t0:6,t1:22},eq:{doy:80,dst:1,t0:6.5,t1:22},win:{doy:172,dst:0,t0:7,t1:21.5}};   /* runs on into the evening so the lights come on */
 let sunOn=false, season='sum';
 function sunAt(clock){const S=SEASON[season], dec=-23.44*Math.PI/180*Math.cos(2*Math.PI*(S.doy+10)/365);
-  const H=(clock-(12+S.dst+0.34))*15*Math.PI/180;   // solar noon about 12:20 NZST, 1:20 pm in daylight time
+  const H=(clock-solarNoon(S))*15*Math.PI/180;
   const el=Math.asin(Math.sin(LAT)*Math.sin(dec)+Math.cos(LAT)*Math.cos(dec)*Math.cos(H));
   const az=Math.atan2(-Math.cos(dec)*Math.sin(H),Math.sin(dec)*Math.cos(LAT)-Math.cos(dec)*Math.sin(LAT)*Math.cos(H));
   return {el,az};}
 function fmt(t){let h=Math.floor(t), m=Math.round((t-h)*60); if(m===60){h++;m=0;} const ap=h>=12?'pm':'am'; const h12=((h+11)%12)+1; return h12+':'+String(m).padStart(2,'0')+' '+ap;}
 const DECK=(()=>{ const d=new THREE.Vector3(0,0,-1).transformDirection(site.matrixWorld).setY(0).normalize(); return Math.atan2(d.dot(EAST),d.dot(NORTH)); })();   /* the Level 1 decks face north-east; backyards the opposite way */
 const HEMI_SKY=hemi.color.clone(), HEMI_GND=hemi.groundColor.clone(), GOLD=new THREE.Color(0xffa13d), GOLD_SKY=new THREE.Color(0xf7b977), GOLD_HAZE=new THREE.Color(0xffd9a8);
-function sunsetOf(S){ let a=12, b=S.t1; for(let k=0;k<24;k++){ const mid=(a+b)/2; if(sunAt(mid).el>0) a=mid; else b=mid; } return a; }
+function sunsetOf(S){ let a=12, b=S.t1; for(let k=0;k<24;k++){ const mid=(a+b)/2; if(sunAt(mid).el>RISE) a=mid; else b=mid; } return a; }
 function applySunAt(t){   /* sun, sky and lights for a clock time in the current season */
   const {el,az}=sunAt(t);
   const dir=NORTH.clone().multiplyScalar(Math.cos(az)).addScaledVector(EAST,Math.sin(az)).multiplyScalar(Math.cos(el)).setY(Math.sin(el));
@@ -1967,9 +1971,9 @@ function applySun(){
    a glowing sun on it with a faint beam down to the homes, and an edge pointer when the sun is out of frame.
    Preview only at /beta/ until approved: set SUN_PATH=true to put it on the live tour */
 const SUN_PATH=/\/beta\//.test(location.pathname);
-const SP={R:22,YS:0.8,C:new THREE.Vector3(-3,0,-2),g:new THREE.Group(),key:'',pos:new THREE.Vector3(),up:false,mk:[]};
+const SP={R:22,YS:1,C:new THREE.Vector3(-3,0,-2),g:new THREE.Group(),key:'',pos:new THREE.Vector3(),up:false,mk:[]};
 const spDir=(el,az)=>NORTH.clone().multiplyScalar(Math.cos(az)).addScaledVector(EAST,Math.sin(az)).multiplyScalar(Math.cos(el)).setY(Math.sin(el));
-const spAt=(el,az)=>{ const d=spDir(Math.max(0,el),az).multiplyScalar(SP.R); d.y*=SP.YS; return d.add(SP.C); };   /* height squashed so the whole day fits the frame; the compass bearing stays true */
+const spAt=(el,az)=>{ const d=spDir(Math.max(0,el),az).multiplyScalar(SP.R); d.y*=SP.YS; return d.add(SP.C); };   /* true sun heights and bearings (YS<1 would flatten the arc) */
 if(SUN_PATH){
   SP.g.visible=false; scene.add(SP.g);
   const cv=document.createElement('canvas'); cv.width=cv.height=128; const x=cv.getContext('2d'), gr=x.createRadialGradient(64,64,0,64,64,64);
@@ -1991,13 +1995,13 @@ function sunPathBuild(){ if(!SUN_PATH||SP.key===season) return; SP.key=season; c
   SP.arc=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts),120,0.15,6,false),SP.arcMat); SP.g.add(SP.arc);
   [[sr,1.4],[tn,2.6],[ss,1.4]].forEach(([t,lift],i)=>{ const {el,az}=sunAt(t); SP.mk[i].pos.copy(spAt(el,az)).setY(SP.mk[i].pos.y+lift); SP.mk[i].el.textContent=['Sunrise','Midday','Sunset'][i]+' '+fmt(t); });
 }
-function sunPathAt(el,az){ if(!SUN_PATH) return; sunPathBuild(); SP.up=el>0; SP.pos.copy(spAt(el,az));
+function sunPathAt(el,az){ if(!SUN_PATH) return; sunPathBuild(); SP.up=el>RISE; SP.pos.copy(spAt(el,az));
   SP.disc.position.copy(SP.pos); SP.disc.visible=SP.up;
   const d=SP.pos.clone().sub(SP.C); SP.beam.scale.set(1,d.length(),1); SP.beam.position.copy(SP.C).addScaledVector(d,0.5); SP.beam.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),d.normalize()); }
 function sunPointer(w,h,ctrlB){   /* edge pointer: the sun's direction from the middle of the panel, pinned inside its edges */
   let show=false;
   if(SP.g.visible&&SP.up){ v.copy(SP.pos).project(camera); let x=v.x, y=v.y; const behind=v.z>1; if(behind){ x=-x; y=-y; }
-    if(behind||Math.abs(x)>0.92||y>0.86||y<-0.9){ show=true;
+    if(behind||Math.abs(x)>1||y>1||y<-0.9){   /* only once the sun's centre has left the frame */ show=true;
       const sb=document.querySelector('#sunbar>div'), sr=sceneEl.getBoundingClientRect(), top=ctrlB+20, bot=(sb?sb.getBoundingClientRect().top-sr.top:h)-22, L=22, Rr=w-22;
       const cx=w/2, cy=(top+bot)/2; let dx=x*w/2, dy=-y*h/2; if(Math.hypot(dx,dy)<1e-3) dy=-1;
       const k=Math.min(dx>0?(Rr-cx)/dx:dx<0?(L-cx)/dx:Infinity, dy>0?(bot-cy)/dy:dy<0?(top-cy)/dy:Infinity);
@@ -2012,7 +2016,7 @@ function playDay(){ if(dayPlay){ stopDay(); return; } const el=$('#sunT'); if(+e
   dayPlay.raf=requestAnimationFrame(step); }
 function setSun(on,keepView){
   sunOn=on; $('#bSun').setAttribute('aria-pressed',String(on)); $('#sunbar').hidden=!on;
-  if(on){stopTour(); if(night) setNight(false); if(cut===0&&!keepView) fly('overview',1400); applySun();}
+  if(on){stopTour(); if(night) setNight(false); if(cut===0&&!keepView) fly(SUN_PATH?'sunview':'overview',1400); applySun();}
   else{stopDay(); resetSky(); setNight(night); sunAz=null; placeSun();}
   if(typeof syncTime==='function') syncTime();
 }
@@ -2132,7 +2136,7 @@ setNight(false); setCut(0); setLife(lifeOn); render('site'); requestAnimationFra
 const deep=openDeepLink(INIT_HASH);
 /* ?time= deep links into A day here: sunrise, morning, midday, afternoon, golden, sunset, evening, or a clock time (18:30, 6pm); ?season= summer, autumn, spring, winter */
 const SEASON_Q={summer:'sum',winter:'win',autumn:'eq',spring:'eq',equinox:'eq'}, SEASON_NAME={sum:'summer',eq:'spring',win:'winter'};
-function sunriseOf(S){ let a=S.t0-2, b=12; for(let k=0;k<24;k++){ const mid=(a+b)/2; if(sunAt(mid).el>0) b=mid; else a=mid; } return b; }
+function sunriseOf(S){ let a=S.t0-2, b=12; for(let k=0;k<24;k++){ const mid=(a+b)/2; if(sunAt(mid).el>RISE) b=mid; else a=mid; } return b; }
 function parseTime(v){ const S=SEASON[season], ss=sunsetOf(S), sr=sunriseOf(S);
   const named={sunrise:sr+0.15,dawn:sr,morning:9,midday:12.5,noon:12.5,afternoon:15.5,golden:ss-0.5,goldenhour:ss-0.5,sunset:ss,dusk:ss+0.35,evening:ss+1,night:S.t1};
   const k=String(v).toLowerCase().replace(/[^a-z0-9:]/g,''); if(k in named) return named[k];
