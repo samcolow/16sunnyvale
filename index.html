@@ -1969,8 +1969,8 @@ function applySun(){
 }
 /* sun path, while A day here is open: the day's arc over the site from sunrise (east) through midday (north) to sunset (west),
    a glowing sun on it with a faint beam down to the homes, and an edge pointer when the sun is out of frame.
-   Preview only at /beta/ until approved: set SUN_PATH=true to put it on the live tour */
-const SUN_PATH=/\/beta\//.test(location.pathname);
+   Live since Nov 2026; set SUN_PATH=false to switch it off */
+const SUN_PATH=true;
 const SP={R:22,YS:1,C:new THREE.Vector3(-3,0,-2),g:new THREE.Group(),key:'',pos:new THREE.Vector3(),up:false,mk:[]};
 const spDir=(el,az)=>NORTH.clone().multiplyScalar(Math.cos(az)).addScaledVector(EAST,Math.sin(az)).multiplyScalar(Math.cos(el)).setY(Math.sin(el));
 const spAt=(el,az)=>{ const d=spDir(Math.max(0,el),az).multiplyScalar(SP.R); d.y*=SP.YS; return d.add(SP.C); };   /* true sun heights and bearings (YS<1 would flatten the arc) */
