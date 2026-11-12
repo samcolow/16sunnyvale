@@ -67,6 +67,10 @@ h1{font:700 clamp(28px,5vw,44px)/1.02 var(--f-display);letter-spacing:-.02em;mar
 .scene{position:relative;max-width:1180px;margin:0 auto;height:var(--heroH,clamp(440px,calc(100svh - 190px),720px));border-radius:14px;overflow:hidden;background:#cfdde4;touch-action:none}
 .scene canvas{display:block;width:100%;height:100%}
 .labels{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.lbl.sunmk{background:#fff4d6;color:#6b4a00;border:1px solid #f0c25a;font-weight:600}   /* sun path: sunrise, midday and sunset on the arc */
+.sunptr{position:absolute;width:30px;height:30px;margin:-15px 0 0 -15px;border-radius:50%;background:#fffaf0;border:1px solid #f0c25a;box-shadow:0 1px 4px rgba(0,0,0,.25);display:grid;place-items:center;pointer-events:none;z-index:3}
+.sunptr svg{width:20px;height:20px}
+.sunptr i{position:absolute;left:50%;top:50%;width:0;height:0;border-top:6px solid transparent;border-bottom:6px solid transparent;border-left:9px solid #e0a020;transform:translate(-50%,-50%) rotate(var(--a,0rad)) translateX(21px)}   /* points at the sun when it is out of frame */
 .lbl{position:absolute;transform:translate(-50%,-100%);white-space:nowrap;font:500 11px/1 var(--f-body);padding:4px 7px;border-radius:5px;background:var(--chip-bg);color:var(--chip-fg);box-shadow:0 1px 3px rgba(0,0,0,.15)}
 .lbl.lot{font:500 11px/1 var(--f-mono);padding:3px 6px;pointer-events:auto;cursor:pointer}
 .lbl.lot.sale{background:var(--sale);color:var(--on-sale)}
@@ -1950,13 +1954,54 @@ function applySun(){
   const part=dark?(t<12?'Before dawn':'Night'):t<11?'Morning':t<14?'Midday':t>sunset-1?'Evening':'Afternoon';
   const dirs=['north','north-east','east','south-east','south','south-west','west','north-west'], dname=dirs[Math.round(((az*180/Math.PI)%360+360)%360/45)%8];
   $('#sunlbl').textContent=fmt(t)+' · '+part;
-  sunAz=el>0?az:null; placeSun();   // sun's bearing on the compass dial
+  sunAz=el>0?az:null; placeSun(); sunPathAt(el,az);   // sun's bearing on the compass dial, and the sun on its path over the site
   $('#sunMoment').textContent= dark ? (t<12?'Before sunrise':'Evening: home, lights on')
     : t>sunset-1 ? (onYard?'Golden hour in the backyard':'Golden hour')
     : el<=0 ? 'First light'
     : onDeck ? (t<11?'Morning sun on the north-east deck':t<14?'Midday: sun on the deck and through the living':'Afternoon sun still on the deck')
     : onYard ? 'Afternoon: the sun moves round to the backyard' : 'Light through the open-plan living';
   if(!dark&&el>0) $('#sunMoment').textContent+=' · sun in the '+dname;   // plain-words bearing, matching the dot on the compass
+}
+/* sun path, while A day here is open: the day's arc over the site from sunrise (east) through midday (north) to sunset (west),
+   a glowing sun on it with a faint beam down to the homes, and an edge pointer when the sun is out of frame.
+   Preview only at /beta/ until approved: set SUN_PATH=true to put it on the live tour */
+const SUN_PATH=/\/beta\//.test(location.pathname);
+const SP={R:22,YS:0.8,C:new THREE.Vector3(-3,0,-2),g:new THREE.Group(),key:'',pos:new THREE.Vector3(),up:false,mk:[]};
+const spDir=(el,az)=>NORTH.clone().multiplyScalar(Math.cos(az)).addScaledVector(EAST,Math.sin(az)).multiplyScalar(Math.cos(el)).setY(Math.sin(el));
+const spAt=(el,az)=>{ const d=spDir(Math.max(0,el),az).multiplyScalar(SP.R); d.y*=SP.YS; return d.add(SP.C); };   /* height squashed so the whole day fits the frame; the compass bearing stays true */
+if(SUN_PATH){
+  SP.g.visible=false; scene.add(SP.g);
+  const cv=document.createElement('canvas'); cv.width=cv.height=128; const x=cv.getContext('2d'), gr=x.createRadialGradient(64,64,0,64,64,64);
+  gr.addColorStop(0,'rgba(255,252,232,1)'); gr.addColorStop(0.26,'rgba(255,224,120,1)'); gr.addColorStop(0.4,'rgba(255,190,60,.6)'); gr.addColorStop(1,'rgba(255,170,40,0)');
+  x.fillStyle=gr; x.fillRect(0,0,128,128);
+  SP.disc=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(cv),depthTest:false,depthWrite:false,fog:false,transparent:true}));
+  SP.disc.scale.set(8,8,1); SP.disc.renderOrder=10; SP.g.add(SP.disc);
+  SP.arcMat=new THREE.MeshBasicMaterial({color:0xf2a91f,transparent:true,opacity:.65,depthWrite:false,fog:false});
+  SP.beam=new THREE.Mesh(new THREE.CylinderGeometry(0.08,0.08,1,6,1,true),new THREE.MeshBasicMaterial({color:0xffc94d,transparent:true,opacity:.4,depthWrite:false,fog:false})); SP.g.add(SP.beam);
+  SP.mk=['Sunrise','Midday','Sunset'].map(n=>addLabel(n,'sunmk',new THREE.Vector3(),{sunMk:true}));
+  SP.ptr=document.createElement('div'); SP.ptr.className='sunptr'; SP.ptr.hidden=true; SP.ptr.setAttribute('aria-hidden','true');
+  SP.ptr.innerHTML='<i></i><svg viewBox="0 0 20 20"><g stroke="#e0a020" stroke-width="1.6" stroke-linecap="round"><path d="M10 1.5v2.2M10 16.3v2.2M1.5 10h2.2M16.3 10h2.2M4 4l1.5 1.5M14.5 14.5 16 16M4 16l1.5-1.5M14.5 5.5 16 4"/></g><circle cx="10" cy="10" r="4" fill="#f5b52e"/></svg>';
+  sceneEl.appendChild(SP.ptr);
+}
+function sunPathBuild(){ if(!SUN_PATH||SP.key===season) return; SP.key=season; const S=SEASON[season];
+  if(SP.arc){ SP.g.remove(SP.arc); SP.arc.geometry.dispose(); }
+  const sr=sunriseOf(S), ss=sunsetOf(S), pts=[]; let tn=sr, top=-9;
+  for(let i=0;i<=72;i++){ const t=sr+(ss-sr)*i/72, {el,az}=sunAt(t); pts.push(spAt(el,az)); if(el>top){ top=el; tn=t; } }
+  SP.arc=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts),120,0.15,6,false),SP.arcMat); SP.g.add(SP.arc);
+  [[sr,1.4],[tn,2.6],[ss,1.4]].forEach(([t,lift],i)=>{ const {el,az}=sunAt(t); SP.mk[i].pos.copy(spAt(el,az)).setY(SP.mk[i].pos.y+lift); SP.mk[i].el.textContent=['Sunrise','Midday','Sunset'][i]+' '+fmt(t); });
+}
+function sunPathAt(el,az){ if(!SUN_PATH) return; sunPathBuild(); SP.up=el>0; SP.pos.copy(spAt(el,az));
+  SP.disc.position.copy(SP.pos); SP.disc.visible=SP.up;
+  const d=SP.pos.clone().sub(SP.C); SP.beam.scale.set(1,d.length(),1); SP.beam.position.copy(SP.C).addScaledVector(d,0.5); SP.beam.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),d.normalize()); }
+function sunPointer(w,h,ctrlB){   /* edge pointer: the sun's direction from the middle of the panel, pinned inside its edges */
+  let show=false;
+  if(SP.g.visible&&SP.up){ v.copy(SP.pos).project(camera); let x=v.x, y=v.y; const behind=v.z>1; if(behind){ x=-x; y=-y; }
+    if(behind||Math.abs(x)>0.92||y>0.86||y<-0.9){ show=true;
+      const sb=document.querySelector('#sunbar>div'), sr=sceneEl.getBoundingClientRect(), top=ctrlB+20, bot=(sb?sb.getBoundingClientRect().top-sr.top:h)-22, L=22, Rr=w-22;
+      const cx=w/2, cy=(top+bot)/2; let dx=x*w/2, dy=-y*h/2; if(Math.hypot(dx,dy)<1e-3) dy=-1;
+      const k=Math.min(dx>0?(Rr-cx)/dx:dx<0?(L-cx)/dx:Infinity, dy>0?(bot-cy)/dy:dy<0?(top-cy)/dy:Infinity);
+      SP.ptr.style.left=(cx+dx*k)+'px'; SP.ptr.style.top=(cy+dy*k)+'px'; SP.ptr.style.setProperty('--a',Math.atan2(dy,dx)+'rad'); } }
+  SP.ptr.hidden=!show;
 }
 let dayPlay=null;   /* plays the day through in about 30 s */
 function stopDay(){ if(dayPlay){ cancelAnimationFrame(dayPlay.raf); dayPlay=null; } $('#sunPlay').setAttribute('aria-label','Play the day'); $('#sunPlay').innerHTML=ICON_PLAY; }
@@ -2067,6 +2112,7 @@ function loop(now){
     if(l.room){ const near=narrow()?17:12; ok=cut!==0&&l.level===top&&(l.lot===fl||(showAreas&&!fl&&l.area))&&(dist<near||(showAreas&&l.area&&!inSpot)||((touring||walking)&&KEYROOM.test(l.el.textContent)));   // only when zoomed in close, for the key rooms during the tour / walk-through, or any room with an area while Floor areas is on
       if(ok) l.el.style.transform='translate(-50%,'+(showAreas?'calc(-50% + 16px)':'-50%')+') scale('+Math.max(showAreas?0.95:0.75,Math.min(1.1,near/dist)).toFixed(2)+')'; }   /* with Floor areas on, sit just below the step-in dot and stay readable */   // shrink as the view pulls back
     if(l.lotTag) ok=dist<120&&!(cut&&l.lotTag===fl)&&!inSpot;
+    if(l.sunMk) ok=SP.g.visible;
     if(l.spot) ok=!inSpot&&!touring&&!walking&&cut!==0&&l.level===top&&l.lot===fl;
     if(inSpot&&!l.room) ok=false;   /* standing in a room: only its own room names */   // the outlined home doesn't need its tag over its room names
     v.copy(l.pos).project(camera);
@@ -2077,6 +2123,7 @@ function loop(now){
       if(l.lotTag&&py<ctrlB){l.el.hidden=true;return;}
       l.el.style.left=px+'px';l.el.style.top=py+'px';}
   });
+  if(SUN_PATH){ SP.g.visible=sunOn&&!inSpot&&!walking&&!touring; SP.beam.visible=SP.up&&cut===0; sunPointer(w,h,ctrlB); }   /* the beam only outside: in the floor views it would cross the rooms */
   requestAnimationFrame(loop);
 }
 let loopStarted=false;
