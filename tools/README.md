@@ -9,8 +9,7 @@ the site address and `/campaign/`; the `utm_*`, `view=tour`, `time` and `season`
 
 ## Floor areas — one system of record
 
-The schedule **"16 Sunnyvale Road - Floor and Room Area Breakdown"** (Google Doc,
-https://docs.google.com/document/d/1-RRCxcrhvH-cFtqFmYIh6POzNFPEMS9Bomum3EvdRw0/edit) is the source of record.
+The schedule **"16 Sunnyvale Road - Floor and Room Area Breakdown"** (Google Doc in the owners' Drive) is the source of record.
 The page copies it into one table, `const AREAS` in `index.html` (A = 16A, M = 16B–E, F = 16F).
 The home cards, the headline "141–148 m²" and every room label read from that table; room labels
 use keys like `'Garage · {garage}'`. To change a figure: update the doc, then the table, nothing else.
