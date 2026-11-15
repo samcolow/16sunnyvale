@@ -1829,7 +1829,7 @@ const V={
   drivewayM:[[-40,9.5,-24],[1,4.5,-3.5]],
   lot3:[[-3,9,-20],[-3,4.5,-2]],
   lot3cut:[[-1,20,-15],[-3,3,0]],
-  yards:[[2,15,24],[-3,3,2]],
+  yards:[[6,15,24],[1,3,2]],   // aimed at the middle of the terrace so 16A and 16F both sit in frame
   context:[[30,120,-110],[-10,0,0]],
   landmarks:[[-104,92,-64],[-120,0,8]], landmarksM:[[-100,175,-112],[-120,0,8]]   // closer and lower so the station, Woolworths and McDonald's read clearly
 };
@@ -1840,10 +1840,13 @@ function centreOn(n){   /* outside view: slide the camera across so the picked h
   tween={p0:camera.position.clone(),t0:controls.target.clone(),p1:t.clone().add(off),t1:t,s:performance.now(),d:900};
 }
 function lotView(n,c){const xc=-15+(n-1)*W, y=(c-1)*FH; return [[xc+3,y+13,-11],[xc,y,-0.3]];}
+const WIDE_BACK={yards:1.32,landmarks:1.15};   // Backyards and Landmarks on tablet and desktop: all six yards, and station, Woolworths and McDonald's, in frame
 function poseFor(key){
   if((key==='overview'||key==='sunview'||key==='driveway'||key==='landmarks'||key==='entrance')&&narrow()) key+='M';   /* phones: centred on the middle homes */
   const [p0,t0]=Array.isArray(key)?key:V[key]; let p=toW(p0), t=toW(t0);
   if(narrow()&&!/M$/.test(key)) p=p.map((v,i)=>t[i]+(v-t[i])*1.4);   /* phones sit further back, except the driveway view which is already wide */
+  const wide=WIDE_BACK[key]; if(wide&&!narrow()){   /* tablets and desktops: wide views pull back, more on a tall panel so the whole subject still fits across it */
+    const k=wide*Math.max(1,Math.min(2.4,1.9/Math.max(.5,camera.aspect))); p=p.map((v,i)=>t[i]+(v-t[i])*k); }
   return [p,t];
 }
 let panT0=0, firstFly=true, settle=null;   /* load: instead of a fly-in, the camera settles ~9% closer over 2.8 s (ease-out) while the pan is already easing in */
