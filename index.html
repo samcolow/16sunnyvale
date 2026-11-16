@@ -1724,10 +1724,9 @@ function ctaRow(what,C,lead,Lk){   /* Lk: listing actions for one home (book, ap
   // intent: email button, phone number, copy email
   const enq=method=>()=>track('enquiry',{unit:/^lot\d$/.test(selected)?unitName(selected):'any',type:rent?'rent':'sale',method});
   bk.addEventListener('click',enq('email')); ph.addEventListener('click',enq('call')); em.addEventListener('click',enq('copy-email'));
-  if(Lk&&Lk.book){   /* a live listing: booking is the main action, email stays as a fallback */
+  if(Lk&&Lk.book){   /* a live listing: booking is the main action */
     const a=(t,h,m,cls)=>{ const x=document.createElement('a'); x.textContent=t; x.href=h; x.target='_blank'; x.rel='noopener'; if(cls) x.className=cls; x.addEventListener('click',enq(m)); return x; };
-    bk.className=''; bk.textContent='Email '+C.name.split(' ')[0];
-    row.append(a('Book a viewing',Lk.book,'book','primary'), ...(Lk.apply?[a('Apply',Lk.apply,'apply')]:[]), bk, ...(Lk.listing?[a('Full listing',Lk.listing,'listing')]:[]));
+    row.append(a('Book a viewing',Lk.book,'book','primary'), ...(Lk.apply?[a('Apply',Lk.apply,'apply')]:[]), ...(Lk.listing?[a('Full listing',Lk.listing,'listing')]:[]));   /* no email button: the address and number sit just above */
   } else row.append(bk);
   box.append(head,row); return box;
 }
