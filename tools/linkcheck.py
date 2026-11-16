@@ -26,6 +26,11 @@ FIXED = [
   ('?view=tour#16b',                  {'gate': False, 'tour': True,  'home': 'lot2', 'floor': 0}),
   ('?time=golden&season=winter',      {'gate': False, 'tour': False, 'home': None, 'floor': 0, 'sun': True}),
   ('?time=18:30',                     {'gate': False, 'tour': False, 'home': None, 'floor': 0, 'sun': True}),
+  ('?homes=16a',                      {'gate': True,  'tour': False, 'home': 'lot1', 'floor': 0}),
+  ('?homes=16a&view=tour',            {'gate': True,  'tour': True,  'home': 'lot1', 'floor': 0}),
+  ('?homes=16a#16a-l2',               {'gate': False, 'tour': False, 'home': 'lot1', 'floor': 3}),
+  ('?homes=16a#16c-l1',               {'gate': True,  'tour': False, 'home': 'lot1', 'floor': 0}),
+  ('?homes=16c,16d',                  {'gate': True,  'tour': False, 'home': None, 'floor': 0}),
 ]
 
 class Quiet(http.server.SimpleHTTPRequestHandler):
@@ -53,8 +58,8 @@ async def campaign_links(b):
   out = []
   for u in urls + qrs:
     s = urlsplit(u); q = '?' + s.query if s.query else ''; h = '#' + s.fragment if s.fragment else ''
-    home = re.match(r'#16([a-f])', h); vt = 'view=tour' in q
-    out.append((q + h, {'gate': not home and 'time=' not in q, 'tour': vt, 'home': ('lot' + str('abcdef'.index(home.group(1)) + 1)) if home else None, 'floor': 0}))
+    home = re.match(r'#16([a-f])', h) or re.search(r'[?&]homes=16([a-f])(?:&|$)', q); vt = 'view=tour' in q   # a locked link opens its home
+    out.append((q + h, {'gate': not h and 'time=' not in q, 'tour': vt, 'home': ('lot' + str('abcdef'.index(home.group(1)) + 1)) if home else None, 'floor': 0}))
   return out, len(urls), len(qrs)
 
 STATE = """()=>({gate: !document.getElementById('startGate').hidden,
