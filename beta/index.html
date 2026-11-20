@@ -366,7 +366,7 @@ dialog.share p{font-size:13px;color:var(--muted);margin:0 0 12px}
 
 <section class="wrap features" aria-label="Key features">
   <p class="ribbon"><b>16C &amp; 16D for sale</b><span>Upgraded with smart home control and a heat pump in every bedroom and the living area.</span></p>
-  <p class="ribbon rent"><b>16A, 16B, 16E &amp; 16F for rent</b><span>Available from Monday 9 November</span></p>
+  <p class="ribbon rent"><b>16A, 16B, 16E &amp; 16F for rent</b><span>Available from Tuesday 1 December</span></p>
   <ul>
     <li><b>Top school zones</b><span>Auckland Grammar · Epsom Girls Grammar · Remuera Intermediate · Cornwall Park District School</span></li>
     <li><b>Convenient location</b><span>Greenlane station 12 min walk · Woolworths 6 min walk · SH1 2 min drive · Newmarket 7 min drive</span></li>
@@ -472,8 +472,8 @@ const m2=v=>(typeof v==='string'?v:v.toFixed(1))+' m²';   /* 7.2 m², 141.0 m²
 { const t=[AREAS.A,AREAS.M,AREAS.F].map(o=>o.total), el=document.getElementById('statArea'); if(el) el.textContent=Math.floor(Math.min(...t))+'–'+Math.floor(Math.max(...t))+' m²'; }   /* headline range follows the table */
 /* listing status: change here when a home is leased or sold ('sale', 'lease', 'leased', 'sold') */
 const STATUS={1:'lease',2:'lease',3:'sale',4:'sale',5:'lease',6:'lease'};
-const AVAILABLE={lease:'From Monday 9 November 2026'};
-const AVAIL_NOW=Date.now()>=Date.parse('2026-11-09T00:00:00+13:00');   /* from 9 November the rentals read "Available now" */
+const AVAILABLE={lease:'From Tuesday 1 December 2026'};
+const AVAIL_NOW=Date.now()>=Date.parse('2026-12-01T00:00:00+13:00');   /* from 1 December the rentals read "Available now" */
 if(AVAIL_NOW){ AVAILABLE.lease='Now'; const rb=document.querySelector('.ribbon.rent span'); if(rb) rb.textContent='Available now'; }
 const OPEN_HOME={};   // open homes are published on the listing; add e.g. {sale:'Sat 2–2.30 pm'} to show one on the home cards
 const CAT={sale:['For sale','--sale'],lease:['For rent','--lease'],sold:['Sold','--dev'],leased:['Rented','--dev'],dev:['Overview','--dev']};
