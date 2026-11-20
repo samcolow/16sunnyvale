@@ -236,6 +236,7 @@ dd{font:400 13.5px/1.5 var(--f-body);min-width:0}
 .cta a:focus-visible{outline:2px solid var(--lease);outline-offset:2px}
 .cta-box{margin:16px 0 0;padding:16px 0 0;border-top:1px solid var(--line)}
 .cta-box+.cta-box{margin-top:18px}
+.cta-note{margin:10px 0 0;font-size:12.5px;color:var(--muted)}
 .cta-head{display:flex;gap:12px;align-items:center}
 .cta-head .agency-logo{height:46px;width:auto;border-radius:6px;flex:none}
 .cta-head>div{display:flex;flex-direction:column;gap:2px;min-width:0}
@@ -1733,7 +1734,9 @@ function ctaRow(what,C,lead,Lk){   /* Lk: listing actions for one home (book, ap
     const a=(t,h,m,cls)=>{ const x=document.createElement('a'); x.textContent=t; x.href=h; x.target='_blank'; x.rel='noopener'; if(cls) x.className=cls; x.addEventListener('click',enq(m)); return x; };
     row.append(a('Book a viewing',Lk.book,'book','primary'), ...(Lk.apply?[a('Apply',Lk.apply,'apply')]:[]), ...(Lk.listing?[a('Full listing',Lk.listing,'listing')]:[]));   /* no email button: the address and number sit just above */
   } else row.append(bk);
-  box.append(head,row); return box;
+  box.append(head,row);
+  if(rent){ const n=document.createElement('p'); n.className='cta-note'; n.textContent='An in-person viewing is required before you apply.'; box.append(n); }   /* Crockers' rule: no application without a viewing */
+  return box;
 }
 function ctaHint(){const p=document.createElement('p'); p.className='cta-hint'; p.textContent='Each button opens a pre-filled email in your mail app. Tap an email address to copy it, or a number to call.'; return p;}
 /* deep links: #16c opens with 16C selected; #16c-l1 also opens that floor. The address follows what the viewer picks, so Share sends the same view */
