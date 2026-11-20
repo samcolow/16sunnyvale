@@ -70,7 +70,7 @@ button.copy.done{background:var(--ink);color:var(--surface);border-color:var(--i
   </header>
 
   <section class="rules" aria-label="How to use the links">
-    <div class="rule"><b>What the link opens</b><p>A guided 3D tour of the site and a home inside, floor by floor. Visitors can then explore the homes and see the sun on the decks at any time of day. Each rental home’s own links show that home only.</p></div>
+    <div class="rule"><b>What the link opens</b><p>A guided 3D tour of the site and a home inside, floor by floor. Visitors can then explore the homes and see the sun on the decks at any time of day. Dean’s links show 16C and 16D only, and each rental home’s own links show that home only.</p></div>
     <div class="rule"><b>Tour-only listing links</b><p>Links for listings end in <code>&amp;view=tour</code>. They show just the 3D tour, the homes and your contact details, since the listing already has the features and specification. To show the full features and specification as well, delete <code>&amp;view=tour</code> from the end of the link.</p></div>
     <div class="rule"><b>Use the full link</b><p>Copy each link as it is, including everything after the <code>?</code>. Please don’t shorten it or reuse one channel’s link on another.</p></div>
     <div class="rule"><b>Suggested line for the listing</b><p>“Explore the 3D tour: walk the site, step inside each floor and watch the sun move across the deck.”</p></div>
@@ -89,11 +89,11 @@ button.copy.done{background:var(--ink);color:var(--surface);border-color:var(--i
 <script src="qrcode.min.js"></script>
 <script>
 const BASE='https://16sunnyvale.sasu.co.nz/';
-const url=(src,med,camp,home,content)=>BASE+'?utm_source='+src+'&utm_medium='+med+'&utm_campaign='+camp+(content?'&utm_content='+content.toLowerCase():'')+(camp==='rent'&&/^16[a-f]$/i.test(content||'')?'&homes='+content.toLowerCase():'')+(med==='listing'?'&view=tour':'')+(home?'#'+home.toLowerCase():'');   /* listing links open the tour-only page: the listing already has the highlights and spec */   /* no #: the full guided tour plays; utm_content says which listing it came from */
+const url=(src,med,camp,home,content)=>BASE+'?utm_source='+src+'&utm_medium='+med+'&utm_campaign='+camp+(content?'&utm_content='+content.toLowerCase():'')+(camp==='sale'?'&homes=16c,16d':camp==='rent'&&/^16[a-f]$/i.test(content||'')?'&homes='+content.toLowerCase():'')+(med==='listing'?'&view=tour':'')+(home?'#'+home.toLowerCase():'');   /* listing links open the tour-only page: the listing already has the highlights and spec */   /* no #: the full guided tour plays; utm_content says which listing it came from */
 const PEOPLE={
   sale:{name:'Dean Tuffley',org:'Ray White · sales agent',camp:'sale',homes:[['16C & 16D','For sale · one listing for both','']],
     channels:[['raywhite','listing','Ray White website','Listing on the Ray White website'],['trademe','listing','TradeMe','Listing and virtual tour link'],['realestate','listing','realestate.co.nz','Listing and virtual tour link'],['oneroof','listing','OneRoof','Listing and virtual tour link'],['hougarden','listing','Hougarden','Listing and virtual tour link'],['email','database','Email','Ray White buyer database'],['facebook','social','Facebook','Posts and ads'],['instagram','social','Instagram','Bio link, stories']],
-    intro:'One listing for 16C and 16D. The tour walks through 16C, the staged home, and buyers can tap across to 16D. Please add the link to the listing’s virtual tour field and description, the buyer database email and social posts, and the signboard QR code to the open home signboard.'},
+    intro:'One listing for 16C and 16D. The tour shows only 16C and 16D: it walks through 16C, the staged home, and buyers can tap across to 16D. Please add the link to the listing’s virtual tour field and description, the buyer database email and social posts, and the signboard QR code to the open home signboard.'},
   rent:{name:'Robin Chen',org:'Crockers · property manager',camp:'rent',homes:[['All four rentals','One general link for posts, emails or ads covering 16A, 16B, 16E and 16F together','',[['crockers','general','Full tour link','Any channel, all rentals']]],['16A','For rent · end home on the street',''],['16B','For rent',''],['16E','For rent',''],['16F','For rent · end home with side yard','']],
     channels:[['crockers','listing','Crockers website','Rental listing on crockers.co.nz'],['trademe','listing','TradeMe','Listing and virtual tour link'],['realestate','listing','realestate.co.nz','Listing and virtual tour link'],['hougarden','listing','Hougarden','Listing and virtual tour link']],
     intro:'Each rental listing has its own links. Each home’s links open a tour of that home only, with its viewing and application buttons. Please add the matching link to each listing’s virtual tour field and description.'}
@@ -127,8 +127,8 @@ Object.entries(PEOPLE).forEach(([k,P])=>{
     homes.append(d);
   });
 });
-const QR=[['Signboard','Open home signboard · full tour',url('signboard','qr','sale',null)],
-  ['16C & 16D flyer','Sale flyer · full tour',url('qr','flyer','sale',null)],
+const QR=[['Signboard','Open home signboard · 16C & 16D only',url('signboard','qr','sale',null)],
+  ['16C & 16D flyer','Sale flyer · 16C & 16D only',url('qr','flyer','sale',null)],
   ...['16A','16B','16E','16F'].map(h=>[h,'Rental flyer · tour of '+h+' only',url('qr','flyer','rent',null,h)])];
 const qrs=document.getElementById('qrs');
 QR.forEach(([t,s,u])=>{
