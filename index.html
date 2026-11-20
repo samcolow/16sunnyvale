@@ -68,6 +68,9 @@ h1{font:700 clamp(28px,5vw,44px)/1.02 var(--f-display);letter-spacing:-.02em;mar
 .scene{position:relative;max-width:1180px;margin:0 auto;height:var(--heroH,clamp(440px,calc(100svh - 190px),720px));border-radius:14px;overflow:hidden;background:#cfdde4;touch-action:none}
 .scene canvas{display:block;width:100%;height:100%}
 .labels{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.tourfail{position:absolute;inset:0;display:grid;place-content:center;justify-items:center;gap:6px;padding:24px;text-align:center;background:var(--surface,#fbfbf7);color:var(--fg,#1b2438);z-index:20}
+.tourfail p{margin:0;max-width:44ch}.tourfail .m{color:var(--muted,#55607a);font-size:14px}
+.tourfail button{margin-top:8px;font:500 14px/1 var(--f-body,sans-serif);padding:10px 18px;border-radius:999px;border:0;background:#1d2a44;color:#fff;cursor:pointer}
 .lbl.sunmk{background:#fff4d6;color:#6b4a00;border:1px solid #f0c25a;font-weight:600}   /* sun path: sunrise, midday and sunset on the arc */
 .sunptr{position:absolute;width:30px;height:30px;margin:-15px 0 0 -15px;border-radius:50%;background:#fffaf0;border:1px solid #f0c25a;box-shadow:0 1px 4px rgba(0,0,0,.25);display:grid;place-items:center;pointer-events:none;z-index:3}
 .sunptr svg{width:20px;height:20px}
@@ -407,8 +410,11 @@ dialog.share p{font-size:13px;color:var(--muted);margin:0 0 12px}
 
 <footer class="wrap site-foot"><p class="fine">Artist's impression for illustration only. The model is stylised and not to scale. Room layouts are drawn from floor plans and are approximate; floor areas are gross floor areas per the consented plans, and room areas are approximate. Furniture is indicative only and not included. Positions of nearby landmarks are indicative. Final details may differ, please refer to the official plans and your agreement.</p></footer>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<!-- 3D engine (three.js r128): served from this site first so a blocked or slow CDN can't stop the tour; the CDN is the fallback (and what the artifact copies use) -->
+<script src="/vendor/three.min.js"></script>
+<script>window.THREE||document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"><\/script>')</script>
+<script src="/vendor/OrbitControls.js"></script>
+<script>window.THREE&&THREE.OrbitControls||document.write('<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"><\/script>')</script>
 <script>
 (function(){
 const INIT_HASH=location.hash;   // read before the page syncs the address to its own state
@@ -2201,6 +2207,22 @@ addEventListener('hashchange',()=>{stopTour();openDeepLink(location.hash);});
     EV.forEach(t=>document.addEventListener(t,away,true));
     $('#bStart').addEventListener('click',()=>{ close(); touched=false; startTour(); if(startSound) startSound(); track('start-tour',{}); });
   } }
+window.__tourOK=true;   /* the 3D tour got all the way through its setup */
+})();
+</script>
+<script>
+/* if the 3D tour couldn't start, say so in the panel instead of leaving it grey, and log why */
+(function(){ if(window.__tourOK) return; var sc=document.getElementById('scene'); if(!sc) return;
+  var gl=false; try{ var c=document.createElement('canvas'); gl=!!(c.getContext('webgl')||c.getContext('experimental-webgl')); }catch(e){}
+  var why=!window.THREE?'engine':!gl?'webgl':'setup';
+  var msg=why==='webgl'?'3D graphics are turned off or unavailable in this browser. Try another browser, or turn on hardware acceleration in its settings.'
+         :why==='engine'?'The 3D engine didn’t load, possibly a network or content blocker. Please check your connection and reload.'
+         :'Something went wrong starting the 3D tour. Please reload, or try another browser.';
+  var d=document.createElement('div'); d.className='tourfail'; d.setAttribute('role','alert');
+  d.innerHTML='<p><b>The 3D tour couldn’t start</b></p><p class="m"></p><button type="button">Reload</button>';
+  d.querySelector('.m').textContent=msg; d.querySelector('button').onclick=function(){ location.reload(); };
+  sc.appendChild(d);
+  var n=0, t=setInterval(function(){ if(window.umami&&umami.track){ umami.track('tour-error',{reason:why,ua:navigator.userAgent.slice(0,120)}); clearInterval(t); } else if(++n>20) clearInterval(t); },500);
 })();
 </script>
 
