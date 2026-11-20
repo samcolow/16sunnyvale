@@ -39,6 +39,7 @@ code,.mono{font-family:var(--f-mono);font-size:13px}
 .home-h{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
 .home-h h3{font-size:20px}
 .home-h span{color:var(--muted);font-size:13.5px}
+.home-h .copy.all{margin-left:auto}   /* Copy all: every channel link for this home, one per line with its channel name */
 .links{display:grid;gap:6px}
 .row{display:grid;grid-template-columns:150px minmax(0,1fr) auto;gap:10px;align-items:center;min-width:0}
 .row .ch{font-weight:500;font-size:14px}
@@ -98,12 +99,13 @@ const PEOPLE={
     channels:[['crockers','listing','Crockers website','Rental listing on crockers.co.nz'],['trademe','listing','TradeMe','Listing and virtual tour link'],['realestate','listing','realestate.co.nz','Listing and virtual tour link'],['hougarden','listing','Hougarden','Listing and virtual tour link']],
     intro:'Each rental listing has its own links. Each home’s links open a tour of that home only, with its viewing and application buttons. Please add the matching link to each listing’s virtual tour field and description.'}
 };
-function copyBtn(text){
-  const b=document.createElement('button'); b.type='button'; b.className='copy'; b.textContent='Copy';
+function copyBtn(text,label,sel){   /* label: button text (default Copy); sel: what to select if the clipboard is blocked */
+  label=label||'Copy';
+  const b=document.createElement('button'); b.type='button'; b.className='copy'; b.textContent=label;
   b.addEventListener('click',async()=>{
     try{ await navigator.clipboard.writeText(text); b.textContent='Copied'; b.classList.add('done'); }
-    catch(e){ const el=b.previousElementSibling; if(el){ const r=document.createRange(); r.selectNodeContents(el); const s=getSelection(); s.removeAllRanges(); s.addRange(r);} b.textContent='Selected'; }
-    setTimeout(()=>{ b.textContent='Copy'; b.classList.remove('done'); },1600);
+    catch(e){ const el=sel||b.previousElementSibling; if(el){ const r=document.createRange(); r.selectNodeContents(el); const s=getSelection(); s.removeAllRanges(); s.addRange(r);} b.textContent='Selected'; }
+    setTimeout(()=>{ b.textContent=label; b.classList.remove('done'); },1600);
   });
   return b;
 }
@@ -117,13 +119,14 @@ Object.entries(PEOPLE).forEach(([k,P])=>{
   P.homes.forEach(([h,sub,hash,own])=>{
     const d=document.createElement('div'); d.className='home';
     d.innerHTML='<div class="home-h"><h3></h3><span></span></div><div class="links"></div>';
-    d.querySelector('h3').textContent=h; d.querySelector('span').textContent=sub;
+    d.querySelector('h3').textContent=h; d.querySelector('span').textContent=sub; const all=[];
     (own||P.channels).forEach(([src,med,label,hint])=>{
       const u=url(src,med,P.camp,hash===''?null:(hash||h),k==='rent'?(own?'all':h):null), r=document.createElement('div'); r.className='row';
       r.innerHTML='<div class="ch"></div><div class="url"></div>';
       r.querySelector('.ch').textContent=label; const sm=document.createElement('small'); sm.textContent=hint; r.querySelector('.ch').append(sm);
-      r.querySelector('.url').textContent=u; r.append(copyBtn(u)); d.querySelector('.links').append(r);
+      r.querySelector('.url').textContent=u; r.append(copyBtn(u)); d.querySelector('.links').append(r); all.push(label+': '+u);
     });
+    const ca=copyBtn(h+' · 3D tour links\n'+all.join('\n'),'Copy all',d.querySelector('.links')); ca.classList.add('all'); d.querySelector('.home-h').append(ca);
     homes.append(d);
   });
 });
