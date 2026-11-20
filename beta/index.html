@@ -501,7 +501,7 @@ const lot=n=>{
 };
 const INFO_LOCK=()=>{ if(!LOCK) return;
   const st=[...new Set(LOCK.map(n=>STATUS[n]))], word=st.length===1?(st[0]==='sale'?'for sale':st[0]==='lease'?'for rent':''):'';
-  document.querySelector('header h1').textContent=LOCK_NAMES+' Sunnyvale Road';
+  /* the heading stays '16 Sunnyvale Road' on locked links */
   document.querySelector('header .tagline').textContent='Explore '+LOCK_NAMES+' in 3D: walk the site, step inside each floor and watch the sun move.';
   const s1=document.querySelector('.stats .stat'); s1.querySelector('b').textContent=LOCK_NAMES; s1.querySelector('span').textContent=word||'3-storey terrace';
   const t=LOCK.map(n=>AREAS.lot(n).total); document.getElementById('statArea').textContent=Math.min(...t)===Math.max(...t)?m2(t[0]):Math.floor(Math.min(...t))+'–'+Math.floor(Math.max(...t))+' m²';
