@@ -58,8 +58,14 @@ h1{font:700 clamp(28px,5vw,44px)/1.02 var(--f-display);letter-spacing:-.02em;mar
 .startgate{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;pointer-events:none;z-index:4;background:rgba(251,251,247,.72);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}   /* soft white veil so the button reads cleanly over the model */
 .startgate button{pointer-events:auto;display:inline-flex;align-items:center;gap:10px;font:600 17px/1 var(--f-body);background:#1d2a44;color:#ffffff;border:0;border-radius:999px;padding:16px 26px 16px 22px;box-shadow:0 6px 24px rgba(16,24,40,.28);cursor:pointer;transition:transform .15s}
 .startgate button:hover{transform:scale(1.04)} .startgate button:focus-visible{outline:3px solid #ffffff;outline-offset:3px}
+.startpill{pointer-events:auto;display:inline-flex;align-items:stretch;background:#1d2a44;border-radius:999px;box-shadow:0 6px 24px rgba(16,24,40,.28);transition:transform .15s}
+.startpill:hover{transform:scale(1.04)}
+.startgate .startpill button{background:none;box-shadow:none;transform:none;color:#fff}
+.startgate .startpill button:hover{transform:none}
+.startgate .startpill #bGateSound{padding:0 20px 0 16px;border-left:1px solid rgba(255,255,255,.28);border-radius:0 999px 999px 0}
+.startgate .startpill #bStart{padding-right:18px;border-radius:999px 0 0 999px}
 .startgate small{pointer-events:none;font:500 12.5px/1 var(--f-body);color:#55607a}
-@media (prefers-reduced-motion:reduce){.startgate button{transition:none}}
+@media (prefers-reduced-motion:reduce){.startgate button,.startpill{transition:none}}
 .loading{position:absolute;inset:0;display:flex;flex-direction:column;gap:12px;align-items:center;justify-content:center;font:500 13px/1.3 var(--f-body);color:#55607a;background:#cfdde4;z-index:5;transition:opacity .4s}
 .loading span{width:28px;height:28px;border-radius:50%;border:3px solid rgba(29,42,68,.18);border-top-color:#1d2a44;animation:spin 1s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -131,7 +137,7 @@ button:focus-visible{outline:2px solid var(--lease);outline-offset:2px}
   .ctrls .opt{order:2} .scene.open .ctrls .brk{display:block;order:1;flex-basis:100%;height:0}   /* More opens a second row underneath; the main row stays put */
   .ctrls .more{min-width:62px}
   @media (max-width:370px){.ctrls{gap:4px}.ctrls .seg button{padding:6px 7px}.ctrls .more{min-width:0;width:34px;padding:0;font-size:0}.ctrls .more::before{content:'\22EF';font-size:18px;line-height:1}.scene.open .ctrls .more::before{content:'\2715';font-size:13px}}   /* small phones: More becomes a round ⋯ button so the main row fits on one line */
-  .scene .jump{display:none}
+  .scene .jump{display:none;right:10px}
   .scene.open .jump{display:flex}
   .scene .tourbar{bottom:12px}
   .scene.open .tourbar{bottom:52px}
@@ -147,7 +153,7 @@ button:focus-visible{outline:2px solid var(--lease);outline-offset:2px}
 .tourcap i{font:500 10px/1 var(--f-mono);color:var(--muted);font-style:normal}
 .prog{display:block;width:44px;height:3px;border-radius:2px;background:var(--line);overflow:hidden}
 .prog b{display:block;height:100%;width:0;background:var(--ink)}
-.jump{position:absolute;bottom:10px;left:10px;right:10px;display:flex;gap:6px;overflow-x:auto;pointer-events:none;padding-bottom:2px}
+.jump{position:absolute;bottom:10px;left:10px;right:50px;display:flex;gap:6px;overflow-x:auto;pointer-events:none;padding-bottom:2px}
 .jump button{pointer-events:auto;flex:none}
 main.wrap{padding-block:24px 40px;display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:24px}
 @media (max-width:760px){main.wrap{grid-template-columns:1fr}}
@@ -171,7 +177,16 @@ main.wrap{padding-block:24px 40px;display:grid;grid-template-columns:minmax(0,1.
 .audio-pill-btn[aria-pressed="true"] .sound-bar:nth-child(3){animation-delay:-.7s}
 @keyframes soundBar{0%,100%{height:3px}50%{height:11px}}
 @media (prefers-reduced-motion:reduce){.audio-pill-btn[aria-pressed="true"] .sound-bar{animation:none;height:8px}}
-@media (max-width:760px){.scene.open .ctrls .audio-pill-btn{display:inline-flex}}
+/* the sound toggle lives in the panel's bottom-right corner, icon only; a slash through the bars means off */
+.sound-wave-icon{position:relative}
+.audio-pill-btn[aria-pressed="false"] .sound-wave-icon::after{content:"";position:absolute;left:-4px;right:-4px;top:50%;height:1.6px;margin-top:-.8px;background:currentColor;transform:rotate(-38deg);border-radius:1px}
+.soundcorner{position:absolute;bottom:10px;right:10px;z-index:3;width:34px;height:34px;padding:0;gap:0;justify-content:center}
+.soundcorner .sound-wave-icon{height:14px;gap:2.5px}
+.soundcorner .sound-bar{width:3px}
+.soundcorner .sndtxt{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.night .soundcorner{background:rgba(24,30,46,.88);color:#e8eaf4}
+.night .soundcorner[aria-pressed="true"]{background:#1d2a44;color:#ffffff;border-color:rgba(255,255,255,.55)}
+@media (max-width:760px){.scene .soundcorner{bottom:44px}.scene:has(#tourcap:not([hidden])) .soundcorner{bottom:64px}.scene.open .soundcorner{bottom:86px}.scene.open:has(#tourcap:not([hidden])) .soundcorner{bottom:106px}.scene:has(#sunbar:not([hidden])) .soundcorner{bottom:128px}.scene.standing .soundcorner{bottom:56px!important}}   /* phones: the caption, key and sun bar run full width, so the button sits on top of them; at eye level it clears the Back bar */
 .homes{list-style:none;margin:6px 0 0;padding:0}
 .homes button{display:grid;grid-template-columns:44px 1fr auto auto;gap:12px;align-items:center;width:100%;padding:11px 0;border:0;border-top:1px solid var(--line);border-radius:0;box-shadow:none;background:none;color:var(--fg);font:inherit;text-align:left;cursor:pointer}
 .homes li:last-child button{border-bottom:1px solid var(--line)}
@@ -335,13 +350,13 @@ dialog.share p{font-size:13px;color:var(--muted);margin:0 0 12px}
   <div class="scene" id="scene">
     <div class="loading" id="loading" aria-live="polite"><span></span>Loading the 3D model…</div>
     <div class="labels" id="labels"></div>
-    <div class="startgate" id="startGate" hidden><button id="bStart" type="button"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg>Start the tour</button><small>with sound</small></div>
+    <div class="startgate" id="startGate" hidden><div class="startpill"><button id="bStart" type="button"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg>Start the tour</button><button id="bGateSound" class="audio-pill-btn" type="button" aria-pressed="true" aria-label="Sound on" title="Sound on or off"><span class="sound-wave-icon" aria-hidden="true"><span class="sound-bar"></span><span class="sound-bar"></span><span class="sound-bar"></span></span></button></div><small id="gateNote">with sound</small></div>
+    <button id="audioToggleBtn" class="soundcorner audio-pill-btn" aria-pressed="false" aria-label="Toggle ambient soundtrack" title="Sound on or off"><span class="sound-wave-icon" aria-hidden="true"><span class="sound-bar"></span><span class="sound-bar"></span><span class="sound-bar"></span></span><span id="audioStatusText" class="sndtxt">Sound: Off</span></button>
+    <audio id="ambientTrack" loop preload="none"><source src="../audio/ambient-loop-quiet.webm" type="audio/webm"><source src="../audio/ambient-loop-quiet.mp4" type="audio/mp4"></audio>   <!-- fetched only when Sound is switched on -->
     <div class="ctrls">
       <button id="bTour" class="icon" aria-pressed="false" aria-label="Play tour" title="Play tour"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg></button>
       <button id="bLife" class="opt" aria-pressed="true" title="Show or hide people, cars and buses">Activity</button>
       <button id="bSun" class="opt" aria-pressed="false">A day here</button>
-      <button id="audioToggleBtn" class="opt audio-pill-btn" aria-pressed="false" aria-label="Toggle ambient soundtrack" title="Play or stop the soundtrack"><span class="sound-wave-icon" aria-hidden="true"><span class="sound-bar"></span><span class="sound-bar"></span><span class="sound-bar"></span></span><span id="audioStatusText">Sound: Off</span></button>
-      <audio id="ambientTrack" loop preload="none"><source src="../audio/ambient-loop.webm" type="audio/webm"><source src="../audio/ambient-loop.mp4" type="audio/mp4"></audio>   <!-- fetched only when Sound is switched on -->
       <div class="seg" id="seg" role="group" aria-label="Floor"><button data-cut="0" aria-pressed="true">Outside</button><button data-cut="1">GF</button><button data-cut="2">L1</button><button data-cut="3">L2</button></div>
       <button id="bArea" class="opt" aria-pressed="false" hidden title="Show or hide floor areas">Floor areas</button>
       <span class="spacer"></span>
@@ -2068,9 +2083,9 @@ $('#bSun').onclick=()=>setSun(!sunOn);
 $('#sunT').oninput=()=>{stopDay(); applySun();};
 $('#sunT').onchange=()=>syncTime();
 $('#sunPlay').onclick=playDay;
-let startSound=null;
-const SOUND_ON=false;   /* soundtrack switched off for now: set to true to bring back the Sound button, the music on Start the tour and the 'with sound' note */
-if(!SOUND_ON){ $('#audioToggleBtn').remove(); $('#ambientTrack').remove(); const n=document.querySelector('#startGate small'); if(n) n.remove(); }
+let startSound=null, soundPref=true;   /* soundPref: the sound icon on the start button; start plays the song unless it was switched off */
+const SOUND_ON=true;   /* soundtrack: set to false to switch it off (removes the Sound button, the music on Start the tour and the sound icon on the start button) */
+if(!SOUND_ON){ $('#audioToggleBtn').remove(); $('#ambientTrack').remove(); const n=document.querySelector('#startGate small'); if(n) n.remove(); const g=$('#bGateSound'); if(g) g.remove(); }
 else
 /* ambient soundtrack: starts with "Start the tour" (a tap, so every browser allows sound), or from the Sound button.
    Plain <audio> playback so it also plays on iPhones in silent mode; the file is mastered at background level, so fades are a nicety where supported */
@@ -2209,7 +2224,9 @@ addEventListener('hashchange',()=>{stopTour();openDeepLink(location.hash);});
     function away(e){ const act=e.target.closest&&e.target.closest(ACT)||(e.type==='keydown'&&document.activeElement&&document.activeElement.closest&&document.activeElement.closest(ACT)&&/^(Enter| )$/.test(e.key));
       if(!act&&(e.type==='keydown'?!sceneEl.contains(document.activeElement):!(e.target.closest&&sceneEl.contains(e.target)))) return; if(e.target.closest&&e.target.closest('#startGate')) return; close(); controls.autoRotate=false; }   // only taps, drags or keys inside the 3D panel dismiss it; the rest of the page leaves it in place
     EV.forEach(t=>document.addEventListener(t,away,true));
-    $('#bStart').addEventListener('click',()=>{ close(); touched=false; startTour(); if(startSound) startSound(); track('start-tour',{}); });
+    const gs=$('#bGateSound'), note=$('#gateNote');
+    if(gs) gs.addEventListener('click',()=>{ soundPref=!soundPref; gs.setAttribute('aria-pressed',String(soundPref)); gs.setAttribute('aria-label',soundPref?'Sound on':'Sound off'); if(note) note.textContent=soundPref?'with sound':'without sound'; track('sound-pref',{on:soundPref}); });
+    $('#bStart').addEventListener('click',()=>{ close(); touched=false; startTour(); if(soundPref&&startSound) startSound(); track('start-tour',{sound:soundPref}); });
   } }
 window.__tourOK=true;   /* the 3D tour got all the way through its setup */
 })();
