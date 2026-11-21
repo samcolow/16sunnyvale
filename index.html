@@ -59,8 +59,15 @@ h1{font:700 clamp(28px,5vw,44px)/1.02 var(--f-display);letter-spacing:-.02em;mar
 .startgate{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;pointer-events:none;z-index:4;background:rgba(251,251,247,.72);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}   /* soft white veil so the button reads cleanly over the model */
 .startgate button{pointer-events:auto;display:inline-flex;align-items:center;gap:10px;font:600 17px/1 var(--f-body);background:#1d2a44;color:#ffffff;border:0;border-radius:999px;padding:16px 26px 16px 22px;box-shadow:0 6px 24px rgba(16,24,40,.28);cursor:pointer;transition:transform .15s}
 .startgate button:hover{transform:scale(1.04)} .startgate button:focus-visible{outline:3px solid #ffffff;outline-offset:3px}
+.startpill{pointer-events:auto;display:inline-flex;align-items:stretch;background:#1d2a44;border-radius:999px;box-shadow:0 6px 24px rgba(16,24,40,.28);transition:transform .15s}
+.startpill:hover{transform:scale(1.04)}
+.startgate .startpill button{background:none;box-shadow:none;transform:none;color:#fff}
+.startgate .startpill button:hover{transform:none}
+.startgate .startpill #bGateSound{padding:0 20px 0 16px;border-left:1px solid rgba(255,255,255,.28);border-radius:0 999px 999px 0}
+.startgate .startpill #bStart{padding-right:18px;border-radius:999px 0 0 999px}
+#bGateSound[aria-pressed="true"] .off,#bGateSound[aria-pressed="false"] .on{display:none}
 .startgate small{pointer-events:none;font:500 12.5px/1 var(--f-body);color:#55607a}
-@media (prefers-reduced-motion:reduce){.startgate button{transition:none}}
+@media (prefers-reduced-motion:reduce){.startgate button,.startpill{transition:none}}
 .loading{position:absolute;inset:0;display:flex;flex-direction:column;gap:12px;align-items:center;justify-content:center;font:500 13px/1.3 var(--f-body);color:#55607a;background:#cfdde4;z-index:5;transition:opacity .4s}
 .loading span{width:28px;height:28px;border-radius:50%;border:3px solid rgba(29,42,68,.18);border-top-color:#1d2a44;animation:spin 1s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -336,7 +343,7 @@ dialog.share p{font-size:13px;color:var(--muted);margin:0 0 12px}
   <div class="scene" id="scene">
     <div class="loading" id="loading" aria-live="polite"><span></span>Loading the 3D model…</div>
     <div class="labels" id="labels"></div>
-    <div class="startgate" id="startGate" hidden><button id="bStart" type="button"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg>Start the tour</button><small>with sound</small></div>
+    <div class="startgate" id="startGate" hidden><div class="startpill"><button id="bStart" type="button"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg>Start the tour</button><button id="bGateSound" type="button" aria-pressed="true" aria-label="Sound on" title="Sound on or off"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9z" fill="currentColor"/><path class="on" d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path class="off" d="M16.5 9.5l5 5M21.5 9.5l-5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button></div><small id="gateNote">with sound</small></div>
     <div class="ctrls">
       <button id="bTour" class="icon" aria-pressed="false" aria-label="Play tour" title="Play tour"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg></button>
       <button id="bLife" class="opt" aria-pressed="true" title="Show or hide people, cars and buses">Activity</button>
@@ -2069,9 +2076,9 @@ $('#bSun').onclick=()=>setSun(!sunOn);
 $('#sunT').oninput=()=>{stopDay(); applySun();};
 $('#sunT').onchange=()=>syncTime();
 $('#sunPlay').onclick=playDay;
-let startSound=null;
-const SOUND_ON=false;   /* soundtrack switched off for now: set to true to bring back the Sound button, the music on Start the tour and the 'with sound' note */
-if(!SOUND_ON){ $('#audioToggleBtn').remove(); $('#ambientTrack').remove(); const n=document.querySelector('#startGate small'); if(n) n.remove(); }
+let startSound=null, soundPref=true;   /* soundPref: the sound icon on the start button; start plays the song unless it was switched off */
+const SOUND_ON=true;   /* soundtrack: set to false to switch it off (removes the Sound button, the music on Start the tour and the sound icon on the start button) */
+if(!SOUND_ON){ $('#audioToggleBtn').remove(); $('#ambientTrack').remove(); const n=document.querySelector('#startGate small'); if(n) n.remove(); const g=$('#bGateSound'); if(g) g.remove(); }
 else
 /* ambient soundtrack: starts with "Start the tour" (a tap, so every browser allows sound), or from the Sound button.
    Plain <audio> playback so it also plays on iPhones in silent mode; the file is mastered at background level, so fades are a nicety where supported */
@@ -2210,7 +2217,9 @@ addEventListener('hashchange',()=>{stopTour();openDeepLink(location.hash);});
     function away(e){ const act=e.target.closest&&e.target.closest(ACT)||(e.type==='keydown'&&document.activeElement&&document.activeElement.closest&&document.activeElement.closest(ACT)&&/^(Enter| )$/.test(e.key));
       if(!act&&(e.type==='keydown'?!sceneEl.contains(document.activeElement):!(e.target.closest&&sceneEl.contains(e.target)))) return; if(e.target.closest&&e.target.closest('#startGate')) return; close(); controls.autoRotate=false; }   // only taps, drags or keys inside the 3D panel dismiss it; the rest of the page leaves it in place
     EV.forEach(t=>document.addEventListener(t,away,true));
-    $('#bStart').addEventListener('click',()=>{ close(); touched=false; startTour(); if(startSound) startSound(); track('start-tour',{}); });
+    const gs=$('#bGateSound'), note=$('#gateNote');
+    if(gs) gs.addEventListener('click',()=>{ soundPref=!soundPref; gs.setAttribute('aria-pressed',String(soundPref)); gs.setAttribute('aria-label',soundPref?'Sound on':'Sound off'); if(note) note.textContent=soundPref?'with sound':'without sound'; track('sound-pref',{on:soundPref}); });
+    $('#bStart').addEventListener('click',()=>{ close(); touched=false; startTour(); if(soundPref&&startSound) startSound(); track('start-tour',{sound:soundPref}); });
   } }
 window.__tourOK=true;   /* the 3D tour got all the way through its setup */
 })();
