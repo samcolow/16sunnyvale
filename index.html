@@ -138,12 +138,12 @@ button:focus-visible{outline:2px solid var(--lease);outline-offset:2px}
   .ctrls .opt{order:2} .scene.open .ctrls .brk{display:block;order:1;flex-basis:100%;height:0}   /* More opens a second row underneath; the main row stays put */
   .ctrls .more{min-width:62px}
   @media (max-width:370px){.ctrls{gap:4px}.ctrls .seg button{padding:6px 7px}.ctrls .more{min-width:0;width:34px;padding:0;font-size:0}.ctrls .more::before{content:'\22EF';font-size:18px;line-height:1}.scene.open .ctrls .more::before{content:'\2715';font-size:13px}}   /* small phones: More becomes a round ⋯ button so the main row fits on one line */
-  .scene .jump{display:none}
+  .scene .jump{display:none;right:10px}
   .scene.open .jump{display:flex}
   .scene .tourbar{bottom:12px}
-  .scene .tourbar{right:54px} .scene.open .tourbar{bottom:52px;right:10px}   /* phones: the caption stops short of the sound button in the bottom-right corner */
-  .scene .skey{top:auto;bottom:12px;right:54px}
-  .scene.open .skey{bottom:54px;right:12px}
+  .scene.open .tourbar{bottom:52px}
+  .scene .skey{top:auto;bottom:12px;right:12px}
+  .scene.open .skey{bottom:54px}
   .scene:has(#tourcap:not([hidden])) .skey,.scene:has(#sunbar:not([hidden])) .skey,.scene:has(#sunbar:not([hidden])) .jump{display:none!important}
   .scene .sunbar{bottom:12px}
 }
@@ -187,7 +187,7 @@ main.wrap{padding-block:24px 40px;display:grid;grid-template-columns:minmax(0,1.
 .soundcorner .sndtxt{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .night .soundcorner{background:rgba(24,30,46,.88);color:#e8eaf4}
 .night .soundcorner[aria-pressed="true"]{background:#1d2a44;color:#ffffff;border-color:rgba(255,255,255,.55)}
-@media (max-width:520px){.scene.standing .soundcorner{bottom:56px}}   /* eye level on phones: clear of the Back bar */
+@media (max-width:760px){.scene .soundcorner{bottom:64px}.scene.open .soundcorner{bottom:106px}.scene:has(#sunbar:not([hidden])) .soundcorner{bottom:128px}.scene.standing .soundcorner{bottom:56px!important}}   /* phones: the caption, key and sun bar run full width, so the button sits on top of them; at eye level it clears the Back bar */
 .homes{list-style:none;margin:6px 0 0;padding:0}
 .homes button{display:grid;grid-template-columns:44px 1fr auto auto;gap:12px;align-items:center;width:100%;padding:11px 0;border:0;border-top:1px solid var(--line);border-radius:0;box-shadow:none;background:none;color:var(--fg);font:inherit;text-align:left;cursor:pointer}
 .homes li:last-child button{border-bottom:1px solid var(--line)}
