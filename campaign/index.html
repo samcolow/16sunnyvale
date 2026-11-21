@@ -39,7 +39,14 @@ code,.mono{font-family:var(--f-mono);font-size:13px}
 .home-h{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
 .home-h h3{font-size:20px}
 .home-h span{color:var(--muted);font-size:13.5px}
-.home-h .copy.all{margin-left:auto}   /* Copy all: every channel link for this home, one per line with its channel name */
+.home-h .copy.all{margin-left:auto}
+.person,.home{scroll-margin-top:16px}   /* linkable headings: /campaign/#sale, #rent, #qr, and each home (#sale-general, #rent-16a ...) */
+a.hl{color:inherit;text-decoration:none} a.hl:hover{text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:4px}
+a.hl:focus-visible{outline:2px solid var(--ink);outline-offset:2px;border-radius:4px}
+a.hl::after{content:'#';margin-left:.3em;color:var(--muted);opacity:0;font-weight:400} a.hl:hover::after,a.hl:focus-visible::after{opacity:1}
+.person-h .side{display:flex;align-items:center;gap:10px}
+.person:target,.home:target{box-shadow:0 0 0 2px var(--ink);border-radius:12px}
+.home:target{padding:14px 12px 12px;border-top-color:transparent}   /* Copy all: every channel link for this home, one per line with its channel name */
 .links{display:grid;gap:6px}
 .row{display:grid;grid-template-columns:150px minmax(0,1fr) auto;gap:10px;align-items:center;min-width:0}
 .row .ch{font-weight:500;font-size:14px}
@@ -80,8 +87,8 @@ button.copy.done{background:var(--ink);color:var(--surface);border-color:var(--i
   <section class="person" id="sale" aria-labelledby="sale-h"></section>
   <section class="person" id="rent" aria-labelledby="rent-h"></section>
 
-  <section class="person" aria-labelledby="qr-h">
-    <div class="person-h"><div><h2 id="qr-h">QR codes for print</h2><p>For the open home signboard and flyers. Right-click or long-press a code to save it.</p></div></div>
+  <section class="person" id="qr" aria-labelledby="qr-h">
+    <div class="person-h"><div><h2 id="qr-h"><a class="hl" href="#qr">QR codes for print</a></h2><p>For the open home signboard and flyers. Right-click or long-press a code to save it.</p></div><div class="side"></div></div>
     <div class="qrs" id="qrs"></div>
     <p class="note">Each code opens the 3D tour. Please put the signboard code on the open home signboard and the flyer codes on the matching flyers.</p>
   </section>
@@ -111,15 +118,16 @@ function copyBtn(text,label,sel){   /* label: button text (default Copy); sel: w
 }
 Object.entries(PEOPLE).forEach(([k,P])=>{
   const sec=document.getElementById(k);
-  sec.innerHTML='<div class="person-h"><div><h2 id="'+k+'-h"></h2><p></p></div><span class="tag '+k+'"></span></div><div class="homes"></div>';
-  sec.querySelector('h2').textContent=(k==='sale'?'Sale':'Rentals')+' · '+P.name; sec.querySelector('.person-h p').textContent=P.org;
+  sec.innerHTML='<div class="person-h"><div><h2 id="'+k+'-h"><a class="hl" href="#'+k+'"></a></h2><p></p></div><div class="side"><span class="tag '+k+'"></span></div></div><div class="homes"></div>';
+  sec.querySelector('h2 a').textContent=(k==='sale'?'Sale':'Rentals')+' · '+P.name; sec.querySelector('.person-h p').textContent=P.org;
   sec.querySelector('.tag').textContent=k==='sale'?'For sale':'For rent';
   const msg=document.createElement('p'); msg.className='intro'; msg.textContent=P.intro; sec.insertBefore(msg,sec.querySelector('.homes'));
   const homes=sec.querySelector('.homes');
   P.homes.forEach(([h,sub,hash,own])=>{
     const d=document.createElement('div'); d.className='home';
     d.innerHTML='<div class="home-h"><h3></h3><span></span></div><div class="links"></div>';
-    d.querySelector('h3').textContent=h; d.querySelector('span').textContent=sub; const all=[];
+    d.id=k+'-'+(own?'general':h.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,''));   /* e.g. #sale-16c-16d, #rent-16a */
+    d.querySelector('h3').innerHTML='<a class="hl"></a>'; d.querySelector('h3 a').href='#'+d.id; d.querySelector('h3 a').textContent=h; d.querySelector('span').textContent=sub; const all=[];
     (own||P.channels).forEach(([src,med,label,hint])=>{
       const u=url(src,med,P.camp,hash===''?null:(hash||h),k==='rent'?(own?'all':h):null), r=document.createElement('div'); r.className='row';
       r.innerHTML='<div class="ch"></div><div class="url"></div>';
@@ -141,6 +149,9 @@ QR.forEach(([t,s,u])=>{
   try{ new QRCode(c.querySelector('.code'),{text:u,width:252,height:252,colorDark:'#1b2438',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M}); }
   catch(e){ c.querySelector('.code').textContent='QR unavailable'; }
 });
+/* section links: a Copy link button on each section, and jump to the section in the address (it is built after the page loads) */
+document.querySelectorAll('.person[id]').forEach(s=>{ const b=copyBtn(location.href.split('#')[0]+'#'+s.id,'Copy link'); b.title='Copy a link straight to this section'; s.querySelector('.person-h .side').append(b); });
+if(location.hash){ const t=document.getElementById(decodeURIComponent(location.hash.slice(1))); if(t){ t.scrollIntoView(); const h=location.hash; location.hash=''; location.hash=h; } }
 </script>
 
 </body></html>
