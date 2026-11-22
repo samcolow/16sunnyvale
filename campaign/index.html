@@ -80,13 +80,13 @@ button.copy.done{background:var(--ink);color:var(--surface);border-color:var(--i
   <header>
     <div class="eyebrow">16 Sunnyvale Road · 3D tour</div>
     <h1>Campaign links</h1>
-    <p class="lede">Links to the interactive 3D tour for your listings, emails and social posts. Each channel has its own link so we can see which ones bring people in, so please use the link for the channel you’re posting on.</p>
+    <p class="lede">Links to the interactive 3D tour for your listings, emails and social posts. Each channel has its own link so we can see which ones bring people in.</p>
   </header>
 
   <section class="rules" aria-label="How to use the links">
     <div class="rule"><b>What the link opens</b><p>A guided 3D tour of the site and a home inside, floor by floor. Visitors can then explore the homes and see the sun on the decks at any time of day. Dean’s links show 16C and 16D only, and each rental home’s own links show that home only.</p></div>
     <div class="rule"><b>Tour-only listing links</b><p>Listing links end in <code>&amp;view=tour</code>, so they show just the 3D tour, the homes and your contact details; the listing already has the features and specification. To include the features and specification, tick <b class="inl">Include features and specification</b> in your section, or delete <code>&amp;view=tour</code> from the end of a link (keep everything before it). General, email, social and QR links always show the full page.</p></div>
-    <div class="rule"><b>Use the full link</b><p>Copy each link as it is, including everything after the <code>?</code>. Please don’t shorten it or reuse one channel’s link on another.</p></div>
+    <div class="rule"><b>Use the full link</b><p>Copy each link as it is, including everything after the <code>?</code>, and use each channel’s own link.</p></div>
     <div class="rule"><b>Suggested line for the listing</b><p>“Explore the 3D tour: walk the site, step inside each floor and watch the sun move across the deck.”</p></div>
   </section>
 
@@ -96,7 +96,7 @@ button.copy.done{background:var(--ink);color:var(--surface);border-color:var(--i
   <section class="person" id="qr" aria-labelledby="qr-h">
     <div class="person-h"><div><h2 id="qr-h"><a class="hl" href="#qr">QR codes for print</a></h2><p>For the open home signboard and flyers. Right-click or long-press a code to save it.</p></div><div class="side"></div></div>
     <div class="qrs" id="qrs"></div>
-    <p class="note">Each code opens the 3D tour. Please put the signboard code on the open home signboard and the flyer codes on the matching flyers.</p>
+    <p class="note">Each code opens the 3D tour.</p>
   </section>
 </div>
 
@@ -107,10 +107,10 @@ const url=(src,med,camp,home,content)=>BASE+'?utm_source='+src+'&utm_medium='+me
 const PEOPLE={
   sale:{name:'Dean Tuffley',org:'Ray White · sales agent',camp:'sale',homes:[['General link','One link for any post, email, ad or channel not listed below · 16C & 16D only','',[['raywhite','general','Full tour link','Any channel']]],['16C & 16D','For sale · one listing for both','']],
     channels:[['raywhite','listing','Ray White website','Listing on the Ray White website'],['trademe','listing','TradeMe','Listing and virtual tour link'],['realestate','listing','realestate.co.nz','Listing and virtual tour link'],['oneroof','listing','OneRoof','Listing and virtual tour link'],['hougarden','listing','Hougarden','Listing and virtual tour link'],['email','database','Email','Ray White buyer database'],['facebook','social','Facebook','Posts and ads'],['instagram','social','Instagram','Bio link, stories']],
-    intro:'One listing for 16C and 16D. The tour shows only 16C and 16D: it walks through 16C, the staged home, and buyers can tap across to 16D. Please add the link to the listing’s virtual tour field and description, the buyer database email and social posts, and the signboard QR code to the open home signboard.'},
+    intro:'One listing for 16C and 16D. The tour shows only 16C and 16D: it walks through 16C, the staged home, and buyers can tap across to 16D.'},
   rent:{name:'Robin Chen',org:'Crockers · property manager',camp:'rent',homes:[['All four rentals','One general link for posts, emails or ads covering 16A, 16B, 16E and 16F together','',[['crockers','general','Full tour link','Any channel, all rentals']]],['16A','For rent · end home on the street',''],['16B','For rent',''],['16E','For rent',''],['16F','For rent · end home with side yard','']],
     channels:[['crockers','listing','Crockers website','Rental listing on crockers.co.nz'],['trademe','listing','TradeMe','Listing and virtual tour link'],['realestate','listing','realestate.co.nz','Listing and virtual tour link'],['oneroof','listing','OneRoof','Listing and virtual tour link'],['hougarden','listing','Hougarden','Listing and virtual tour link']],
-    intro:'Each rental listing has its own links. Each home’s links open a tour of that home only, with its viewing and application buttons. Please add the matching link to each listing’s virtual tour field and description.'}
+    intro:'Each rental listing has its own links. Each home’s links open a tour of that home only, with its viewing and application buttons.'}
 };
 function copyBtn(text,label,sel){   /* label: button text (default Copy); sel: what to select if the clipboard is blocked */
   label=label||'Copy';
