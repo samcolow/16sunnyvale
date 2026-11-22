@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en-NZ"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex,nofollow">
+<title>16 Sunnyvale Defects Report</title>
+<style>
+:root{--bg:#eef0f3;--surface:#fbfbf7;--fg:#1b2438;--muted:#55607a;--line:#d6dae4;--ink:#1d2a44;--open:#c0392b;--prog:#c98a12;--fixed:#2b6cb0;--closed:#2f9a63;--code:#f1f2f6;--new:#6b3fa0;color-scheme:light}
+@media (prefers-color-scheme:dark){:root{--bg:#11151d;--surface:#181e29;--fg:#e6e9f1;--muted:#9aa4bb;--line:#2b3343;--ink:#b9b6f7;--open:#ef7a6c;--prog:#e3b04b;--fixed:#7ab0ec;--closed:#5cc48d;--code:#1f2633;--new:#c4a1f0;color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:400 15px/1.5 ui-sans-serif,system-ui,-apple-system,sans-serif;padding:24px max(16px,env(safe-area-inset-left)) 64px}
+.wrap{max-width:860px;margin:0 auto;display:grid;gap:18px}
+h1{margin:0;font-size:clamp(24px,4vw,34px);line-height:1.1}
+h2{font-size:18px;margin:0 0 8px}
+.muted{color:var(--muted)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+#gate{max-width:380px;margin:12vh auto 0;display:grid;gap:12px}
+input,select,button{font:inherit;color:inherit;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:9px 11px}
+button{cursor:pointer;background:var(--ink);color:#fff;border-color:var(--ink)}
+button.sec{background:var(--surface);color:var(--fg);border-color:var(--line)}
+#err{color:var(--open);min-height:1.3em;margin:0}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.stats{display:flex;flex-wrap:wrap;gap:8px}
+.stat{padding:6px 10px;border-radius:999px;border:1px solid var(--line);font-size:13px;background:var(--surface)}
+.row{display:grid;grid-template-columns:auto 1fr auto;gap:2px 12px;padding:8px 0;border-top:1px solid var(--line)}
+.row:first-of-type{border-top:0}
+.id{font:500 12px ui-monospace,Menlo,monospace;color:var(--muted);padding-top:3px}
+.title{font-weight:600}
+.note{grid-column:2/4;font-size:13.5px;color:var(--muted);margin:0;white-space:pre-line}
+.meta{grid-column:2/4;font-size:12.5px;color:var(--muted)}
+.badge{font:600 11.5px/1 ui-monospace,Menlo,monospace;text-transform:uppercase;padding:5px 8px;border-radius:6px;border:1px solid currentColor;white-space:nowrap;align-self:start}
+.s-open{color:var(--open)}.s-in_progress{color:var(--prog)}.s-fixed{color:var(--fixed)}
+.tag{font:700 11px/1 ui-monospace,Menlo,monospace;text-transform:uppercase;padding:3px 6px;border-radius:5px;margin-right:6px;background:var(--new);color:var(--bg)}
+.tag.re{background:var(--open);color:#fff}
+.tag.nt{background:var(--prog);color:#fff}
+.sevtag{font:600 11px/1 ui-monospace,Menlo,monospace;text-transform:uppercase;padding:3px 7px;border-radius:5px;margin-right:8px}
+.sv-critical{background:var(--open);color:#fff}.sv-major{background:var(--prog);color:#fff}.sv-minor{background:var(--code);color:var(--muted);border:1px solid var(--line)}
+.sub{font-size:13px;font-weight:600;color:var(--muted);margin:10px 0 2px;text-transform:uppercase;letter-spacing:.04em}
+.hide{display:none!important}
+a{color:var(--fixed)}
+@media print{body{background:#fff;color:#000}.bar,#gate,button{display:none!important}.card{break-inside:avoid;border-color:#999}}
+</style></head><body>
+<div id="gate" class="card">
+  <h1>16 Sunnyvale Defects Report</h1>
+  <p class="muted" style="margin:0">Enter the passcode to view the report.</p>
+  <form id="f" style="display:grid;gap:10px"><input id="pw" type="password" autocomplete="current-password" placeholder="Passcode" autofocus><button>View</button></form>
+  <p id="err" role="alert"></p>
+</div>
+<div class="wrap hide" id="app">
+  <header><h1>16 Sunnyvale Road · Defects report</h1><p class="muted" id="upd" style="margin:6px 0 0"></p></header>
+  <div class="bar">
+    <label class="muted" for="per">Changes in the last</label>
+    <select id="per"><option value="7">7 days</option><option value="14">14 days</option><option value="30">30 days</option></select>
+    <button class="sec" id="copy">Copy as text</button>
+    <button class="sec" onclick="print()">Print</button>
+    <a href="/defects/">Full register</a>
+  </div>
+  <div class="stats" id="stats"></div>
+  <p class="muted" id="snaps" style="margin:0"></p>
+  <div id="flags"></div>
+  <div id="list" style="display:grid;gap:14px"></div>
+</div>
+<script>
+const $=id=>document.getElementById(id), b64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const LABEL={open:'To do',in_progress:'In progress',fixed:'Fixed, to verify'}, SEVL={critical:'Critical',major:'Major',minor:'Minor'}, RANK={critical:0,major:1,minor:2};
+const RE=/re-?open/i;
+let D=[], REF=null;
+async function fetchFirst(paths){for(const u of paths){try{const r=await fetch(u,{cache:'no-store'});if(r.ok)return r}catch(_){}}return null}
+async function unlock(pw){
+  const r=await fetchFirst(['data.enc.json','../data.enc.json']); if(!r) throw new Error('nodata');
+  const e=await r.json(), km=await crypto.subtle.importKey('raw',new TextEncoder().encode(pw),'PBKDF2',false,['deriveKey']);
+  const k=await crypto.subtle.deriveKey({name:'PBKDF2',salt:b64(e.salt),iterations:e.iter,hash:'SHA-256'},km,{name:'AES-GCM',length:256},false,['decrypt']);
+  return JSON.parse(new TextDecoder().decode(await crypto.subtle.decrypt({name:'AES-GCM',iv:b64(e.iv)},k,b64(e.ct))));
+}
+const day=s=>{const m=/^(\d{4})-(\d{2})-(\d{2})/.exec(s||'');return m?Date.UTC(+m[1],+m[2]-1,+m[3]):null};
+const fd=s=>{const t=day(s);return t==null?esc(s):new Date(t).toLocaleDateString('en-NZ',{day:'numeric',month:'short',year:'numeric',timeZone:'UTC'})};
+const desc=d=>d.title+' ('+(d.lot==='Common'?'Common':d.lot)+')';
+function model(){
+  const days=+$('per').value, cut=REF-days*864e5;
+  const notClosed=D.filter(d=>d.status!=='closed');
+  const isNew=d=>(day(d.raised)??0)>=cut;
+  const reopened=d=>(d.status==='open'||d.status==='in_progress')&&RE.test((d.progressNote||'')+' '+(d.fixNote||''));
+  const reNote=d=>d.status==='fixed'&&RE.test((d.progressNote||'')+' '+(d.fixNote||''));
+  const closedRecent=D.filter(d=>d.status==='closed'&&(day(d.closed)??0)>=cut).length;
+  return {days,notClosed,isNew,reopened,reNote,closedRecent,
+    newItems:notClosed.filter(isNew), reItems:notClosed.filter(reopened), noteItems:notClosed.filter(reNote)};
+}
+function sorted(a){return a.slice().sort((x,y)=>(RANK[x.severity]??3)-(RANK[y.severity]??3)||x.id.localeCompare(y.id))}
+function tags(d,m){return (m.isNew(d)?'<span class="tag">New</span>':'')+(m.reopened(d)?'<span class="tag re">Reopened</span>':'')+(m.reNote(d)?'<span class="tag nt">Reopened note</span>':'')}
+function row(d,m){
+  const note=d.progressNote?'Progress: '+d.progressNote:d.fixNote?'Fix note: '+d.fixNote:'';
+  return `<div class="row"><span class="id">${esc(d.id)}</span><span class="title">${tags(d,m)}${esc(d.title)}</span><span class="badge s-${esc(d.status)}">${LABEL[d.status]||esc(d.status)}</span>${note?`<p class="note">${esc(note)}</p>`:''}<span class="meta"><span class="sevtag sv-${esc(d.severity)}">${esc(SEVL[d.severity]||d.severity)}</span>${esc(d.lot)} · ${esc(d.location)} · raised ${fd(d.raised)}</span></div>`;
+}
+function render(){
+  const m=model(), nc=m.notClosed, n=s=>D.filter(d=>d.status===s).length;
+  const todo=nc.filter(d=>d.status!=='fixed'), major=todo.filter(d=>d.severity!=='minor');
+  $('stats').innerHTML=[['Closed',n('closed')+' ('+m.closedRecent+' in last '+m.days+' days)'],['Not closed',nc.length],['To do',todo.length],['Fixed, to verify',n('fixed')],['Major or critical to do',major.length],['Total',D.length]].map(([a,c])=>`<span class="stat"><b>${c}</b> ${a}</span>`).join('');
+  const fl=(t,a)=>a.length?`<div class="sub">${t} (${a.length})</div>`+sorted(a).map(d=>row(d,m)).join(''):'';
+  $('flags').innerHTML=(m.newItems.length||m.reItems.length||m.noteItems.length)?`<section class="card"><h2>New and reopened</h2>${fl('New',m.newItems)}${fl('Reopened',m.reItems)}${fl('Fixed, with a reopened note',m.noteItems)}</section>`:'<section class="card muted">No new or reopened items in this period.</section>';
+  const by={}; nc.forEach(d=>(by[d.trade||'Other']??=[]).push(d));
+  $('list').innerHTML=Object.keys(by).sort().map(t=>{const a=by[t],td=a.filter(d=>d.status!=='fixed').length,vf=a.length-td;
+    return `<section class="card"><h2>${esc(t)} <span class="muted" style="font-weight:400;font-size:14px">${td} to do${vf?`, ${vf} to verify`:''}</span></h2>${sorted(a).map(d=>row(d,m)).join('')}</section>`}).join('');
+}
+function textReport(){
+  const m=model(), nc=m.notClosed, out=[], todo=nc.filter(d=>d.status!=='fixed');
+  const line=d=>`- ${m.isNew(d)?'NEW ':''}${m.reopened(d)?'REOPENED ':''}${m.reNote(d)?'(reopened note) ':''}${d.id} (${d.lot}${d.severity!=='minor'?', '+d.severity:''}${d.status==='in_progress'?', in progress':''}): ${d.title}`;
+  out.push('16 Sunnyvale Road - open defects by trade, '+$('upd').textContent.replace('Updated ',''),'',`Closed: ${D.filter(d=>d.status==='closed').length} (${m.closedRecent} in last ${m.days} days). Not closed: ${nc.length} (to do ${todo.length}, fixed to verify ${nc.length-todo.length}).`,'');
+  if(m.newItems.length||m.reItems.length||m.noteItems.length){out.push('NEW AND REOPENED');
+    if(m.newItems.length){out.push('New:');sorted(m.newItems).forEach(d=>out.push(line(d)))}
+    if(m.reItems.length){out.push('Reopened:');sorted(m.reItems).forEach(d=>out.push(line(d)))}
+    if(m.noteItems.length){out.push('Fixed, with a reopened note:');sorted(m.noteItems).forEach(d=>out.push(line(d)))}
+    out.push('')}
+  const by={}; nc.forEach(d=>(by[d.trade||'Other']??=[]).push(d));
+  Object.keys(by).sort().forEach(t=>{out.push(t.toUpperCase());sorted(by[t]).forEach(d=>out.push(line(d)+(d.status==='fixed'?' [fixed, to verify]':'')));out.push('')});
+  return out.join('\n');
+}
+function start(data){
+  D=data.defects||[]; REF=day(data.updated)??Date.now();
+  const m=/^(\d{4})-(\d{2})-(\d{2})(?: (\d{2}):(\d{2}))?/.exec(data.updated||'');
+  $('upd').textContent=m?'Register updated '+fd(data.updated)+(m[4]?', '+new Date(Date.UTC(2000,0,1,+m[4],+m[5])).toLocaleTimeString('en-NZ',{hour:'numeric',minute:'2-digit',timeZone:'UTC'}):''):'';
+  $('gate').classList.add('hide'); $('app').classList.remove('hide'); render();
+  $('per').addEventListener('input',render);
+  fetchFirst(['snapshots.json','../snapshots.json']).then(r=>r&&r.json()).then(l=>{if(!l||!l.length)return;const here=location.pathname.replace(/\/$/,'').split('/').pop();
+    $('snaps').innerHTML=(/^\d{4}-\d{2}-\d{2}$/.test(here)?'Snapshot of '+esc(here)+'. ':'Latest. ')+'Previous reports: '+l.slice().reverse().map(d=>d===here?`<b>${esc(d)}</b>`:`<a href="/defects/report/${esc(d)}/">${esc(d)}</a>`).join(' · ')+(/^\d{4}/.test(here)?' · <a href="/defects/report/">Latest</a>':'')}).catch(()=>{});
+  $('copy').addEventListener('click',async()=>{const t=textReport();try{await navigator.clipboard.writeText(t);$('copy').textContent='Copied'}catch(_){const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();try{document.execCommand('copy');$('copy').textContent='Copied'}catch(__){$('copy').textContent='Copy failed'}ta.remove()}setTimeout(()=>$('copy').textContent='Copy as text',1800)});
+}
+$('f').addEventListener('submit',async ev=>{ev.preventDefault();$('err').textContent='';
+  try{const pw=$('pw').value; const data=await unlock(pw); try{sessionStorage.setItem('dpw',pw)}catch(_){} start(data);}
+  catch(e){$('err').textContent=e.message==='nodata'?'No defects published yet.':'Wrong passcode.'}});
+try{const p=sessionStorage.getItem('dpw'); if(p) unlock(p).then(start).catch(()=>{});}catch(_){}
+</script></body></html>

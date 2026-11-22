@@ -50,9 +50,10 @@ a{color:var(--fixed)}
     <select id="per"><option value="7">7 days</option><option value="14">14 days</option><option value="30">30 days</option></select>
     <button class="sec" id="copy">Copy as text</button>
     <button class="sec" onclick="print()">Print</button>
-    <a href="../">Full register</a>
+    <a href="/defects/">Full register</a>
   </div>
   <div class="stats" id="stats"></div>
+  <p class="muted" id="snaps" style="margin:0"></p>
   <div id="flags"></div>
   <div id="list" style="display:grid;gap:14px"></div>
 </div>
@@ -62,8 +63,9 @@ const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&g
 const LABEL={open:'To do',in_progress:'In progress',fixed:'Fixed, to verify'}, SEVL={critical:'Critical',major:'Major',minor:'Minor'}, RANK={critical:0,major:1,minor:2};
 const RE=/re-?open/i;
 let D=[], REF=null;
+async function fetchFirst(paths){for(const u of paths){try{const r=await fetch(u,{cache:'no-store'});if(r.ok)return r}catch(_){}}return null}
 async function unlock(pw){
-  const r=await fetch('../data.enc.json',{cache:'no-store'}); if(!r.ok) throw new Error('nodata');
+  const r=await fetchFirst(['data.enc.json','../data.enc.json']); if(!r) throw new Error('nodata');
   const e=await r.json(), km=await crypto.subtle.importKey('raw',new TextEncoder().encode(pw),'PBKDF2',false,['deriveKey']);
   const k=await crypto.subtle.deriveKey({name:'PBKDF2',salt:b64(e.salt),iterations:e.iter,hash:'SHA-256'},km,{name:'AES-GCM',length:256},false,['decrypt']);
   return JSON.parse(new TextDecoder().decode(await crypto.subtle.decrypt({name:'AES-GCM',iv:b64(e.iv)},k,b64(e.ct))));
@@ -116,6 +118,8 @@ function start(data){
   $('upd').textContent=m?'Register updated '+fd(data.updated)+(m[4]?', '+new Date(Date.UTC(2000,0,1,+m[4],+m[5])).toLocaleTimeString('en-NZ',{hour:'numeric',minute:'2-digit',timeZone:'UTC'}):''):'';
   $('gate').classList.add('hide'); $('app').classList.remove('hide'); render();
   $('per').addEventListener('input',render);
+  fetchFirst(['snapshots.json','../snapshots.json']).then(r=>r&&r.json()).then(l=>{if(!l||!l.length)return;const here=location.pathname.replace(/\/$/,'').split('/').pop();
+    $('snaps').innerHTML=(/^\d{4}-\d{2}-\d{2}$/.test(here)?'Snapshot of '+esc(here)+'. ':'Latest. ')+'Previous reports: '+l.slice().reverse().map(d=>d===here?`<b>${esc(d)}</b>`:`<a href="/defects/report/${esc(d)}/">${esc(d)}</a>`).join(' · ')+(/^\d{4}/.test(here)?' · <a href="/defects/report/">Latest</a>':'')}).catch(()=>{});
   $('copy').addEventListener('click',async()=>{const t=textReport();try{await navigator.clipboard.writeText(t);$('copy').textContent='Copied'}catch(_){const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();try{document.execCommand('copy');$('copy').textContent='Copied'}catch(__){$('copy').textContent='Copy failed'}ta.remove()}setTimeout(()=>$('copy').textContent='Copy as text',1800)});
 }
 $('f').addEventListener('submit',async ev=>{ev.preventDefault();$('err').textContent='';
