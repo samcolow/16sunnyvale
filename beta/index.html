@@ -186,6 +186,7 @@ main.wrap{padding-block:24px 40px;display:grid;grid-template-columns:minmax(0,1.
 .soundcorner .sndtxt{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .night .soundcorner{background:rgba(24,30,46,.88);color:#e8eaf4}
 .night .soundcorner[aria-pressed="true"]{background:#1d2a44;color:#ffffff;border-color:rgba(255,255,255,.55)}
+@media (max-width:760px){.scene:has(.skey[hidden]) .soundcorner{bottom:10px}.scene.open:has(.skey[hidden]) .soundcorner{bottom:54px}}   /* no key: the sound button drops into its place */
 @media (max-width:760px){.scene .soundcorner{bottom:44px}.scene:has(#tourcap:not([hidden])) .soundcorner{bottom:64px}.scene.open .soundcorner{bottom:86px}.scene.open:has(#tourcap:not([hidden])) .soundcorner{bottom:106px}.scene:has(#sunbar:not([hidden])) .soundcorner{bottom:128px}.scene.standing .soundcorner{bottom:56px!important}}   /* phones: the caption, key and sun bar run full width, so the button sits on top of them; at eye level it clears the Back bar */
 .homes{list-style:none;margin:6px 0 0;padding:0}
 .homes button{display:grid;grid-template-columns:44px 1fr auto auto;gap:12px;align-items:center;width:100%;padding:11px 0;border:0;border-top:1px solid var(--line);border-radius:0;box-shadow:none;background:none;color:var(--fg);font:inherit;text-align:left;cursor:pointer}
@@ -199,6 +200,7 @@ main.wrap{padding-block:24px 40px;display:grid;grid-template-columns:minmax(0,1.
 .homes button:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .site-foot{padding-block:0 32px}.site-foot .fine{margin:0}
 .skey{position:absolute;right:10px;top:54px;display:flex;gap:10px;padding:6px 10px;border-radius:999px;background:var(--chip-bg);color:var(--chip-fg);font:500 11px/1 var(--f-body);box-shadow:0 1px 3px rgba(0,0,0,.15);pointer-events:none}
+.skey[hidden]{display:none!important}
 .skey span{display:inline-flex;align-items:center;gap:5px}.skey i{width:9px;height:9px;border-radius:2px;display:inline-block}
 .spec ul.mats{list-style:none;padding-left:0}.spec ul.mats li{display:flex;gap:8px;align-items:baseline}.spec ul.mats .sw{flex:none;width:11px;height:11px;margin-top:2px}
 .spec summary{position:relative;padding-right:44px}
@@ -518,6 +520,7 @@ const lot=n=>{
 const INFO_LOCK=()=>{ if(!LOCK) return;
   const st=[...new Set(LOCK.map(n=>STATUS[n]))], word=st.length===1?(st[0]==='sale'?'for sale':st[0]==='lease'?'for rent':''):'';
   /* the heading stays '16 Sunnyvale Road' on locked links */
+  if(st.length===1){ const k=document.querySelector('.skey'); if(k) k.hidden=true; }   /* all for sale or all for rent: the For sale / For rent key only matters for a mix */
   document.querySelector('header .tagline').textContent='Explore '+LOCK_NAMES+' in 3D: walk the site, step inside each floor and watch the sun move.';
   const s1=document.querySelector('.stats .stat'); s1.querySelector('b').textContent=LOCK_NAMES; s1.querySelector('span').textContent=word||'3-storey terrace';
   const t=LOCK.map(n=>AREAS.lot(n).total); document.getElementById('statArea').textContent=Math.min(...t)===Math.max(...t)?m2(t[0]):Math.floor(Math.min(...t))+'–'+Math.floor(Math.max(...t))+' m²';
