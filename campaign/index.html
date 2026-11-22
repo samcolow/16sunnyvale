@@ -70,6 +70,13 @@ button.copy.done{background:var(--ink);color:var(--surface);border-color:var(--i
 .specs span{font-weight:500;font-size:14px}
 .specs small{display:block;color:var(--muted);font-weight:400;font-size:12.5px;line-height:1.4;margin-top:2px}
 .specs code{font-size:12px}
+.pick{border:0;margin:0;padding:0;display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px}
+.pick legend{float:left;font-weight:500;font-size:14px;margin-right:6px;padding:0}
+.pick label{cursor:pointer}
+.pick input{position:absolute;opacity:0;pointer-events:none}
+.pick span{display:inline-block;font:500 13px/1 var(--f-body);border:1px solid var(--line);border-radius:999px;padding:8px 12px;background:var(--surface)}
+.pick input:checked+span{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.pick input:focus-visible+span{outline:2px solid var(--ink);outline-offset:2px}
 @media (max-width:640px){.row{grid-template-columns:1fr auto}.row .ch{grid-column:1/-1}.person{padding:18px 14px}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
@@ -85,7 +92,7 @@ button.copy.done{background:var(--ink);color:var(--surface);border-color:var(--i
 
   <section class="rules" aria-label="How to use the links">
     <div class="rule"><b>What the link opens</b><p>A guided 3D tour of the site and a home inside, floor by floor. Visitors can then explore the homes and see the sun on the decks at any time of day. Dean’s links show 16C and 16D only, and each rental home’s own links show that home only.</p></div>
-    <div class="rule"><b>Tour-only listing links</b><p>Listing links end in <code>&amp;view=tour</code>, so they show just the 3D tour, the homes and your contact details; the listing already has the features and specification. To include the features and specification, tick <b class="inl">Include features and specification</b> in your section, or delete <code>&amp;view=tour</code> from the end of a link (keep everything before it). General, email, social and QR links always show the full page.</p></div>
+    <div class="rule"><b>Tour-only links</b><p>Listing and general links end in <code>&amp;view=tour</code>, so they show just the 3D tour, the homes and your contact details; the listing already has the features and specification. To include the features and specification, tick <b class="inl">Include features and specification</b> in your section, or delete <code>&amp;view=tour</code> from the end of a link (keep everything before it). Email, social and QR links always show the full page.</p></div>
     <div class="rule"><b>Use the full link</b><p>Copy each link as it is, including everything after the <code>?</code>, and use each channel’s own link.</p></div>
     <div class="rule"><b>Suggested line for the listing</b><p>“Explore the 3D tour: walk the site, step inside each floor and watch the sun move across the deck.”</p></div>
   </section>
@@ -103,12 +110,17 @@ button.copy.done{background:var(--ink);color:var(--surface);border-color:var(--i
 <script src="qrcode.min.js"></script>
 <script>
 const BASE='https://16sunnyvale.sasu.co.nz/';
-const url=(src,med,camp,home,content)=>BASE+'?utm_source='+src+'&utm_medium='+med+'&utm_campaign='+camp+(content?'&utm_content='+content.toLowerCase():'')+(camp==='sale'?'&homes=16c,16d':camp==='rent'&&/^16[a-f]$/i.test(content||'')?'&homes='+content.toLowerCase():'')+(med==='listing'?'&view=tour':'')+(home?'#'+home.toLowerCase():'');   /* listing links open the tour-only page: the listing already has the highlights and spec */   /* no #: the full guided tour plays; utm_content says which listing it came from */
+const url=(src,med,camp,home,content,o)=>{ o=o||{};   /* o.specs: include features and specification (no &view=tour); o.homes: sale homes to show (default 16c,16d) */
+  const hm=camp==='sale'?(o.homes||'16c,16d'):camp==='rent'&&/^16[a-f]$/i.test(content||'')?content.toLowerCase():'';
+  const tour=(med==='listing'||med==='general')&&!o.specs;
+  return BASE+'?utm_source='+src+'&utm_medium='+med+'&utm_campaign='+camp+(content?'&utm_content='+content.toLowerCase():'')+(hm?'&homes='+hm:'')+(tour?'&view=tour':'')+(home?'#'+home.toLowerCase():''); };
+const OPT={sale:{specs:false,homes:'16c,16d'},rent:{specs:false}};
+const SALE_HOMES=[['16c,16d','16C & 16D'],['16c','16C only'],['16d','16D only']];   /* listing links open the tour-only page: the listing already has the highlights and spec */   /* no #: the full guided tour plays; utm_content says which listing it came from */
 const PEOPLE={
-  sale:{name:'Dean Tuffley',org:'Ray White · sales agent',camp:'sale',homes:[['General link','One link for any post, email, ad or channel not listed below · 16C & 16D only','',[['raywhite','general','Full tour link','Any channel']]],['16C & 16D','For sale · one listing for both','']],
+  sale:{name:'Dean Tuffley',org:'Ray White · sales agent',camp:'sale',homes:[['General link','One link for any post, email, ad or channel not listed below','',[['raywhite','general','General link','Any channel']]],['16C & 16D','For sale · one listing for both','']],
     channels:[['raywhite','listing','Ray White website','Listing on the Ray White website'],['trademe','listing','TradeMe','Listing and virtual tour link'],['realestate','listing','realestate.co.nz','Listing and virtual tour link'],['oneroof','listing','OneRoof','Listing and virtual tour link'],['hougarden','listing','Hougarden','Listing and virtual tour link'],['email','database','Email','Ray White buyer database'],['facebook','social','Facebook','Posts and ads'],['instagram','social','Instagram','Bio link, stories']],
-    intro:'One listing for 16C and 16D. The tour shows only 16C and 16D: it walks through 16C, the staged home, and buyers can tap across to 16D.'},
-  rent:{name:'Robin Chen',org:'Crockers · property manager',camp:'rent',homes:[['All four rentals','One general link for posts, emails or ads covering 16A, 16B, 16E and 16F together','',[['crockers','general','Full tour link','Any channel, all rentals']]],['16A','For rent · end home on the street',''],['16B','For rent',''],['16E','For rent',''],['16F','For rent · end home with side yard','']],
+    intro:'One listing for 16C and 16D. The tour walks through 16C, the staged home, and buyers can tap across to 16D. Pick one home below for links that show only that home.'},
+  rent:{name:'Robin Chen',org:'Crockers · property manager',camp:'rent',homes:[['All four rentals','One general link for posts, emails or ads covering 16A, 16B, 16E and 16F together','',[['crockers','general','General link','Any channel, all rentals']]],['16A','For rent · end home on the street',''],['16B','For rent',''],['16E','For rent',''],['16F','For rent · end home with side yard','']],
     channels:[['crockers','listing','Crockers website','Rental listing on crockers.co.nz'],['trademe','listing','TradeMe','Listing and virtual tour link'],['realestate','listing','realestate.co.nz','Listing and virtual tour link'],['oneroof','listing','OneRoof','Listing and virtual tour link'],['hougarden','listing','Hougarden','Listing and virtual tour link']],
     intro:'Each rental listing has its own links. Each home’s links open a tour of that home only, with its viewing and application buttons.'}
 };
@@ -130,9 +142,16 @@ Object.entries(PEOPLE).forEach(([k,P])=>{
   const msg=document.createElement('p'); msg.className='intro'; msg.textContent=P.intro; sec.insertBefore(msg,sec.querySelector('.homes'));
   /* specs toggle: listing links drop &view=tour, so they open the full page with features and specification; nothing else changes */
   const sp=document.createElement('label'); sp.className='specs';
-  sp.innerHTML='<input type="checkbox"><div><span>Include features and specification in listing links</span><small>Off: listing links open the 3D tour only (they end in <code>&amp;view=tour</code>). On: they open the full page, with the features and specification too.</small></div>';
+  sp.innerHTML='<input type="checkbox"><div><span>Include features and specification</span><small>Off: the general and listing links open the 3D tour only (they end in <code>&amp;view=tour</code>). On: they open the full page, with the features and specification too.</small></div>';
+  const refresh=()=>{ sec.querySelectorAll('.row').forEach(r=>{ r.querySelector('.url').textContent=url(...r._a,OPT[k]); });
+    if(k==='sale'){ const t=SALE_HOMES.find(x=>x[0]===OPT.sale.homes)[1]; sec.querySelector('#sale-16c-16d h3 a').textContent=t; } };
+  sp.querySelector('input').addEventListener('change',e=>{ OPT[k].specs=e.target.checked; refresh(); });
+  if(k==='sale'){   /* homes picker: both homes (default), or one of them */
+    const f=document.createElement('fieldset'); f.className='pick'; f.innerHTML='<legend>Homes in the links</legend>';
+    SALE_HOMES.forEach(([v,t],i)=>{ const l=document.createElement('label'); l.innerHTML='<input type="radio" name="salehomes"><span></span>'; l.querySelector('input').value=v; l.querySelector('input').checked=!i; l.querySelector('span').textContent=t; f.append(l); });
+    f.addEventListener('change',e=>{ OPT.sale.homes=e.target.value; refresh(); });
+    sec.insertBefore(f,sec.querySelector('.homes')); }
   sec.insertBefore(sp,sec.querySelector('.homes'));
-  sp.querySelector('input').addEventListener('change',e=>{ sec.querySelectorAll('.row').forEach(r=>{ r.querySelector('.url').textContent=e.target.checked?r.dataset.base.replace('&view=tour',''):r.dataset.base; }); });
   const homes=sec.querySelector('.homes');
   P.homes.forEach(([h,sub,hash,own])=>{
     const d=document.createElement('div'); d.className='home';
@@ -140,12 +159,12 @@ Object.entries(PEOPLE).forEach(([k,P])=>{
     d.id=k+'-'+(own?'general':h.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,''));   /* e.g. #sale-16c-16d, #rent-16a */
     d.querySelector('h3').innerHTML='<a class="hl"></a>'; d.querySelector('h3 a').href='#'+d.id; d.querySelector('h3 a').textContent=h; d.querySelector('span').textContent=sub;
     (own||P.channels).forEach(([src,med,label,hint])=>{
-      const u=url(src,med,P.camp,hash===''?null:(hash||h),k==='rent'?(own?'all':h):null), r=document.createElement('div'); r.className='row';
+      const a=[src,med,P.camp,hash===''?null:(hash||h),k==='rent'?(own?'all':h):null], u=url(...a,OPT[k]), r=document.createElement('div'); r.className='row'; r._a=a;
       r.innerHTML='<div class="ch"></div><div class="url"></div>';
       r.querySelector('.ch').textContent=label; const sm=document.createElement('small'); sm.textContent=hint; r.querySelector('.ch').append(sm);
-      r.dataset.base=u; r.dataset.label=label; r.querySelector('.url').textContent=u; r.append(copyBtn(()=>r.querySelector('.url').textContent)); d.querySelector('.links').append(r);
+      r.dataset.label=label; r.querySelector('.url').textContent=u; r.append(copyBtn(()=>r.querySelector('.url').textContent)); d.querySelector('.links').append(r);
     });
-    const ca=copyBtn(()=>h+' · 3D tour links\n'+[...d.querySelectorAll('.row')].map(r=>r.dataset.label+': '+r.querySelector('.url').textContent).join('\n'),'Copy all',d.querySelector('.links')); ca.classList.add('all'); d.querySelector('.home-h').append(ca);
+    const ca=copyBtn(()=>d.querySelector('h3').textContent+' · 3D tour links\n'+[...d.querySelectorAll('.row')].map(r=>r.dataset.label+': '+r.querySelector('.url').textContent).join('\n'),'Copy all',d.querySelector('.links')); ca.classList.add('all'); d.querySelector('.home-h').append(ca);
     homes.append(d);
   });
 });

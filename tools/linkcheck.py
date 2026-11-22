@@ -31,6 +31,8 @@ FIXED = [
   ('?homes=16a#16a-l2',               {'gate': False, 'tour': False, 'home': 'lot1', 'floor': 3}),
   ('?homes=16a#16c-l1',               {'gate': True,  'tour': False, 'home': 'lot1', 'floor': 0}),
   ('?homes=16c,16d',                  {'gate': True,  'tour': False, 'home': None, 'floor': 0}),
+  ('?homes=16c&view=tour',            {'gate': True,  'tour': True,  'home': 'lot3', 'floor': 0}),   # campaign page: Dean's single-home links
+  ('?homes=16d',                      {'gate': True,  'tour': False, 'home': 'lot4', 'floor': 0}),
 ]
 
 class Quiet(http.server.SimpleHTTPRequestHandler):
