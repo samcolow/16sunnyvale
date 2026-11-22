@@ -64,6 +64,12 @@ button.copy.done{background:var(--ink);color:var(--surface);border-color:var(--i
 .qr small{font-size:11.5px;color:#55607a;line-height:1.3}
 .note{color:var(--muted);font-size:13.5px;margin:0}
 .intro{margin:0;max-width:72ch}
+.rule b.inl{display:inline;font-weight:600;margin:0}
+.specs{display:flex;gap:10px;align-items:flex-start;background:var(--code);border-radius:10px;padding:10px 12px;cursor:pointer;max-width:72ch}
+.specs input{width:18px;height:18px;margin:2px 0 0;accent-color:var(--ink);flex:none;cursor:pointer}
+.specs span{font-weight:500;font-size:14px}
+.specs small{display:block;color:var(--muted);font-weight:400;font-size:12.5px;line-height:1.4;margin-top:2px}
+.specs code{font-size:12px}
 @media (max-width:640px){.row{grid-template-columns:1fr auto}.row .ch{grid-column:1/-1}.person{padding:18px 14px}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
@@ -79,7 +85,7 @@ button.copy.done{background:var(--ink);color:var(--surface);border-color:var(--i
 
   <section class="rules" aria-label="How to use the links">
     <div class="rule"><b>What the link opens</b><p>A guided 3D tour of the site and a home inside, floor by floor. Visitors can then explore the homes and see the sun on the decks at any time of day. Dean’s links show 16C and 16D only, and each rental home’s own links show that home only.</p></div>
-    <div class="rule"><b>Tour-only listing links</b><p>Links for listings end in <code>&amp;view=tour</code>. They show just the 3D tour, the homes and your contact details, since the listing already has the features and specification. To show the full features and specification as well, delete <code>&amp;view=tour</code> from the end of the link.</p></div>
+    <div class="rule"><b>Tour-only listing links</b><p>Listing links end in <code>&amp;view=tour</code>, so they show just the 3D tour, the homes and your contact details; the listing already has the features and specification. To include the features and specification, tick <b class="inl">Include features and specification</b> in your section, or delete <code>&amp;view=tour</code> from the end of a link (keep everything before it). General, email, social and QR links always show the full page.</p></div>
     <div class="rule"><b>Use the full link</b><p>Copy each link as it is, including everything after the <code>?</code>. Please don’t shorten it or reuse one channel’s link on another.</p></div>
     <div class="rule"><b>Suggested line for the listing</b><p>“Explore the 3D tour: walk the site, step inside each floor and watch the sun move across the deck.”</p></div>
   </section>
@@ -110,7 +116,7 @@ function copyBtn(text,label,sel){   /* label: button text (default Copy); sel: w
   label=label||'Copy';
   const b=document.createElement('button'); b.type='button'; b.className='copy'; b.textContent=label;
   b.addEventListener('click',async()=>{
-    try{ await navigator.clipboard.writeText(text); b.textContent='Copied'; b.classList.add('done'); }
+    try{ await navigator.clipboard.writeText(typeof text==='function'?text():text); b.textContent='Copied'; b.classList.add('done'); }
     catch(e){ const el=sel||b.previousElementSibling; if(el){ const r=document.createRange(); r.selectNodeContents(el); const s=getSelection(); s.removeAllRanges(); s.addRange(r);} b.textContent='Selected'; }
     setTimeout(()=>{ b.textContent=label; b.classList.remove('done'); },1600);
   });
@@ -122,19 +128,24 @@ Object.entries(PEOPLE).forEach(([k,P])=>{
   sec.querySelector('h2 a').textContent=(k==='sale'?'Sale':'Rentals')+' · '+P.name; sec.querySelector('.person-h p').textContent=P.org;
   sec.querySelector('.tag').textContent=k==='sale'?'For sale':'For rent';
   const msg=document.createElement('p'); msg.className='intro'; msg.textContent=P.intro; sec.insertBefore(msg,sec.querySelector('.homes'));
+  /* specs toggle: listing links drop &view=tour, so they open the full page with features and specification; nothing else changes */
+  const sp=document.createElement('label'); sp.className='specs';
+  sp.innerHTML='<input type="checkbox"><div><span>Include features and specification in listing links</span><small>Off: listing links open the 3D tour only (they end in <code>&amp;view=tour</code>). On: they open the full page, with the features and specification too.</small></div>';
+  sec.insertBefore(sp,sec.querySelector('.homes'));
+  sp.querySelector('input').addEventListener('change',e=>{ sec.querySelectorAll('.row').forEach(r=>{ r.querySelector('.url').textContent=e.target.checked?r.dataset.base.replace('&view=tour',''):r.dataset.base; }); });
   const homes=sec.querySelector('.homes');
   P.homes.forEach(([h,sub,hash,own])=>{
     const d=document.createElement('div'); d.className='home';
     d.innerHTML='<div class="home-h"><h3></h3><span></span></div><div class="links"></div>';
     d.id=k+'-'+(own?'general':h.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,''));   /* e.g. #sale-16c-16d, #rent-16a */
-    d.querySelector('h3').innerHTML='<a class="hl"></a>'; d.querySelector('h3 a').href='#'+d.id; d.querySelector('h3 a').textContent=h; d.querySelector('span').textContent=sub; const all=[];
+    d.querySelector('h3').innerHTML='<a class="hl"></a>'; d.querySelector('h3 a').href='#'+d.id; d.querySelector('h3 a').textContent=h; d.querySelector('span').textContent=sub;
     (own||P.channels).forEach(([src,med,label,hint])=>{
       const u=url(src,med,P.camp,hash===''?null:(hash||h),k==='rent'?(own?'all':h):null), r=document.createElement('div'); r.className='row';
       r.innerHTML='<div class="ch"></div><div class="url"></div>';
       r.querySelector('.ch').textContent=label; const sm=document.createElement('small'); sm.textContent=hint; r.querySelector('.ch').append(sm);
-      r.querySelector('.url').textContent=u; r.append(copyBtn(u)); d.querySelector('.links').append(r); all.push(label+': '+u);
+      r.dataset.base=u; r.dataset.label=label; r.querySelector('.url').textContent=u; r.append(copyBtn(()=>r.querySelector('.url').textContent)); d.querySelector('.links').append(r);
     });
-    const ca=copyBtn(h+' · 3D tour links\n'+all.join('\n'),'Copy all',d.querySelector('.links')); ca.classList.add('all'); d.querySelector('.home-h').append(ca);
+    const ca=copyBtn(()=>h+' · 3D tour links\n'+[...d.querySelectorAll('.row')].map(r=>r.dataset.label+': '+r.querySelector('.url').textContent).join('\n'),'Copy all',d.querySelector('.links')); ca.classList.add('all'); d.querySelector('.home-h').append(ca);
     homes.append(d);
   });
 });
